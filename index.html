@@ -495,7 +495,7 @@ async function api(base, path, method, body){
 }
 
 async function findCustomer(name){
-  const d = await api(INV, `/contacts?contact_name_contains=${encodeURIComponent(name)}&contact_type=customer`);
+  const d = await api(INV, `/contacts?search_text=${encodeURIComponent(name)}&contact_type=customer`);
   if(d.code!==0||!d.contacts?.length) return null;
   const c = d.contacts[0];
   let bal=0;
