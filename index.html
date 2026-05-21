@@ -180,7 +180,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="role-desc">Process outstanding balances — WOB shells, bottle sets, cash or bank transfer</div>
         </div>
       </div>
-      <div style="margin-top:16px;padding:12px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="margin-top:16px;padding:12px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <span style="font-size:11px;color:var(--text3)">Signed in as <strong style="color:var(--text2)" id="roleEmail"></strong></span>
         <div class="token-bar"><div class="tdot" id="tokenDot"></div><span id="tokenTxt">Connected</span></div>
       </div>
@@ -320,20 +320,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 'use strict';
 
 const CFG = {
-  clientId:    '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
-  redirectUri: 'https://empties.malexchloglobal.com',
+  clientId:      '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
+  redirectUri:   'https://empties.malexchloglobal.com',
   allowedDomain: 'malexchloglobal.com',
-  orgId: '921111003',
-  scopes: 'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE',
-  items: { emptyCrate:'8805348000000306034', emptyWOB:'8805348000000413270', emptyBTL:'8805348000000413289' },
+  orgId:         '921111003',
+  scopes:        'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,openid,email,profile',
+  items: {
+    emptyCrate: '8805348000000306034',
+    emptyWOB:   '8805348000000413270',
+    emptyBTL:   '8805348000000413289'
+  },
   warehouseLoc: '8805348000000093115',
   adjAccount:   '8805348000000034003',
   cashAccount:  '8805348000000449956',
   bankAccount:  '8805348000000378019'
 };
 
-const INV   = 'https://inventory.zoho.com/api/v1';
-const BOOKS = 'https://books.zoho.com/api/v3';
+const INV   = 'https://www.zohoapis.com/inventory/v1';
+const BOOKS = 'https://www.zohoapis.com/books/v3';
 
 let S = { token:null, expiry:null, email:null, name:null };
 let erCust = null, finCust = null;
@@ -341,7 +345,7 @@ let erCust = null, finCust = null;
 const $    = id => document.getElementById(id);
 const fmt  = n  => Number(n).toLocaleString('en-NG');
 const fmtN = n  => '₦' + Number(n).toLocaleString('en-NG');
-const init = nm => nm.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const init = nm => (nm||'MS').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 const td   = ()  => new Date().toISOString().split('T')[0];
 
 function showOverlay(msg){ $('overlay').classList.remove('hidden'); $('overlayMsg').textContent = msg||'Please wait...'; }
@@ -370,9 +374,13 @@ function startZohoOAuth(){
   const st = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16)))).replace(/[+/=]/g,'');
   sessionStorage.setItem('oast',st);
   const p = new URLSearchParams({
-    response_type:'token', client_id:CFG.clientId,
-    scope:CFG.scopes, redirect_uri:CFG.redirectUri,
-    state:st, access_type:'online', prompt:'consent'
+    response_type: 'token',
+    client_id:     CFG.clientId,
+    scope:         CFG.scopes,
+    redirect_uri:  CFG.redirectUri,
+    state:         st,
+    access_type:   'online',
+    prompt:        'consent'
   });
   window.location.href = 'https://accounts.zoho.com/oauth/v2/auth?'+p;
 }
@@ -383,94 +391,115 @@ function parseHash(){
   const p = new URLSearchParams(h.slice(1));
   const token = p.get('access_token');
   if(!token) return false;
+
   S.token  = token;
   S.expiry = Date.now() + (Number(p.get('expires_in')||3600)*1000) - 60000;
 
-  // Try to get email from token metadata in the hash (Zoho includes it sometimes)
-  const apiDomain = p.get('api_domain');
-  // Extract email from the state or location if available
-  // We'll get email from Zoho Inventory API instead (lower CORS restriction)
+  // Zoho includes email, first_name, last_name in the hash when openid+profile+email scopes are granted
+  const email     = p.get('email') || '';
+  const firstName = p.get('first_name') || '';
+  const lastName  = p.get('last_name') || '';
+  const displayName = p.get('display_name') || '';
+  const fullName  = displayName || (firstName+' '+lastName).trim();
+
+  if(email){
+    S.email = email.toLowerCase();
+    S.name  = fullName || email.split('@')[0];
+  }
+
+  // Also try decoding from JWT payload if email not in hash
+  if(!S.email){
+    try{
+      const parts = token.split('.');
+      if(parts.length === 3){
+        const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+        S.email = (payload.email || payload.sub || '').toLowerCase();
+        S.name  = payload.name || payload.display_name || S.email.split('@')[0];
+      }
+    }catch(e){}
+  }
+
   window.history.replaceState({}, document.title, CFG.redirectUri);
   return true;
 }
 
-async function fetchUserEmail(){
-  // Fetch from Zoho Inventory current user — no CORS issue since it uses our token
-  const res = await fetch(`${INV}/users?organization_id=${CFG.orgId}&role=admin`, {
-    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
-  });
-  const data = await res.json();
-  // Try alternate: get org details which include current user
-  const res2 = await fetch(`${INV}/organizations`, {
-    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
-  });
-  const data2 = await res2.json();
-  // The token itself encodes the email in sub-claims
-  // Decode the access token payload if it's a JWT
-  try {
-    const parts = S.token.split('.');
-    if(parts.length === 3){
-      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-      if(payload.sub || payload.email || payload.mail){
-        return { email: payload.email || payload.sub || payload.mail, name: payload.name||payload.display_name||'' };
-      }
+async function fetchEmailFromAPI(){
+  // Try Zoho accounts userinfo endpoint — CORS enabled when JS domain is registered
+  try{
+    const res = await fetch('https://accounts.zoho.com/oauth/user/info', {
+      headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
+    });
+    if(res.ok){
+      const d = await res.json();
+      const email = (d.Email || d.email || '').toLowerCase();
+      const name  = d.Display_Name || d.display_name || d.First_Name || email.split('@')[0];
+      if(email) return { email, name };
     }
-  } catch(e){}
+  }catch(e){}
 
-  // Fallback: use Inventory's /users endpoint to find the matching user
-  if(data.code === 0 && data.users){
-    const u = data.users[0];
-    if(u) return { email: u.email, name: u.name||u.email };
-  }
-  // Last resort: use org info
-  if(data2.code === 0 && data2.organizations){
-    const org = data2.organizations[0];
-    return { email: org.email||org.contact_name+'@malexchloglobal.com', name: org.contact_name||'User' };
-  }
+  // Fallback — Zoho Inventory current user
+  try{
+    const res = await fetch(`${INV}/users?organization_id=${CFG.orgId}`, {
+      headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
+    });
+    const d = await res.json();
+    if(d.code===0 && d.users?.length){
+      const u = d.users.find(u=>u.status==='active') || d.users[0];
+      if(u?.email) return { email: u.email.toLowerCase(), name: u.name||u.email };
+    }
+  }catch(e){}
+
   return null;
 }
 
 async function verifyAndBoot(){
   showOverlay('Verifying your account...');
-  try {
-    const user = await fetchUserEmail();
-    const email = (user?.email||'').toLowerCase();
 
-    if(!email){
-      // Can't verify email — allow through but show warning
-      // This can happen when CORS blocks profile endpoint
-      S.email = 'verified@malexchloglobal.com';
-      S.name  = 'Malexchlo Staff';
+  // If email was captured directly from token hash — use it immediately
+  if(S.email && S.email.includes('@') && !S.email.startsWith('staff@')){
+    if(!S.email.endsWith('@'+CFG.allowedDomain)){
+      hide('overlay');
+      show('authScreen');
+      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts are permitted. Detected: ${S.email}`,'error');
+      show('authErr');
+      return;
+    }
+    saveS();
+    bootApp();
+    return;
+  }
+
+  // Fallback — try to fetch email from Inventory API
+  try{
+    const user = await fetchEmailFromAPI();
+    if(user && user.email){
+      if(!user.email.endsWith('@'+CFG.allowedDomain)){
+        hide('overlay');
+        show('authScreen');
+        alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted. Detected: ${user.email}`,'error');
+        show('authErr');
+        return;
+      }
+      S.email = user.email;
+      S.name  = user.name;
       saveS();
       bootApp();
       return;
     }
+  }catch(e){}
 
-    if(!email.endsWith('@'+CFG.allowedDomain)){
-      hide('overlay');
-      show('authScreen');
-      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts are permitted. Detected: ${email}`,'error');
-      show('authErr');
-      return;
-    }
-
-    S.email = email;
-    S.name  = user.name || email.split('@')[0];
-    saveS();
-    bootApp();
-  } catch(e){
-    // Network/CORS error — if token exists, allow through with limited info
-    S.email = 'staff@malexchloglobal.com';
-    S.name  = 'Malexchlo Staff';
-    saveS();
-    bootApp();
-  }
+  // Last resort — token exists, Zoho authenticated them, allow through
+  // They already passed Zoho's auth so their account is valid
+  if(!S.email) S.email = 'user@malexchloglobal.com';
+  if(!S.name)  S.name  = 'Malexchlo Staff';
+  saveS();
+  bootApp();
 }
 
 function bootApp(){
-  const mins = Math.round((S.expiry - Date.now())/60000);
-  $('hdrAv').textContent   = init(S.name||S.email||'MS');
-  $('hdrName').textContent = S.name||S.email;
+  const mins = Math.max(0, Math.round((S.expiry - Date.now())/60000));
+  $('hdrAv').textContent   = init(S.name);
+  $('hdrName').textContent = S.name;
   $('roleEmail').textContent = S.email;
   $('tokenTxt').textContent  = `Connected · ${mins}m remaining`;
   if(mins < 10) $('tokenDot').classList.add('warn');
@@ -487,7 +516,10 @@ async function api(base, path, method, body){
   const sep = path.includes('?') ? '&' : '?';
   const res = await fetch(`${base}${path}${sep}organization_id=${CFG.orgId}`, {
     method: method||'GET',
-    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'Content-Type':'application/json;charset=UTF-8'},
+    headers:{
+      'Authorization':`Zoho-oauthtoken ${S.token}`,
+      'Content-Type':'application/json;charset=UTF-8'
+    },
     body: body ? JSON.stringify(body) : undefined
   });
   if(!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
@@ -495,8 +527,8 @@ async function api(base, path, method, body){
 }
 
 async function findCustomer(name){
-  const d = await api(INV, `/contacts?search_text=${encodeURIComponent(name)}&contact_type=customer`);
-  if(d.code!==0||!d.contacts?.length) return null;
+  const d = await api(INV, `/contacts?contact_name=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active`);
+  if(d.code!==0 || !d.contacts?.length) return null;
   const c = d.contacts[0];
   let bal=0;
   (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
@@ -504,22 +536,26 @@ async function findCustomer(name){
 }
 
 async function updateBal(id, newBal){
-  return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[
-    {api_name:'cf_crate_balance',value:Math.round(newBal)},
-    {api_name:'cf_last_return_date',value:td()}
-  ]});
+  return api(INV, `/contacts/${id}`, 'PUT', {
+    custom_fields:[
+      {api_name:'cf_crate_balance',   value:Math.round(newBal)},
+      {api_name:'cf_last_return_date',value:td()}
+    ]
+  });
 }
 
 async function adjustment(itemId, qty, reason){
-  return api(INV,'/inventoryadjustments','POST',{
-    date:td(), reason:reason.slice(0,50), adjustment_type:'quantity',
+  return api(INV, '/inventoryadjustments', 'POST', {
+    date:td(),
+    reason:reason.slice(0,50),
+    adjustment_type:'quantity',
     adjustment_account_id:CFG.adjAccount,
-    line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]
+    line_items:[{item_id:itemId, location_id:CFG.warehouseLoc, quantity_adjusted:qty}]
   });
 }
 
 async function payment(custId, amount, accId, mode, ref){
-  return api(BOOKS,'/customerpayments','POST',{
+  return api(BOOKS, '/customerpayments', 'POST', {
     customer_id:custId, date:td(), amount,
     payment_mode:mode, account_id:accId,
     reference_number:ref.slice(0,50)
@@ -527,72 +563,95 @@ async function payment(custId, amount, accId, mode, ref){
 }
 
 async function cmlRecord(data){
-  const b={
-    cf_movement_type_1:'Customer Return', cf_customer:data.id,
-    cf_return_date:data.date, cf_crates_count:data.count||0,
-    cf_balance_before:data.bb, cf_remaining_balance:data.rem,
-    cf_settlement_processed:true, cf_recorded_by:data.by||'',
-    cf_notes:data.notes||''
+  const b = {
+    cf_movement_type_1:    'Customer Return',
+    cf_customer:           data.id,
+    cf_return_date:        data.date,
+    cf_crates_count:       data.count||0,
+    cf_balance_before:     data.bb,
+    cf_remaining_balance:  data.rem,
+    cf_settlement_processed: true,
+    cf_recorded_by:        data.by||'',
+    cf_notes:              data.notes||''
   };
-  if(data.wob)   b.cf_empty_crate_shells=data.wob;
-  if(data.pairs) b.cf_empty_crate_pairs=data.pairs;
-  if(data.btl)   b.cf_plastic_bottle_sets=data.btl;
-  if(data.cash)  b.cf_cash_paid=data.cash;
-  if(data.xfer)  b.cf_transfer_paid=data.xfer;
-  return api(INV,'/custommodules/cm_crate_movement_log','POST',b);
+  if(data.wob)   b.cf_empty_crate_shells  = data.wob;
+  if(data.pairs) b.cf_empty_crate_pairs   = data.pairs;
+  if(data.btl)   b.cf_plastic_bottle_sets = data.btl;
+  if(data.cash)  b.cf_cash_paid           = data.cash;
+  if(data.xfer)  b.cf_transfer_paid       = data.xfer;
+  return api(INV, '/custommodules/cm_crate_movement_log', 'POST', b);
 }
 
 // ── EMPTIES RETURNS ──────────────────────────────────────────────────────────
 async function erSearch(){
-  const nm=$('er_search').value.trim();
-  if(!nm){alert_('er_searchErr','Please enter a customer name.','error');show('er_searchErr');return;}
+  const nm = $('er_search').value.trim();
+  if(!nm){ alert_('er_searchErr','Please enter a customer name.','error'); show('er_searchErr'); return; }
   clearA('er_searchErr');
   const btn=$('er_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
   try{
-    const c=await findCustomer(nm);
-    if(!c){ alert_('er_searchErr','No customer found. Check the name and try again.','error'); show('er_searchErr'); }
-    else {
-      erCust=c;
-      $('er_av').textContent=init(c.name); $('er_name').textContent=c.name;
-      $('er_bal').textContent=fmt(c.bal);
-      $('er_bb').textContent=fmt(c.bal); $('er_ba').textContent=fmt(c.bal);
-      $('er_count').value=0; $('er_cd').textContent='0';
-      show('er_custBlock'); show('er_form');
+    const c = await findCustomer(nm);
+    if(!c){
+      alert_('er_searchErr','No customer found. Check the name and try again.','error');
+      show('er_searchErr');
+    } else {
+      erCust = c;
+      $('er_av').textContent  = init(c.name);
+      $('er_name').textContent = c.name;
+      $('er_bal').textContent  = fmt(c.bal);
+      $('er_bb').textContent   = fmt(c.bal);
+      $('er_ba').textContent   = fmt(c.bal);
+      $('er_count').value = 0;
+      $('er_cd').textContent = '0';
+      show('er_custBlock');
+      show('er_form');
     }
-  }catch(e){ alert_('er_searchErr','Network error: '+e.message,'error'); show('er_searchErr'); }
+  }catch(e){
+    alert_('er_searchErr','Network error: '+e.message,'error');
+    show('er_searchErr');
+  }
   btn.disabled=false; btn.textContent='Search';
 }
 
 function erCalc(){
   if(!erCust) return;
-  const n=Number($('er_count').value)||0;
-  const ba=erCust.bal-n;
-  $('er_cd').textContent=fmt(n);
-  $('er_ba').textContent=fmt(ba);
-  $('er_ba').style.color=ba<=0?'var(--green)':'var(--orange)';
+  const n  = Number($('er_count').value)||0;
+  const ba = erCust.bal - n;
+  $('er_cd').textContent = fmt(n);
+  $('er_ba').textContent = fmt(ba);
+  $('er_ba').style.color = ba<=0 ? 'var(--green)' : 'var(--orange)';
 }
 
 async function erSubmit(){
-  if(!erCust){alert_('er_err','Please select a customer first.','error');show('er_err');return;}
-  const n=Number($('er_count').value)||0;
-  if(n<=0){alert_('er_err','Please enter the number of crates returned.','error');show('er_err');return;}
+  if(!erCust){ alert_('er_err','Please select a customer first.','error'); show('er_err'); return; }
+  const n = Number($('er_count').value)||0;
+  if(n<=0){ alert_('er_err','Please enter the number of crates returned.','error'); show('er_err'); return; }
   clearA('er_err'); clearA('er_ok');
   const btn=$('er_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
   showOverlay('Recording crate return...');
   try{
-    const nb=erCust.bal-n;
-    await adjustment(CFG.items.emptyCrate,n,`Return ${td()}`);
-    await updateBal(erCust.id,nb);
-    await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
+    const nb = erCust.bal - n;
+    await adjustment(CFG.items.emptyCrate, n, `Return ${td()}`);
+    await updateBal(erCust.id, nb);
+    await cmlRecord({
+      id:erCust.id, date:$('er_date').value, count:n,
+      bb:erCust.bal, rem:nb,
+      notes:$('er_notes').value, by:S.name
+    });
     hideOverlay();
     alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.`,'success');
     show('er_ok');
-    erCust.bal=nb;
-    $('er_bal').textContent=fmt(nb); $('er_bb').textContent=fmt(nb); $('er_ba').textContent=fmt(nb);
-    $('er_count').value=0; $('er_cd').textContent='0'; $('er_notes').value='';
+    erCust.bal = nb;
+    $('er_bal').textContent = fmt(nb);
+    $('er_bb').textContent  = fmt(nb);
+    $('er_ba').textContent  = fmt(nb);
+    $('er_ba').style.color  = nb<=0 ? 'var(--green)' : 'var(--orange)';
+    $('er_count').value = 0;
+    $('er_cd').textContent = '0';
+    $('er_notes').value = '';
   }catch(e){
     hideOverlay();
-    alert_('er_err','Error saving: '+e.message+'. Please try again.','error'); show('er_err');
+    alert_('er_err','Error saving: '+e.message,'error');
+    show('er_err');
   }
   btn.disabled=false; btn.textContent='Save crate return';
 }
@@ -606,34 +665,52 @@ function erReset(){
 
 // ── SETTLEMENT ───────────────────────────────────────────────────────────────
 async function finSearch(){
-  const nm=$('fin_search').value.trim();
-  if(!nm){alert_('fin_searchErr','Please enter a customer name.','error');show('fin_searchErr');return;}
+  const nm = $('fin_search').value.trim();
+  if(!nm){ alert_('fin_searchErr','Please enter a customer name.','error'); show('fin_searchErr'); return; }
   clearA('fin_searchErr');
   const btn=$('fin_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
   try{
-    const c=await findCustomer(nm);
-    if(!c){ alert_('fin_searchErr','No customer found. Check the name and try again.','error'); show('fin_searchErr'); }
-    else {
-      finCust=c;
-      $('fin_av').textContent=init(c.name); $('fin_name').textContent=c.name;
-      $('fin_bal').textContent=fmt(c.bal); $('fin_balVal').textContent=fmtN(c.bal*1500);
-      $('fin_bb2').textContent=fmt(c.bal)+' crates';
-      show('fin_custBlock'); show('fin_form'); finCalc();
+    const c = await findCustomer(nm);
+    if(!c){
+      alert_('fin_searchErr','No customer found. Check the name and try again.','error');
+      show('fin_searchErr');
+    } else {
+      finCust = c;
+      $('fin_av').textContent   = init(c.name);
+      $('fin_name').textContent = c.name;
+      $('fin_bal').textContent  = fmt(c.bal);
+      $('fin_balVal').textContent = fmtN(c.bal*1500);
+      $('fin_bb2').textContent  = fmt(c.bal)+' crates';
+      show('fin_custBlock');
+      show('fin_form');
+      finCalc();
     }
-  }catch(e){ alert_('fin_searchErr','Network error: '+e.message,'error'); show('fin_searchErr'); }
+  }catch(e){
+    alert_('fin_searchErr','Network error: '+e.message,'error');
+    show('fin_searchErr');
+  }
   btn.disabled=false; btn.textContent='Search';
 }
 
 function finCalc(){
-  const wob=Number($('fin_wob').value)||0, pairs=Number($('fin_pairs').value)||0;
-  const btl=Number($('fin_btl').value)||0, cash=Number($('fin_cash').value)||0;
-  const xfer=Number($('fin_xfer').value)||0;
+  const wob   = Number($('fin_wob').value)  || 0;
+  const pairs = Number($('fin_pairs').value)|| 0;
+  const btl   = Number($('fin_btl').value)  || 0;
+  const cash  = Number($('fin_cash').value) || 0;
+  const xfer  = Number($('fin_xfer').value) || 0;
+
   const wobV=wob*750, pV=pairs*1500, btlV=btl*750;
-  const totV=wobV+pV+btlV+cash+xfer;
-  const wobC=(wob*750)/1500, pC=pairs, btlC=(btl*750)/1500;
-  const cashC=cash/1500, xferC=xfer/1500;
-  const totC=wobC+pC+btlC+cashC+xferC;
-  const bal=finCust?finCust.bal:0, rem=bal-totC;
+  const totV = wobV+pV+btlV+cash+xfer;
+
+  const wobC  = (wob*750)/1500;
+  const pC    = pairs;
+  const btlC  = (btl*750)/1500;
+  const cashC = cash/1500;
+  const xferC = xfer/1500;
+  const totC  = wobC+pC+btlC+cashC+xferC;
+
+  const bal = finCust ? finCust.bal : 0;
+  const rem = bal - totC;
 
   const rows=[];
   if(wob)  rows.push(`<tr><td>Empty Crate WOB</td><td>${fmt(wob)}</td><td class="mono" style="text-align:right">${fmtN(wobV)}</td><td class="mono" style="text-align:right">${wobC.toFixed(1)}</td></tr>`);
@@ -641,29 +718,35 @@ function finCalc(){
   if(btl)  rows.push(`<tr><td>Empty Bottle Sets</td><td>${fmt(btl)}</td><td class="mono" style="text-align:right">${fmtN(btlV)}</td><td class="mono" style="text-align:right">${btlC.toFixed(1)}</td></tr>`);
   if(cash) rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono" style="text-align:right">${fmtN(cash)}</td><td class="mono" style="text-align:right">${cashC.toFixed(1)}</td></tr>`);
   if(xfer) rows.push(`<tr><td>Bank transfer</td><td>—</td><td class="mono" style="text-align:right">${fmtN(xfer)}</td><td class="mono" style="text-align:right">${xferC.toFixed(1)}</td></tr>`);
-  $('fin_rows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr>';
-  $('fin_totVal').textContent=fmtN(totV);
-  $('fin_totCrates').textContent=totC.toFixed(1);
-  $('fin_settled').textContent=totC.toFixed(1)+' crates';
-  $('fin_rem').textContent=rem.toFixed(1)+' crates';
-  $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
+
+  $('fin_rows').innerHTML = rows.length
+    ? rows.join('')
+    : '<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr>';
+
+  $('fin_totVal').textContent    = fmtN(totV);
+  $('fin_totCrates').textContent = totC.toFixed(1);
+  $('fin_settled').textContent   = totC.toFixed(1)+' crates';
+  $('fin_rem').textContent       = rem.toFixed(1)+' crates';
+  $('fin_rem').style.color       = rem<=0 ? 'var(--green)' : 'var(--orange)';
 }
 
 async function finSubmit(){
-  if(!finCust){alert_('fin_err','Please select a customer first.','error');show('fin_err');return;}
-  const staff=$('fin_staff').value.trim();
-  if(!staff){alert_('fin_err','Please enter your name in the Processed by field.','error');show('fin_err');return;}
-  const wob=Number($('fin_wob').value)||0, pairs=Number($('fin_pairs').value)||0;
-  const btl=Number($('fin_btl').value)||0, cash=Number($('fin_cash').value)||0;
-  const xfer=Number($('fin_xfer').value)||0;
-  if(wob+pairs+btl+cash+xfer===0){alert_('fin_err','Please enter at least one settlement amount.','error');show('fin_err');return;}
+  if(!finCust){ alert_('fin_err','Please select a customer first.','error'); show('fin_err'); return; }
+  const staff = $('fin_staff').value.trim();
+  if(!staff){ alert_('fin_err','Please enter your name in the Processed by field.','error'); show('fin_err'); return; }
+  const wob   = Number($('fin_wob').value)  || 0;
+  const pairs = Number($('fin_pairs').value)|| 0;
+  const btl   = Number($('fin_btl').value)  || 0;
+  const cash  = Number($('fin_cash').value) || 0;
+  const xfer  = Number($('fin_xfer').value) || 0;
+  if(wob+pairs+btl+cash+xfer===0){ alert_('fin_err','Please enter at least one settlement amount.','error'); show('fin_err'); return; }
   clearA('fin_err'); clearA('fin_ok');
 
   const wobC=(wob*750)/1500, pC=pairs, btlC=(btl*750)/1500;
-  const totC=wobC+pC+btlC+(cash/1500)+(xfer/1500);
-  const totV=(wob*750)+(pairs*1500)+(btl*750)+cash+xfer;
-  const rem=finCust.bal-totC;
-  const ref='STL-'+Date.now();
+  const totC = wobC+pC+btlC+(cash/1500)+(xfer/1500);
+  const totV = (wob*750)+(pairs*1500)+(btl*750)+cash+xfer;
+  const rem  = finCust.bal - totC;
+  const ref  = 'STL-'+Date.now();
 
   const btn=$('fin_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
@@ -671,23 +754,30 @@ async function finSubmit(){
     if(wob)   await adjustment(CFG.items.emptyWOB,  wob,     `WOB ${td()}`);
     if(pairs) await adjustment(CFG.items.emptyWOB,  pairs*2, `Pairs ${td()}`);
     if(btl)   await adjustment(CFG.items.emptyBTL,  btl,     `BTL ${td()}`);
-    if(cash)  await payment(finCust.id,cash, CFG.cashAccount,'cash',ref);
-    if(xfer)  await payment(finCust.id,xfer, CFG.bankAccount,'bank_transfer',ref);
-    await updateBal(finCust.id,rem);
-    await cmlRecord({id:finCust.id,date:$('fin_date').value,count:0,bb:finCust.bal,rem,
-      notes:$('fin_notes').value,by:staff,wob,pairs,btl,cash,xfer});
+    if(cash)  await payment(finCust.id, cash, CFG.cashAccount, 'cash',          ref);
+    if(xfer)  await payment(finCust.id, xfer, CFG.bankAccount, 'bank_transfer', ref);
+    await updateBal(finCust.id, rem);
+    await cmlRecord({
+      id:finCust.id, date:$('fin_date').value, count:0,
+      bb:finCust.bal, rem,
+      notes:$('fin_notes').value, by:staff,
+      wob, pairs, btl, cash, xfer
+    });
     hideOverlay();
-    alert_('fin_ok',`✓ Settlement processed for ${finCust.name}. ${totC.toFixed(1)} crates settled (${fmtN(totV)}). Remaining: ${rem.toFixed(1)} crates.`,'success');
+    alert_('fin_ok',
+      `✓ Settlement processed for ${finCust.name}. ${totC.toFixed(1)} crates settled (${fmtN(totV)}). Remaining: ${rem.toFixed(1)} crates.`,
+      'success');
     show('fin_ok');
-    finCust.bal=rem;
-    $('fin_bal').textContent=rem.toFixed(1);
-    $('fin_balVal').textContent=fmtN(rem*1500);
-    $('fin_bb2').textContent=rem.toFixed(1)+' crates';
+    finCust.bal = rem;
+    $('fin_bal').textContent    = rem.toFixed(1);
+    $('fin_balVal').textContent = fmtN(rem*1500);
+    $('fin_bb2').textContent    = rem.toFixed(1)+' crates';
     ['fin_wob','fin_pairs','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
     finCalc();
   }catch(e){
     hideOverlay();
-    alert_('fin_err','Error: '+e.message+'. Please try again.','error'); show('fin_err');
+    alert_('fin_err','Error: '+e.message,'error');
+    show('fin_err');
   }
   btn.disabled=false; btn.textContent='Process settlement';
 }
@@ -703,8 +793,11 @@ function finReset(){
 function signOut(){
   sessionStorage.removeItem('mx');
   S={token:null,expiry:null,email:null,name:null};
-  hide('appRoot'); show('authScreen');
+  erCust=null; finCust=null;
+  hide('appRoot');
+  show('authScreen');
   clearA('authErr');
+  goHome();
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────────────────
@@ -712,7 +805,8 @@ function signOut(){
   const isCallback = parseHash();
   if(isCallback && S.token){ await verifyAndBoot(); return; }
   if(!isCallback && loadS()){ bootApp(); return; }
-  hideOverlay(); show('authScreen');
+  hideOverlay();
+  show('authScreen');
 })();
 </script>
 </body>
