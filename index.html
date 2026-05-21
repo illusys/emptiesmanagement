@@ -500,13 +500,36 @@ async function api(base,path,method,body){
 }
 
 async function searchCustomers(name){
-  const d=await api(INV,`/contacts?contact_name_startswith=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=10`);
-  if(d.code!==0||!d.contacts?.length) return [];
-  return d.contacts.map(c=>{
-    let bal=0;
-    (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
-    return{id:c.contact_id,name:c.contact_name,bal};
-  });
+  const term=name.trim();
+  if(term.length<3) return [];
+
+  const prefix=term.slice(0,3).toLowerCase();
+  const perPage=200;
+  let page=1;
+  let hasMore=true;
+  const all=[];
+
+  while(hasMore){
+    const d=await api(INV,`/contacts?contact_name_startswith=${encodeURIComponent(prefix)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=${perPage}&page=${page}`);
+    if(d.code!==0) break;
+    const contacts=d.contacts||[];
+    all.push(...contacts);
+    const ctx=d.page_context||{};
+    hasMore=Boolean(ctx.has_more_page);
+    page+=1;
+    if(!contacts.length) break;
+  }
+
+  const normalizedTerm=term.toLowerCase();
+  return all
+    .filter(c=>String(c.contact_name||'').toLowerCase().startsWith(prefix))
+    .filter(c=>String(c.contact_name||'').toLowerCase().includes(normalizedTerm))
+    .sort((a,b)=>String(a.contact_name||'').localeCompare(String(b.contact_name||''),undefined,{sensitivity:'base'}))
+    .map(c=>{
+      let bal=0;
+      (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
+      return{id:c.contact_id,name:c.contact_name,bal};
+    });
 }
 
 async function updateBal(id,newBal){
@@ -548,12 +571,18 @@ async function cmlRecord(data){
 async function doSearch(prefix, isOrange){
   const nm=$(prefix+'_search').value.trim();
   if(!nm){ alert_(prefix+'_searchErr','Please enter a customer name.','error'); show(prefix+'_searchErr'); return; }
+
+//- Edits from Codex Starts-------
+if(nm.length<3){ alert_(prefix+'_searchErr','Type at least the first 3 letters of the customer name.','error'); show(prefix+'_searchErr'); return; }
+  
+// Edits from codex Ends ------  
   clearA(prefix+'_searchErr'); hide(prefix+'_results');
   const btn=$(prefix+'_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
   try{
     const results=await searchCustomers(nm);
     if(!results.length){
-      alert_(prefix+'_searchErr',`No customers found matching "${nm}". Try a shorter name.`,'error');
+     
+       alert_(prefix+'_searchErr','No customers found. Results are limited to customers whose names start with the first 3 letters you typed.','error');
       show(prefix+'_searchErr');
     } else if(results.length===1){
       prefix==='er' ? erSelectCustomer(results[0]) : finSelectCustomer(results[0]);
@@ -606,9 +635,16 @@ async function erSubmit(){
     const nb=erCust.bal-n;
     await adjustment(CFG.items.emptyCrate,n,`Return ${td()}`);
     await updateBal(erCust.id,nb);
-    await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
+   let cmlWarning='';
+    try{
+      await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
+    }catch(err){
+      cmlWarning=' Return was saved, but movement log sync could not be completed.';
+      console.warn('CML sync warning (crate return):',err);
+    }
+    
     hideOverlay();
-    alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.`,'success');
+     alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.${cmlWarning}`,'success');
     show('er_ok');
     erCust.bal=nb;
     $('er_bal').textContent=fmt(nb); $('er_bb').textContent=fmt(nb);
@@ -732,11 +768,17 @@ async function finSubmit(){
     // Update customer balance
     await updateBal(finCust.id,rem);
     // CML record
-    await cmlRecord({id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,
-      notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
+   let cmlWarning='';
+    try{
+      await cmlRecord({id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,
+        notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
+    }catch(err){
+      cmlWarning=' Movement log sync is pending, but settlement was completed successfully.';
+      console.warn('CML sync warning (settlement):',err);
+    }
     hideOverlay();
     alert_('fin_ok',
-      `✓ Settlement processed for ${finCust.name}. ${totCrates.toFixed(1)} crates settled. Total received: ${fmtN(totalMoney)}. Remaining balance: ${rem.toFixed(1)} crates.`,
+     `✓ Settlement processed for ${finCust.name}. ${totCrates.toFixed(1)} crates settled. Total received: ${fmtN(totalMoney)}. Remaining balance: ${rem.toFixed(1)} crates.${cmlWarning}`,
       'success');
     show('fin_ok');
     finCust.bal=rem;
