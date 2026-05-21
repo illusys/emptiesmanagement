@@ -84,6 +84,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .alert-info{background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe}
+.alert-warn{background:var(--amber-bg);color:var(--amber);border:1px solid #fde68a}
+
+/* Search results list */
+.search-results{margin-top:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface)}
+.search-result-item{padding:12px 14px;cursor:pointer;transition:background 0.12s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:hover{background:var(--blue-light)}
+.sri-av{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
+.sri-av.orange{background:var(--orange)}
+.sri-name{font-size:13px;font-weight:500}
+.sri-bal{font-size:11px;color:var(--text2);margin-top:1px}
+
 .stl-table{width:100%;border-collapse:collapse;font-size:12px}
 .stl-table th{text-align:left;font-weight:500;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border)}
 .stl-table td{padding:7px 0;border-bottom:1px solid var(--border);vertical-align:middle}
@@ -203,6 +215,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </div>
             <button class="btn btn-ghost btn-sm" onclick="erSearch()" id="er_searchBtn">Search</button>
           </div>
+          <!-- Search results list -->
+          <div id="er_results" class="hidden">
+            <div class="search-results" id="er_resultsList"></div>
+          </div>
+          <!-- Selected customer strip -->
           <div id="er_custBlock" class="hidden" style="margin-top:12px">
             <div class="cust-strip">
               <div class="cust-av" id="er_av">--</div>
@@ -210,6 +227,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
                 <div class="name" id="er_name">--</div>
                 <div class="sub">Balance: <strong style="color:var(--blue)" id="er_bal">--</strong> crates</div>
               </div>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="erClearCustomer()">Change</button>
             </div>
           </div>
           <div id="er_searchErr" class="alert alert-error hidden" style="margin-top:8px"></div>
@@ -256,6 +274,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </div>
             <button class="btn btn-ghost btn-sm" onclick="finSearch()" id="fin_searchBtn">Search</button>
           </div>
+          <!-- Search results list -->
+          <div id="fin_results" class="hidden">
+            <div class="search-results" id="fin_resultsList"></div>
+          </div>
+          <!-- Selected customer strip -->
           <div id="fin_custBlock" class="hidden" style="margin-top:12px">
             <div class="cust-strip">
               <div class="cust-av orange" id="fin_av">--</div>
@@ -263,6 +286,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
                 <div class="name" id="fin_name">--</div>
                 <div class="sub">Outstanding: <strong style="color:var(--orange)" id="fin_bal">--</strong> crates &nbsp;|&nbsp; <strong style="color:var(--orange)" id="fin_balVal">--</strong></div>
               </div>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="finClearCustomer()">Change</button>
             </div>
           </div>
           <div id="fin_searchErr" class="alert alert-error hidden" style="margin-top:8px"></div>
@@ -336,8 +360,10 @@ const CFG = {
   bankAccount:  '8805348000000378019'
 };
 
-const INV   = 'https://www.zohoapis.com/inventory/v1';
-const BOOKS = 'https://www.zohoapis.com/books/v3';
+// All API calls route through Vercel proxy to avoid CORS
+const PROXY  = '/api/zoho';
+const INV    = 'https://www.zohoapis.com/inventory/v1';
+const BOOKS  = 'https://www.zohoapis.com/books/v3';
 
 let S = { token:null, expiry:null, email:null, name:null };
 let erCust = null, finCust = null;
@@ -374,13 +400,13 @@ function startZohoOAuth(){
   const st = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16)))).replace(/[+/=]/g,'');
   sessionStorage.setItem('oast',st);
   const p = new URLSearchParams({
-    response_type: 'token',
-    client_id:     CFG.clientId,
-    scope:         CFG.scopes,
-    redirect_uri:  CFG.redirectUri,
-    state:         st,
-    access_type:   'online',
-    prompt:        'consent'
+    response_type:'token',
+    client_id:    CFG.clientId,
+    scope:        CFG.scopes,
+    redirect_uri: CFG.redirectUri,
+    state:        st,
+    access_type:  'online',
+    prompt:       'consent'
   });
   window.location.href = 'https://accounts.zoho.com/oauth/v2/auth?'+p;
 }
@@ -395,25 +421,22 @@ function parseHash(){
   S.token  = token;
   S.expiry = Date.now() + (Number(p.get('expires_in')||3600)*1000) - 60000;
 
-  // Zoho includes email, first_name, last_name in the hash when openid+profile+email scopes are granted
-  const email     = p.get('email') || '';
-  const firstName = p.get('first_name') || '';
-  const lastName  = p.get('last_name') || '';
+  // Capture email/name if Zoho includes them in the hash (with openid+profile+email scopes)
+  const email       = p.get('email') || '';
+  const firstName   = p.get('first_name') || '';
+  const lastName    = p.get('last_name') || '';
   const displayName = p.get('display_name') || '';
-  const fullName  = displayName || (firstName+' '+lastName).trim();
+  const fullName    = displayName || (firstName+' '+lastName).trim();
 
-  if(email){
-    S.email = email.toLowerCase();
-    S.name  = fullName || email.split('@')[0];
-  }
+  if(email){ S.email = email.toLowerCase(); S.name = fullName || email.split('@')[0]; }
 
-  // Also try decoding from JWT payload if email not in hash
+  // Fallback: try decoding JWT payload
   if(!S.email){
     try{
       const parts = token.split('.');
       if(parts.length === 3){
         const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-        S.email = (payload.email || payload.sub || '').toLowerCase();
+        S.email = (payload.email||payload.sub||'').toLowerCase();
         S.name  = payload.name || payload.display_name || S.email.split('@')[0];
       }
     }catch(e){}
@@ -423,29 +446,37 @@ function parseHash(){
   return true;
 }
 
-async function fetchEmailFromAPI(){
-  // Try Zoho accounts userinfo endpoint — CORS enabled when JS domain is registered
+async function fetchUserProfile(){
+  // Use proxy to call Zoho accounts userinfo
   try{
-    const res = await fetch('https://accounts.zoho.com/oauth/user/info', {
-      headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
+    const res = await fetch(PROXY, {
+      method:'GET',
+      headers:{
+        'Authorization':`Zoho-oauthtoken ${S.token}`,
+        'X-Target-URL':'https://accounts.zoho.com/oauth/user/info'
+      }
     });
     if(res.ok){
       const d = await res.json();
-      const email = (d.Email || d.email || '').toLowerCase();
-      const name  = d.Display_Name || d.display_name || d.First_Name || email.split('@')[0];
+      const email = (d.Email||d.email||'').toLowerCase();
+      const name  = d.Display_Name||d.display_name||d.First_Name||email.split('@')[0];
       if(email) return { email, name };
     }
   }catch(e){}
 
-  // Fallback — Zoho Inventory current user
+  // Fallback: Zoho Inventory users list via proxy
   try{
-    const res = await fetch(`${INV}/users?organization_id=${CFG.orgId}`, {
-      headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
+    const res = await fetch(PROXY, {
+      method:'GET',
+      headers:{
+        'Authorization':`Zoho-oauthtoken ${S.token}`,
+        'X-Target-URL':`${INV}/users?organization_id=${CFG.orgId}`
+      }
     });
     const d = await res.json();
     if(d.code===0 && d.users?.length){
       const u = d.users.find(u=>u.status==='active') || d.users[0];
-      if(u?.email) return { email: u.email.toLowerCase(), name: u.name||u.email };
+      if(u?.email) return { email:u.email.toLowerCase(), name:u.name||u.email };
     }
   }catch(e){}
 
@@ -455,70 +486,58 @@ async function fetchEmailFromAPI(){
 async function verifyAndBoot(){
   showOverlay('Verifying your account...');
 
-  // If email was captured directly from token hash — use it immediately
-  if(S.email && S.email.includes('@') && !S.email.startsWith('staff@')){
+  // If email already captured from hash — verify domain immediately
+  if(S.email && S.email.includes('@') && !S.email.startsWith('staff@') && !S.email.startsWith('user@')){
     if(!S.email.endsWith('@'+CFG.allowedDomain)){
-      hide('overlay');
-      show('authScreen');
-      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts are permitted. Detected: ${S.email}`,'error');
-      show('authErr');
-      return;
+      hideOverlay(); show('authScreen');
+      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted. Detected: ${S.email}`,'error');
+      show('authErr'); return;
     }
-    saveS();
-    bootApp();
-    return;
+    saveS(); bootApp(); return;
   }
 
-  // Fallback — try to fetch email from Inventory API
-  try{
-    const user = await fetchEmailFromAPI();
-    if(user && user.email){
-      if(!user.email.endsWith('@'+CFG.allowedDomain)){
-        hide('overlay');
-        show('authScreen');
-        alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted. Detected: ${user.email}`,'error');
-        show('authErr');
-        return;
-      }
-      S.email = user.email;
-      S.name  = user.name;
-      saveS();
-      bootApp();
-      return;
+  // Fetch from API via proxy
+  const user = await fetchUserProfile();
+  if(user && user.email){
+    if(!user.email.endsWith('@'+CFG.allowedDomain)){
+      hideOverlay(); show('authScreen');
+      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted. Detected: ${user.email}`,'error');
+      show('authErr'); return;
     }
-  }catch(e){}
+    S.email = user.email; S.name = user.name;
+    saveS(); bootApp(); return;
+  }
 
-  // Last resort — token exists, Zoho authenticated them, allow through
-  // They already passed Zoho's auth so their account is valid
+  // Token valid — Zoho authenticated them — allow through
   if(!S.email) S.email = 'user@malexchloglobal.com';
   if(!S.name)  S.name  = 'Malexchlo Staff';
-  saveS();
-  bootApp();
+  saveS(); bootApp();
 }
 
 function bootApp(){
   const mins = Math.max(0, Math.round((S.expiry - Date.now())/60000));
-  $('hdrAv').textContent   = init(S.name);
-  $('hdrName').textContent = S.name;
-  $('roleEmail').textContent = S.email;
-  $('tokenTxt').textContent  = `Connected · ${mins}m remaining`;
+  $('hdrAv').textContent    = init(S.name);
+  $('hdrName').textContent  = S.name;
+  $('roleEmail').textContent= S.email;
+  $('tokenTxt').textContent = `Connected · ${mins}m remaining`;
   if(mins < 10) $('tokenDot').classList.add('warn');
   $('er_date').value  = td();
   $('fin_date').value = td();
-  hideOverlay();
-  show('appRoot');
-  hide('authScreen');
-  hide('overlay');
+  hideOverlay(); show('appRoot'); hide('authScreen'); hide('overlay');
 }
 
+// ── PROXY API CALL ───────────────────────────────────────────────────────────
 async function api(base, path, method, body){
   if(!S.token) throw new Error('Not authenticated');
   const sep = path.includes('?') ? '&' : '?';
-  const res = await fetch(`${base}${path}${sep}organization_id=${CFG.orgId}`, {
+  const targetURL = `${base}${path}${sep}organization_id=${CFG.orgId}`;
+
+  const res = await fetch(PROXY, {
     method: method||'GET',
     headers:{
       'Authorization':`Zoho-oauthtoken ${S.token}`,
-      'Content-Type':'application/json;charset=UTF-8'
+      'Content-Type':'application/json',
+      'X-Target-URL': targetURL
     },
     body: body ? JSON.stringify(body) : undefined
   });
@@ -526,13 +545,17 @@ async function api(base, path, method, body){
   return res.json();
 }
 
-async function findCustomer(name){
-  const d = await api(INV, `/contacts?contact_name=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active`);
-  if(d.code!==0 || !d.contacts?.length) return null;
-  const c = d.contacts[0];
-  let bal=0;
-  (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
-  return { id:c.contact_id, name:c.contact_name, bal };
+// ── CUSTOMER SEARCH — returns multiple results ────────────────────────────────
+async function searchCustomers(name){
+  const d = await api(INV,
+    `/contacts?contact_name_startswith=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=10`
+  );
+  if(d.code!==0 || !d.contacts?.length) return [];
+  return d.contacts.map(c => {
+    let bal=0;
+    (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
+    return { id:c.contact_id, name:c.contact_name, bal };
+  });
 }
 
 async function updateBal(id, newBal){
@@ -546,8 +569,7 @@ async function updateBal(id, newBal){
 
 async function adjustment(itemId, qty, reason){
   return api(INV, '/inventoryadjustments', 'POST', {
-    date:td(),
-    reason:reason.slice(0,50),
+    date:td(), reason:reason.slice(0,50),
     adjustment_type:'quantity',
     adjustment_account_id:CFG.adjAccount,
     line_items:[{item_id:itemId, location_id:CFG.warehouseLoc, quantity_adjusted:qty}]
@@ -564,15 +586,15 @@ async function payment(custId, amount, accId, mode, ref){
 
 async function cmlRecord(data){
   const b = {
-    cf_movement_type_1:    'Customer Return',
-    cf_customer:           data.id,
-    cf_return_date:        data.date,
-    cf_crates_count:       data.count||0,
-    cf_balance_before:     data.bb,
-    cf_remaining_balance:  data.rem,
-    cf_settlement_processed: true,
-    cf_recorded_by:        data.by||'',
-    cf_notes:              data.notes||''
+    cf_movement_type_1:     'Customer Return',
+    cf_customer:            data.id,
+    cf_return_date:         data.date,
+    cf_crates_count:        data.count||0,
+    cf_balance_before:      data.bb,
+    cf_remaining_balance:   data.rem,
+    cf_settlement_processed:true,
+    cf_recorded_by:         data.by||'',
+    cf_notes:               data.notes||''
   };
   if(data.wob)   b.cf_empty_crate_shells  = data.wob;
   if(data.pairs) b.cf_empty_crate_pairs   = data.pairs;
@@ -586,30 +608,53 @@ async function cmlRecord(data){
 async function erSearch(){
   const nm = $('er_search').value.trim();
   if(!nm){ alert_('er_searchErr','Please enter a customer name.','error'); show('er_searchErr'); return; }
-  clearA('er_searchErr');
+  clearA('er_searchErr'); hide('er_results');
   const btn=$('er_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
   try{
-    const c = await findCustomer(nm);
-    if(!c){
-      alert_('er_searchErr','No customer found. Check the name and try again.','error');
+    const results = await searchCustomers(nm);
+    if(!results.length){
+      alert_('er_searchErr','No customers found matching "'+nm+'". Try a shorter name.','error');
       show('er_searchErr');
+    } else if(results.length === 1){
+      erSelectCustomer(results[0]);
     } else {
-      erCust = c;
-      $('er_av').textContent  = init(c.name);
-      $('er_name').textContent = c.name;
-      $('er_bal').textContent  = fmt(c.bal);
-      $('er_bb').textContent   = fmt(c.bal);
-      $('er_ba').textContent   = fmt(c.bal);
-      $('er_count').value = 0;
-      $('er_cd').textContent = '0';
-      show('er_custBlock');
-      show('er_form');
+      // Show list of results to choose from
+      $('er_resultsList').innerHTML = results.map((c,i) =>
+        `<div class="search-result-item" onclick="erSelectCustomer(window._erResults[${i}])">
+          <div class="sri-av">${init(c.name)}</div>
+          <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates</div></div>
+        </div>`
+      ).join('');
+      window._erResults = results;
+      show('er_results');
     }
   }catch(e){
     alert_('er_searchErr','Network error: '+e.message,'error');
     show('er_searchErr');
   }
   btn.disabled=false; btn.textContent='Search';
+}
+
+function erSelectCustomer(c){
+  erCust = c;
+  hide('er_results');
+  $('er_av').textContent   = init(c.name);
+  $('er_name').textContent = c.name;
+  $('er_bal').textContent  = fmt(c.bal);
+  $('er_bb').textContent   = fmt(c.bal);
+  $('er_ba').textContent   = fmt(c.bal);
+  $('er_ba').style.color   = 'var(--orange)';
+  $('er_count').value = 0;
+  $('er_cd').textContent = '0';
+  show('er_custBlock');
+  show('er_form');
+}
+
+function erClearCustomer(){
+  erCust = null;
+  hide('er_custBlock'); hide('er_form'); hide('er_results');
+  $('er_search').value = '';
+  clearA('er_err'); clearA('er_ok');
 }
 
 function erCalc(){
@@ -624,7 +669,7 @@ function erCalc(){
 async function erSubmit(){
   if(!erCust){ alert_('er_err','Please select a customer first.','error'); show('er_err'); return; }
   const n = Number($('er_count').value)||0;
-  if(n<=0){ alert_('er_err','Please enter the number of crates returned.','error'); show('er_err'); return; }
+  if(n<=0){ alert_('er_err','Please enter the number of crates returned (must be greater than 0).','error'); show('er_err'); return; }
   clearA('er_err'); clearA('er_ok');
   const btn=$('er_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
   showOverlay('Recording crate return...');
@@ -633,8 +678,8 @@ async function erSubmit(){
     await adjustment(CFG.items.emptyCrate, n, `Return ${td()}`);
     await updateBal(erCust.id, nb);
     await cmlRecord({
-      id:erCust.id, date:$('er_date').value, count:n,
-      bb:erCust.bal, rem:nb,
+      id:erCust.id, date:$('er_date').value,
+      count:n, bb:erCust.bal, rem:nb,
       notes:$('er_notes').value, by:S.name
     });
     hideOverlay();
@@ -645,45 +690,44 @@ async function erSubmit(){
     $('er_bb').textContent  = fmt(nb);
     $('er_ba').textContent  = fmt(nb);
     $('er_ba').style.color  = nb<=0 ? 'var(--green)' : 'var(--orange)';
-    $('er_count').value = 0;
-    $('er_cd').textContent = '0';
+    $('er_count').value = 0; $('er_cd').textContent = '0';
     $('er_notes').value = '';
   }catch(e){
     hideOverlay();
-    alert_('er_err','Error saving: '+e.message,'error');
-    show('er_err');
+    alert_('er_err','Error saving: '+e.message,'error'); show('er_err');
   }
   btn.disabled=false; btn.textContent='Save crate return';
 }
 
 function erReset(){
   erCust=null; $('er_search').value='';
-  hide('er_custBlock'); hide('er_form');
+  hide('er_custBlock'); hide('er_form'); hide('er_results');
   clearA('er_searchErr'); clearA('er_err'); clearA('er_ok');
   $('er_count').value=0; $('er_notes').value='';
 }
 
-// ── SETTLEMENT ───────────────────────────────────────────────────────────────
+// ── SETTLEMENT CONVERSION ────────────────────────────────────────────────────
 async function finSearch(){
   const nm = $('fin_search').value.trim();
   if(!nm){ alert_('fin_searchErr','Please enter a customer name.','error'); show('fin_searchErr'); return; }
-  clearA('fin_searchErr');
+  clearA('fin_searchErr'); hide('fin_results');
   const btn=$('fin_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
   try{
-    const c = await findCustomer(nm);
-    if(!c){
-      alert_('fin_searchErr','No customer found. Check the name and try again.','error');
+    const results = await searchCustomers(nm);
+    if(!results.length){
+      alert_('fin_searchErr','No customers found matching "'+nm+'". Try a shorter name.','error');
       show('fin_searchErr');
+    } else if(results.length === 1){
+      finSelectCustomer(results[0]);
     } else {
-      finCust = c;
-      $('fin_av').textContent   = init(c.name);
-      $('fin_name').textContent = c.name;
-      $('fin_bal').textContent  = fmt(c.bal);
-      $('fin_balVal').textContent = fmtN(c.bal*1500);
-      $('fin_bb2').textContent  = fmt(c.bal)+' crates';
-      show('fin_custBlock');
-      show('fin_form');
-      finCalc();
+      $('fin_resultsList').innerHTML = results.map((c,i) =>
+        `<div class="search-result-item" onclick="finSelectCustomer(window._finResults[${i}])">
+          <div class="sri-av orange">${init(c.name)}</div>
+          <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates | ${fmtN(c.bal*1500)}</div></div>
+        </div>`
+      ).join('');
+      window._finResults = results;
+      show('fin_results');
     }
   }catch(e){
     alert_('fin_searchErr','Network error: '+e.message,'error');
@@ -692,25 +736,37 @@ async function finSearch(){
   btn.disabled=false; btn.textContent='Search';
 }
 
+function finSelectCustomer(c){
+  finCust = c;
+  hide('fin_results');
+  $('fin_av').textContent   = init(c.name);
+  $('fin_name').textContent = c.name;
+  $('fin_bal').textContent  = fmt(c.bal);
+  $('fin_balVal').textContent = fmtN(c.bal*1500);
+  $('fin_bb2').textContent  = fmt(c.bal)+' crates';
+  show('fin_custBlock');
+  show('fin_form');
+  finCalc();
+}
+
+function finClearCustomer(){
+  finCust = null;
+  hide('fin_custBlock'); hide('fin_form'); hide('fin_results');
+  $('fin_search').value = '';
+  clearA('fin_err'); clearA('fin_ok');
+}
+
 function finCalc(){
-  const wob   = Number($('fin_wob').value)  || 0;
-  const pairs = Number($('fin_pairs').value)|| 0;
-  const btl   = Number($('fin_btl').value)  || 0;
-  const cash  = Number($('fin_cash').value) || 0;
-  const xfer  = Number($('fin_xfer').value) || 0;
+  const wob=Number($('fin_wob').value)||0, pairs=Number($('fin_pairs').value)||0;
+  const btl=Number($('fin_btl').value)||0, cash=Number($('fin_cash').value)||0;
+  const xfer=Number($('fin_xfer').value)||0;
 
   const wobV=wob*750, pV=pairs*1500, btlV=btl*750;
-  const totV = wobV+pV+btlV+cash+xfer;
-
-  const wobC  = (wob*750)/1500;
-  const pC    = pairs;
-  const btlC  = (btl*750)/1500;
-  const cashC = cash/1500;
-  const xferC = xfer/1500;
-  const totC  = wobC+pC+btlC+cashC+xferC;
-
-  const bal = finCust ? finCust.bal : 0;
-  const rem = bal - totC;
+  const totV=wobV+pV+btlV+cash+xfer;
+  const wobC=(wob*750)/1500, pC=pairs, btlC=(btl*750)/1500;
+  const cashC=cash/1500, xferC=xfer/1500;
+  const totC=wobC+pC+btlC+cashC+xferC;
+  const bal=finCust?finCust.bal:0, rem=bal-totC;
 
   const rows=[];
   if(wob)  rows.push(`<tr><td>Empty Crate WOB</td><td>${fmt(wob)}</td><td class="mono" style="text-align:right">${fmtN(wobV)}</td><td class="mono" style="text-align:right">${wobC.toFixed(1)}</td></tr>`);
@@ -719,34 +775,29 @@ function finCalc(){
   if(cash) rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono" style="text-align:right">${fmtN(cash)}</td><td class="mono" style="text-align:right">${cashC.toFixed(1)}</td></tr>`);
   if(xfer) rows.push(`<tr><td>Bank transfer</td><td>—</td><td class="mono" style="text-align:right">${fmtN(xfer)}</td><td class="mono" style="text-align:right">${xferC.toFixed(1)}</td></tr>`);
 
-  $('fin_rows').innerHTML = rows.length
-    ? rows.join('')
-    : '<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr>';
-
-  $('fin_totVal').textContent    = fmtN(totV);
-  $('fin_totCrates').textContent = totC.toFixed(1);
-  $('fin_settled').textContent   = totC.toFixed(1)+' crates';
-  $('fin_rem').textContent       = rem.toFixed(1)+' crates';
-  $('fin_rem').style.color       = rem<=0 ? 'var(--green)' : 'var(--orange)';
+  $('fin_rows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr>';
+  $('fin_totVal').textContent=fmtN(totV);
+  $('fin_totCrates').textContent=totC.toFixed(1);
+  $('fin_settled').textContent=totC.toFixed(1)+' crates';
+  $('fin_rem').textContent=rem.toFixed(1)+' crates';
+  $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
 }
 
 async function finSubmit(){
   if(!finCust){ alert_('fin_err','Please select a customer first.','error'); show('fin_err'); return; }
-  const staff = $('fin_staff').value.trim();
+  const staff=$('fin_staff').value.trim();
   if(!staff){ alert_('fin_err','Please enter your name in the Processed by field.','error'); show('fin_err'); return; }
-  const wob   = Number($('fin_wob').value)  || 0;
-  const pairs = Number($('fin_pairs').value)|| 0;
-  const btl   = Number($('fin_btl').value)  || 0;
-  const cash  = Number($('fin_cash').value) || 0;
-  const xfer  = Number($('fin_xfer').value) || 0;
+  const wob=Number($('fin_wob').value)||0, pairs=Number($('fin_pairs').value)||0;
+  const btl=Number($('fin_btl').value)||0, cash=Number($('fin_cash').value)||0;
+  const xfer=Number($('fin_xfer').value)||0;
   if(wob+pairs+btl+cash+xfer===0){ alert_('fin_err','Please enter at least one settlement amount.','error'); show('fin_err'); return; }
   clearA('fin_err'); clearA('fin_ok');
 
   const wobC=(wob*750)/1500, pC=pairs, btlC=(btl*750)/1500;
-  const totC = wobC+pC+btlC+(cash/1500)+(xfer/1500);
-  const totV = (wob*750)+(pairs*1500)+(btl*750)+cash+xfer;
-  const rem  = finCust.bal - totC;
-  const ref  = 'STL-'+Date.now();
+  const totC=wobC+pC+btlC+(cash/1500)+(xfer/1500);
+  const totV=(wob*750)+(pairs*1500)+(btl*750)+cash+xfer;
+  const rem=finCust.bal-totC;
+  const ref='STL-'+Date.now();
 
   const btn=$('fin_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
@@ -764,27 +815,24 @@ async function finSubmit(){
       wob, pairs, btl, cash, xfer
     });
     hideOverlay();
-    alert_('fin_ok',
-      `✓ Settlement processed for ${finCust.name}. ${totC.toFixed(1)} crates settled (${fmtN(totV)}). Remaining: ${rem.toFixed(1)} crates.`,
-      'success');
+    alert_('fin_ok',`✓ Settlement processed for ${finCust.name}. ${totC.toFixed(1)} crates settled (${fmtN(totV)}). Remaining: ${rem.toFixed(1)} crates.`,'success');
     show('fin_ok');
-    finCust.bal = rem;
-    $('fin_bal').textContent    = rem.toFixed(1);
-    $('fin_balVal').textContent = fmtN(rem*1500);
-    $('fin_bb2').textContent    = rem.toFixed(1)+' crates';
+    finCust.bal=rem;
+    $('fin_bal').textContent=rem.toFixed(1);
+    $('fin_balVal').textContent=fmtN(rem*1500);
+    $('fin_bb2').textContent=rem.toFixed(1)+' crates';
     ['fin_wob','fin_pairs','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
     finCalc();
   }catch(e){
     hideOverlay();
-    alert_('fin_err','Error: '+e.message,'error');
-    show('fin_err');
+    alert_('fin_err','Error: '+e.message,'error'); show('fin_err');
   }
   btn.disabled=false; btn.textContent='Process settlement';
 }
 
 function finReset(){
   finCust=null; $('fin_search').value='';
-  hide('fin_custBlock'); hide('fin_form');
+  hide('fin_custBlock'); hide('fin_form'); hide('fin_results');
   clearA('fin_searchErr'); clearA('fin_err'); clearA('fin_ok');
   $('fin_staff').value=''; $('fin_notes').value='';
   ['fin_wob','fin_pairs','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
@@ -794,10 +842,7 @@ function signOut(){
   sessionStorage.removeItem('mx');
   S={token:null,expiry:null,email:null,name:null};
   erCust=null; finCust=null;
-  hide('appRoot');
-  show('authScreen');
-  clearA('authErr');
-  goHome();
+  hide('appRoot'); show('authScreen'); clearA('authErr'); goHome();
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────────────────
@@ -805,8 +850,7 @@ function signOut(){
   const isCallback = parseHash();
   if(isCallback && S.token){ await verifyAndBoot(); return; }
   if(!isCallback && loadS()){ bootApp(); return; }
-  hideOverlay();
-  show('authScreen');
+  hideOverlay(); show('authScreen');
 })();
 </script>
 </body>
