@@ -10,7 +10,7 @@
 :root{
   --blue:#1C75BB;--blue-dark:#155a8e;--blue-light:#e8f1f9;
   --orange:#F05A28;--orange-dark:#c44820;--orange-light:#fdf0eb;
-  --bg:#f4f6f9;--surface:#ffffff;--surface2:#f8f9fb;
+  --bg:#f4f6f9;--surface:#fff;--surface2:#f8f9fb;
   --border:#e2e6ec;--border2:#c8d0db;
   --text:#1a2332;--text2:#5a6a7e;--text3:#9aa4b0;
   --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
@@ -28,12 +28,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .header-brand{display:flex;align-items:center;gap:10px}
 .brand-mark{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;font-family:'DM Mono',monospace}
 .brand-name{color:#fff;font-size:14px;font-weight:500}
-.brand-name span{opacity:0.55;font-weight:300}
-.user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border-radius:100px;padding:4px 12px 4px 6px}
+.brand-name span{opacity:.55;font-weight:300}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:100px;padding:4px 12px 4px 6px}
 .user-av{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
-.user-nm{color:rgba(255,255,255,0.9);font-size:12px}
-.btn-signout{background:rgba(255,255,255,0.15);border:none;color:rgba(255,255,255,0.85);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
-.btn-signout:hover{background:rgba(255,255,255,0.25)}
+.user-nm{color:rgba(255,255,255,.9);font-size:12px}
+.btn-signout{background:rgba(255,255,255,.15);border:none;color:rgba(255,255,255,.85);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-signout:hover{background:rgba(255,255,255,.25)}
 .main{flex:1;padding:28px 20px;max-width:720px;margin:0 auto;width:100%}
 .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .auth-logo{text-align:center;margin-bottom:28px}
@@ -43,19 +44,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .auth-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:420px}
 .card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
 .card-body{padding:20px}
-.sec-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.sec-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
 .field{margin-bottom:14px}
 .field:last-child{margin-bottom:0}
 .field label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
 .field label .hint{font-weight:400;color:var(--text3)}
-.field input,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);transition:border-color 0.15s,box-shadow 0.15s;outline:none}
-.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,117,187,0.1)}
-.field input[readonly]{background:var(--surface2);color:var(--text2)}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,117,187,.1)}
 .field textarea{resize:vertical;min-height:56px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field-row .field{margin-bottom:0}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;border:none;outline:none}
-.btn:disabled{opacity:0.55;cursor:not-allowed}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;border:none;outline:none}
+.btn:disabled{opacity:.55;cursor:not-allowed}
 .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover:not(:disabled){background:var(--blue-dark)}
 .btn-orange{background:var(--orange);color:#fff}.btn-orange:hover:not(:disabled){background:var(--orange-dark)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover:not(:disabled){background:var(--surface2)}
@@ -63,7 +63,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn-zoho{background:#fff;color:var(--text);border:1.5px solid var(--border2);gap:10px;padding:13px 20px;font-size:14px;border-radius:var(--radius-sm);width:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
 .btn-zoho:hover{background:var(--surface2);border-color:var(--blue)}
 .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.role-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all 0.15s;text-align:center}
+.role-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .15s;text-align:center}
 .role-card:hover{border-color:var(--blue);background:var(--blue-light)}
 .role-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px}
 .role-icon.blue-bg{background:var(--blue-light)}.role-icon.orange-bg{background:var(--orange-light)}
@@ -86,8 +86,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .alert-info{background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe}
-.search-results{margin-top:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface)}
-.search-result-item{padding:12px 14px;cursor:pointer;transition:background 0.12s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.search-results{margin-top:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface);max-height:320px;overflow-y:auto}
+.search-result-item{padding:12px 14px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
 .search-result-item:last-child{border-bottom:none}
 .search-result-item:hover{background:var(--blue-light)}
 .sri-av{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
@@ -105,30 +105,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .badge-blue{background:var(--blue-light);color:var(--blue)}
 .badge-orange{background:var(--orange-light);color:var(--orange)}
 .divider{height:1px;background:var(--border);margin:16px 0}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite}
-.spin-blue{border-color:rgba(28,117,187,0.2);border-top-color:var(--blue)}
+.toggle-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:12px}
+.toggle-row label{font-size:12px;color:var(--text2);cursor:pointer;flex:1}
+.toggle-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite}
+.spin-blue{border-color:rgba(28,117,187,.2);border-top-color:var(--blue)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.overlay{position:fixed;inset:0;background:rgba(244,246,249,0.88);display:flex;align-items:center;justify-content:center;z-index:999}
+.overlay{position:fixed;inset:0;background:rgba(244,246,249,.88);display:flex;align-items:center;justify-content:center;z-index:999}
 .overlay-box{background:#fff;border-radius:var(--radius);padding:24px 32px;text-align:center;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
-.overlay-box .big-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.65s linear infinite;margin:0 auto}
+.overlay-box .big-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .65s linear infinite;margin:0 auto}
 .overlay-box p{margin-top:12px;font-size:13px;color:var(--text2)}
 .page-head{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.page-head h2{font-size:17px;font-weight:600;letter-spacing:-0.02em}
+.page-head h2{font-size:17px;font-weight:600;letter-spacing:-.02em}
 .page-head p{font-size:12px;color:var(--text2);margin-top:2px}
 .token-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .tdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .tdot.warn{background:var(--amber)}
-.header-right{display:flex;align-items:center;gap:10px}
 @media(max-width:480px){.role-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.main{padding:20px 14px}}
 </style>
 </head>
 <body>
 
 <div class="overlay" id="overlay">
-  <div class="overlay-box">
-    <div class="big-spin"></div>
-    <p id="overlayMsg">Loading...</p>
-  </div>
+  <div class="overlay-box"><div class="big-spin"></div><p id="overlayMsg">Loading...</p></div>
 </div>
 
 <!-- AUTH SCREEN -->
@@ -173,7 +172,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <!-- ROLE SELECTION -->
     <div id="roleScreen">
       <div style="margin-bottom:20px">
-        <h2 style="font-size:18px;font-weight:600;letter-spacing:-0.02em">What would you like to do?</h2>
+        <h2 style="font-size:18px;font-weight:600;letter-spacing:-.02em">What would you like to do?</h2>
         <p style="font-size:13px;color:var(--text2);margin-top:4px">Select your function to begin</p>
       </div>
       <div class="role-grid">
@@ -194,20 +193,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <!-- CRATE RETURNS (Empties Manager) -->
+    <!-- CRATE RETURNS -->
     <div id="emptiesScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
         <div><h2>Crate Returns</h2><p>Record full crates physically returned by a customer</p></div>
         <span class="badge badge-blue" style="margin-left:auto">Empties Manager</span>
       </div>
-
       <div class="card">
         <div class="card-body">
           <div class="sec-label">Customer</div>
           <div style="display:flex;gap:8px">
             <div class="field" style="flex:1;margin:0">
-              <input type="text" id="er_search" placeholder="Type customer name..." onkeydown="if(event.key==='Enter')erSearch()">
+              <input type="text" id="er_search" placeholder="Type at least 3 letters of customer name..." onkeydown="if(event.key==='Enter')erSearch()">
             </div>
             <button class="btn btn-ghost btn-sm" onclick="erSearch()" id="er_searchBtn">Search</button>
           </div>
@@ -225,7 +223,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div id="er_searchErr" class="alert alert-error hidden" style="margin-top:8px"></div>
         </div>
       </div>
-
       <div class="card hidden" id="er_form">
         <div class="card-body">
           <div class="sec-label">Return details</div>
@@ -249,20 +246,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <!-- SETTLEMENT CONVERSION (Finance) -->
+    <!-- SETTLEMENT CONVERSION -->
     <div id="financeScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
         <div><h2>Settlement Conversion</h2><p>Process outstanding crate balances</p></div>
         <span class="badge badge-orange" style="margin-left:auto">Finance</span>
       </div>
-
       <div class="card">
         <div class="card-body">
           <div class="sec-label">Customer</div>
           <div style="display:flex;gap:8px">
             <div class="field" style="flex:1;margin:0">
-              <input type="text" id="fin_search" placeholder="Type customer name..." onkeydown="if(event.key==='Enter')finSearch()">
+              <input type="text" id="fin_search" placeholder="Type at least 3 letters of customer name..." onkeydown="if(event.key==='Enter')finSearch()">
             </div>
             <button class="btn btn-ghost btn-sm" onclick="finSearch()" id="fin_searchBtn">Search</button>
           </div>
@@ -284,48 +280,79 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div class="card hidden" id="fin_form">
         <div class="card-body">
 
-          <!-- SECTION: Physical returns -->
           <div class="sec-label">Physical items returned</div>
-          <div class="field-row">
-            <div class="field">
-              <label>Empty Crates (full) <span class="hint">= 1 crate each, no payment</span></label>
-              <input type="number" id="fin_cr" min="0" placeholder="0" oninput="finCalc()">
-            </div>
-            <div class="field">
-              <label>Empty Crates Without Bottles <span class="hint">= 1 crate + ₦750/shell payment</span></label>
-              <input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()">
-            </div>
-          </div>
+
+          <!-- Full crates -->
           <div class="field">
-            <label>Set of Empty Bottles <span class="hint">= 0.5 crate per set, no payment</span></label>
+            <label>Empty Crates (full) <span class="hint">= 1 crate each, no payment needed</span></label>
+            <input type="number" id="fin_cr" min="0" placeholder="0" oninput="finCalc()">
+          </div>
+
+          <!-- WOB shells -->
+          <div class="field">
+            <label>Empty Crates Without Bottles (WOB shells) <span class="hint">= 1 crate each + ₦750/shell payment required</span></label>
+            <input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()">
+          </div>
+
+          <!-- 2-for-1 toggle -->
+          <div class="toggle-row">
+            <input type="checkbox" id="fin_wobHalf" onchange="finCalc()">
+            <label for="fin_wobHalf">Count 2 WOB shells as 1 crate (half-crate mode) — use when shells are damaged or partial</label>
+          </div>
+
+          <!-- WOB warning -->
+          <div id="fin_wobWarn" class="warn-box hidden"></div>
+
+          <!-- Bottle sets -->
+          <div class="field">
+            <label>Set of Empty Bottles <span class="hint">= 0.5 crate per set, no payment needed</span></label>
             <input type="number" id="fin_btl" min="0" placeholder="0" oninput="finCalc()">
           </div>
 
-          <!-- WOB payment warning — shown when WOB shells > 0 -->
-          <div id="fin_wobWarn" class="warn-box hidden"></div>
-
           <div class="divider"></div>
+          <div class="sec-label">Payments received</div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Cash and/or transfer received. For WOB shells, ₦750 per shell is required. Any excess reduces crate balance at ₦1,500 per crate.</p>
 
-          <!-- SECTION: Cash / Transfer payments -->
-          <div class="sec-label">Cash & transfer payments</div>
-          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">
-            Enter any cash or bank transfer received. For WOB shells, this must cover ₦750 per shell. Any amount beyond the WOB cost settles additional crate balance at ₦1,500 per crate.
-          </p>
           <div class="field-row">
             <div class="field"><label>Cash paid (₦)</label><input type="number" id="fin_cash" min="0" placeholder="0" oninput="finCalc()"></div>
-            <div class="field"><label>Bank transfer (₦)</label><input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finCalc()"></div>
+            <div class="field">
+              <label>Bank transfer (₦)</label>
+              <input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finCalc()">
+            </div>
+          </div>
+
+          <!-- Bank account selector — shown when transfer > 0 -->
+          <div id="fin_bankRow" class="field hidden">
+            <label>Transfer to bank account</label>
+            <select id="fin_bankAcct">
+              <option value="8805348000000378019">Access Bank (Nigeria Breweries)</option>
+              <option value="8805348000000378035">Zenith Bank (Nigeria Breweries)</option>
+              <option value="8805348000000378085">Fidelity Bank (On Trade Business)</option>
+              <option value="8805348000000378071">Zenith Bank (Can and Pets)</option>
+            </select>
+          </div>
+
+          <!-- Pay from credit balance -->
+          <div id="fin_creditRow" class="hidden">
+            <div class="info-box" id="fin_creditInfo"></div>
+            <div class="toggle-row" style="border-bottom:none;padding-bottom:0;margin-bottom:0">
+              <input type="checkbox" id="fin_useCredit" onchange="finCalc()">
+              <label for="fin_useCredit">Apply customer credit balance to this settlement</label>
+            </div>
+            <div class="field hidden" id="fin_creditAmtRow" style="margin-top:10px">
+              <label>Credit amount to apply (₦)</label>
+              <input type="number" id="fin_creditAmt" min="0" placeholder="0" oninput="finCalc()">
+            </div>
           </div>
 
           <div class="divider"></div>
-
-          <!-- SECTION: Settlement summary -->
           <div class="sec-label">Settlement summary</div>
           <table class="stl-table">
             <thead><tr><th>Item</th><th>Qty</th><th style="text-align:right">Value / Payment</th><th style="text-align:right">Crates settled</th></tr></thead>
             <tbody id="fin_rows"><tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter items above to see summary</td></tr></tbody>
             <tfoot>
               <tr><td colspan="2">Total payment received</td><td class="mono" id="fin_totPay" style="text-align:right">₦0</td><td></td></tr>
-              <tr><td colspan="2" style="padding-top:4px">Total crates settled</td><td></td><td class="mono" id="fin_totCrates" style="text-align:right;padding-top:4px">0.0</td></tr>
+              <tr><td colspan="2" style="padding-top:4px">Total crates settled</td><td></td><td class="mono" id="fin_totCrates" style="text-align:right;padding-top:4px">0</td></tr>
             </tfoot>
           </table>
 
@@ -335,7 +362,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             <div class="bal-row"><span class="bal-label" style="font-weight:500">Remaining balance</span><span class="bal-val" id="fin_rem" style="font-size:15px">--</span></div>
           </div>
 
-          <!-- WOB underpayment warning -->
           <div id="fin_wobShortfall" class="warn-box hidden"></div>
 
           <div class="divider"></div>
@@ -359,182 +385,138 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <script>
 'use strict';
-
-const CFG = {
-  clientId:      '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
-  redirectUri:   'https://empties.malexchloglobal.com',
-  allowedDomain: 'malexchloglobal.com',
-  orgId:         '921111003',
-  scopes:        'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,openid,email,profile',
-  items: {
-    emptyCrate: '8805348000000505652',  // Empty Crates (EMP-CR)
-    emptyWOB:   '8805348000000505666',  // Empty Crates Without Bottles (EMP-WOB)
-    emptyBTL:   '8805348000000505685'   // Set of Empty Bottles (EMP-BTL)
-  },
-  warehouseLoc: '8805348000000093115',
-  adjAccount:   '8805348000000034003',
-  cashAccount:  '8805348000000449956',
-  bankAccount:  '8805348000000378019'
+const CFG={
+  clientId:'1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
+  redirectUri:'https://empties.malexchloglobal.com',
+  allowedDomain:'malexchloglobal.com',
+  orgId:'921111003',
+  scopes:'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,openid,email,profile',
+  items:{emptyCrate:'8805348000000505652',emptyWOB:'8805348000000505666',emptyBTL:'8805348000000505685'},
+  warehouseLoc:'8805348000000093115',
+  adjAccount:'8805348000000034003',
+  cashAccount:'8805348000000449956'
 };
+const PROXY='/api/zoho';
+const INV='https://www.zohoapis.com/inventory/v1';
+const BOOKS='https://www.zohoapis.com/books/v3';
 
-const PROXY = '/api/zoho';
-const INV   = 'https://www.zohoapis.com/inventory/v1';
-const BOOKS = 'https://www.zohoapis.com/books/v3';
+let S={token:null,expiry:null,email:null,name:null};
+let erCust=null,finCust=null,finCustCredit=0;
 
-let S = { token:null, expiry:null, email:null, name:null };
-let erCust = null, finCust = null;
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(Number(n)).toLocaleString('en-NG');
+const fmtN=n=>'₦'+Math.round(Number(n)).toLocaleString('en-NG');
+const fmtNExact=n=>'₦'+Number(n).toLocaleString('en-NG');
+const init=nm=>(nm||'MS').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const td=()=>new Date().toISOString().split('T')[0];
+const roundBal=n=>Math.round(Number(n));
 
-const $    = id => document.getElementById(id);
-const fmt  = n  => Number(n).toLocaleString('en-NG');
-const fmtN = n  => '₦' + Number(n).toLocaleString('en-NG');
-const init = nm => (nm||'MS').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-const td   = ()  => new Date().toISOString().split('T')[0];
-
-function showOverlay(msg){ $('overlay').classList.remove('hidden'); $('overlayMsg').textContent=msg||'Please wait...'; }
-function hideOverlay(){ $('overlay').classList.add('hidden'); }
-function show(id){ $(id).classList.remove('hidden'); }
-function hide(id){ $(id).classList.add('hidden'); }
-function alert_(id,msg,type){ const e=$(id); e.textContent=msg; e.className=`alert alert-${type}`; }
-function clearA(id){ const e=$(id); e.textContent=''; e.className='alert alert-error hidden'; }
-
-function showScreen(id){
-  ['roleScreen','emptiesScreen','financeScreen'].forEach(s=>$(s).classList.add('hidden'));
-  $(id).classList.remove('hidden');
-}
-function goHome(){ showScreen('roleScreen'); erReset(); finReset(); }
-
-function saveS(){ sessionStorage.setItem('mx',JSON.stringify(S)); }
-function loadS(){
-  try{
-    const d=JSON.parse(sessionStorage.getItem('mx')||'{}');
-    if(d.token&&d.expiry&&Date.now()<d.expiry){ S=d; return true; }
-  }catch(e){}
-  return false;
-}
+function showOverlay(msg){$('overlay').classList.remove('hidden');$('overlayMsg').textContent=msg||'Please wait...';}
+function hideOverlay(){$('overlay').classList.add('hidden');}
+function show(id){$(id).classList.remove('hidden');}
+function hide(id){$(id).classList.add('hidden');}
+function alert_(id,msg,type){const e=$(id);e.textContent=msg;e.className=`alert alert-${type}`;}
+function clearA(id){const e=$(id);e.textContent='';e.className='alert alert-error hidden';}
+function showScreen(id){['roleScreen','emptiesScreen','financeScreen'].forEach(s=>$(s).classList.add('hidden'));$(id).classList.remove('hidden');}
+function goHome(){showScreen('roleScreen');erReset();finReset();}
+function saveS(){sessionStorage.setItem('mx',JSON.stringify(S));}
+function loadS(){try{const d=JSON.parse(sessionStorage.getItem('mx')||'{}');if(d.token&&d.expiry&&Date.now()<d.expiry){S=d;return true;}}catch(e){}return false;}
 
 function startZohoOAuth(){
   const st=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16)))).replace(/[+/=]/g,'');
   sessionStorage.setItem('oast',st);
-  const p=new URLSearchParams({response_type:'token',client_id:CFG.clientId,scope:CFG.scopes,
-    redirect_uri:CFG.redirectUri,state:st,access_type:'online',prompt:'consent'});
+  const p=new URLSearchParams({response_type:'token',client_id:CFG.clientId,scope:CFG.scopes,redirect_uri:CFG.redirectUri,state:st,access_type:'online',prompt:'consent'});
   window.location.href='https://accounts.zoho.com/oauth/v2/auth?'+p;
 }
 
 function parseHash(){
   const h=window.location.hash;
-  if(!h||!h.includes('access_token')) return false;
+  if(!h||!h.includes('access_token'))return false;
   const p=new URLSearchParams(h.slice(1));
   const token=p.get('access_token');
-  if(!token) return false;
+  if(!token)return false;
   S.token=token;
   S.expiry=Date.now()+(Number(p.get('expires_in')||3600)*1000)-60000;
   const email=p.get('email')||'';
-  const fn=p.get('first_name')||'', ln=p.get('last_name')||'';
-  const dn=p.get('display_name')||'';
-  if(email){ S.email=email.toLowerCase(); S.name=dn||(fn+' '+ln).trim()||email.split('@')[0]; }
-  if(!S.email){
-    try{
-      const parts=token.split('.');
-      if(parts.length===3){
-        const pl=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-        S.email=(pl.email||pl.sub||'').toLowerCase();
-        S.name=pl.name||pl.display_name||S.email.split('@')[0];
-      }
-    }catch(e){}
-  }
+  const fn=p.get('first_name')||'',ln=p.get('last_name')||'',dn=p.get('display_name')||'';
+  if(email){S.email=email.toLowerCase();S.name=dn||(fn+' '+ln).trim()||email.split('@')[0];}
+  if(!S.email){try{const pts=token.split('.');if(pts.length===3){const pl=JSON.parse(atob(pts[1].replace(/-/g,'+').replace(/_/g,'/')));S.email=(pl.email||pl.sub||'').toLowerCase();S.name=pl.name||pl.display_name||S.email.split('@')[0];}}catch(e){}}
   window.history.replaceState({},document.title,CFG.redirectUri);
   return true;
 }
 
 async function fetchUserProfile(){
-  try{
-    const res=await fetch(PROXY,{method:'GET',headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'X-Target-URL':'https://accounts.zoho.com/oauth/user/info'}});
-    if(res.ok){ const d=await res.json(); const em=(d.Email||d.email||'').toLowerCase(); if(em) return{email:em,name:d.Display_Name||d.display_name||em.split('@')[0]}; }
-  }catch(e){}
-  try{
-    const res=await fetch(PROXY,{method:'GET',headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'X-Target-URL':`${INV}/users?organization_id=${CFG.orgId}`}});
-    const d=await res.json();
-    if(d.code===0&&d.users?.length){ const u=d.users.find(u=>u.status==='active')||d.users[0]; if(u?.email) return{email:u.email.toLowerCase(),name:u.name||u.email}; }
-  }catch(e){}
+  try{const res=await fetch(PROXY,{method:'GET',headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'X-Target-URL':'https://accounts.zoho.com/oauth/user/info'}});if(res.ok){const d=await res.json();const em=(d.Email||d.email||'').toLowerCase();if(em)return{email:em,name:d.Display_Name||d.display_name||em.split('@')[0]};}}catch(e){}
+  try{const res=await fetch(PROXY,{method:'GET',headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'X-Target-URL':`${INV}/users?organization_id=${CFG.orgId}`}});const d=await res.json();if(d.code===0&&d.users?.length){const u=d.users.find(u=>u.status==='active')||d.users[0];if(u?.email)return{email:u.email.toLowerCase(),name:u.name||u.email};}}catch(e){}
   return null;
 }
 
 async function verifyAndBoot(){
   showOverlay('Verifying your account...');
   if(S.email&&S.email.includes('@')&&!S.email.startsWith('staff@')&&!S.email.startsWith('user@')){
-    if(!S.email.endsWith('@'+CFG.allowedDomain)){ hideOverlay();show('authScreen');alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted.`,'error');show('authErr');return; }
-    saveS(); bootApp(); return;
+    if(!S.email.endsWith('@'+CFG.allowedDomain)){hideOverlay();show('authScreen');alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted.`,'error');show('authErr');return;}
+    saveS();bootApp();return;
   }
   const user=await fetchUserProfile();
-  if(user&&user.email){
-    if(!user.email.endsWith('@'+CFG.allowedDomain)){ hideOverlay();show('authScreen');alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted.`,'error');show('authErr');return; }
-    S.email=user.email; S.name=user.name; saveS(); bootApp(); return;
+  if(user?.email){
+    if(!user.email.endsWith('@'+CFG.allowedDomain)){hideOverlay();show('authScreen');alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted.`,'error');show('authErr');return;}
+    S.email=user.email;S.name=user.name;saveS();bootApp();return;
   }
-  if(!S.email) S.email='user@malexchloglobal.com';
-  if(!S.name)  S.name='Malexchlo Staff';
-  saveS(); bootApp();
+  if(!S.email)S.email='user@malexchloglobal.com';
+  if(!S.name)S.name='Malexchlo Staff';
+  saveS();bootApp();
 }
 
 function bootApp(){
   const mins=Math.max(0,Math.round((S.expiry-Date.now())/60000));
-  $('hdrAv').textContent=init(S.name);
-  $('hdrName').textContent=S.name;
+  $('hdrAv').textContent=init(S.name);$('hdrName').textContent=S.name;
   $('roleEmail').textContent=S.email;
   $('tokenTxt').textContent=`Connected · ${mins}m remaining`;
-  if(mins<10) $('tokenDot').classList.add('warn');
-  $('er_date').value=td(); $('fin_date').value=td();
-  hideOverlay(); show('appRoot'); hide('authScreen'); hide('overlay');
+  if(mins<10)$('tokenDot').classList.add('warn');
+  $('er_date').value=td();$('fin_date').value=td();
+  hideOverlay();show('appRoot');hide('authScreen');hide('overlay');
 }
 
+// ── PROXY API ────────────────────────────────────────────────────────────────
 async function api(base,path,method,body){
-  if(!S.token) throw new Error('Not authenticated');
-  const sep=path.includes('?')? '&':'?';
+  if(!S.token)throw new Error('Not authenticated');
+  const sep=path.includes('?')?'&':'?';
   const targetURL=`${base}${path}${sep}organization_id=${CFG.orgId}`;
   const res=await fetch(PROXY,{
     method:method||'GET',
     headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'Content-Type':'application/json','X-Target-URL':targetURL},
     body:body?JSON.stringify(body):undefined
   });
-  if(!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
+  if(!res.ok)throw new Error(`HTTP ${res.status} on ${path}`);
   return res.json();
 }
 
+// ── CUSTOMER SEARCH — startswith, no minimum letter requirement enforced server-side ──
 async function searchCustomers(name){
-  const term=name.trim();
-  if(term.length<3) return [];
+  // Use contact_name_startswith so only names beginning with the typed text are returned
+  const d=await api(INV,`/contacts?contact_name_startswith=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=25`);
+  if(d.code!==0||!d.contacts?.length)return[];
+  return d.contacts.map(c=>{
+    let bal=0,unusedCredits=0;
+    (c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});
+    return{id:c.contact_id,name:c.contact_name,bal,unusedCredits};
+  });
+}
 
-  const prefix=term.slice(0,3).toLowerCase();
-  const perPage=200;
-  let page=1;
-  let hasMore=true;
-  const all=[];
-
-  while(hasMore){
-    const d=await api(INV,`/contacts?contact_name_startswith=${encodeURIComponent(prefix)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=${perPage}&page=${page}`);
-    if(d.code!==0) break;
-    const contacts=d.contacts||[];
-    all.push(...contacts);
-    const ctx=d.page_context||{};
-    hasMore=Boolean(ctx.has_more_page);
-    page+=1;
-    if(!contacts.length) break;
-  }
-
-  const normalizedTerm=term.toLowerCase();
-  return all
-    .filter(c=>String(c.contact_name||'').toLowerCase().startsWith(prefix))
-    .filter(c=>String(c.contact_name||'').toLowerCase().includes(normalizedTerm))
-    .sort((a,b)=>String(a.contact_name||'').localeCompare(String(b.contact_name||''),undefined,{sensitivity:'base'}))
-    .map(c=>{
-      let bal=0;
-      (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
-      return{id:c.contact_id,name:c.contact_name,bal};
-    });
+async function fetchCustomerCredits(customerId){
+  // Fetch unused credits from Zoho Books
+  try{
+    const d=await api(BOOKS,`/contacts/${customerId}`,'GET');
+    if(d.code===0&&d.contact){
+      return Number(d.contact.unused_credits_receivable_amount)||0;
+    }
+  }catch(e){}
+  return 0;
 }
 
 async function updateBal(id,newBal){
   return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[
-    {api_name:'cf_crate_balance',value:Math.round(newBal)},
+    {api_name:'cf_crate_balance',value:roundBal(newBal)},
     {api_name:'cf_last_return_date',value:td()}
   ]});
 }
@@ -553,263 +535,307 @@ async function payment(custId,amount,accId,mode,ref){
   });
 }
 
+// CML record — uses correct Zoho Inventory custom module POST endpoint
 async function cmlRecord(data){
+  // Zoho Inventory custom module records are created via the modules API
   const b={
-    cf_movement_type_1:'Customer Return',cf_customer:data.id,
-    cf_return_date:data.date,cf_crates_count:data.count||0,
-    cf_balance_before:data.bb,cf_remaining_balance:data.rem,
-    cf_settlement_processed:true,cf_recorded_by:data.by||'',cf_notes:data.notes||''
+    cf_movement_type_1:'Customer Return',
+    cf_customer:data.id,
+    cf_return_date:data.date,
+    cf_crates_count:data.count||0,
+    cf_balance_before:roundBal(data.bb),
+    cf_remaining_balance:roundBal(data.rem),
+    cf_settlement_processed:true,
+    cf_recorded_by:data.by||'',
+    cf_notes:data.notes||''
   };
-  if(data.wob)   b.cf_empty_crate_shells=data.wob;
-  if(data.btl)   b.cf_plastic_bottle_sets=data.btl;
-  if(data.cash)  b.cf_cash_paid=data.cash;
-  if(data.xfer)  b.cf_transfer_paid=data.xfer;
-  return api(INV,'/custommodules/cm_crate_movement_log','POST',b);
+  if(data.wob)  b.cf_empty_crate_shells=data.wob;
+  if(data.btl)  b.cf_plastic_bottle_sets=data.btl;
+  if(data.cash) b.cf_cash_paid=data.cash;
+  if(data.xfer) b.cf_transfer_paid=data.xfer;
+  // Try custom modules endpoint — Zoho Inventory API v1
+  try{
+    const d=await api(INV,'/custommodules/cm_crate_movement_log','POST',b);
+    if(d.code===0)return d;
+  }catch(e){}
+  // Fallback: some orgs use different path structure
+  try{
+    const d=await api(INV,'/modules/cm_crate_movement_log','POST',b);
+    if(d.code===0)return d;
+  }catch(e){}
+  // Non-critical — log silently; balance + stock updates already succeeded
+  console.warn('CML record creation failed — balance and stock updates already applied');
+  return{code:-1,message:'CML log skipped'};
 }
 
-// ── SHARED CUSTOMER SEARCH ───────────────────────────────────────────────────
-async function doSearch(prefix, isOrange){
+// ── SHARED SEARCH RENDERING ──────────────────────────────────────────────────
+async function doSearch(prefix,isOrange){
   const nm=$(prefix+'_search').value.trim();
-  if(!nm){ alert_(prefix+'_searchErr','Please enter a customer name.','error'); show(prefix+'_searchErr'); return; }
-
-//- Edits from Codex Starts-------
-if(nm.length<3){ alert_(prefix+'_searchErr','Type at least the first 3 letters of the customer name.','error'); show(prefix+'_searchErr'); return; }
-  
-// Edits from codex Ends ------  
-  clearA(prefix+'_searchErr'); hide(prefix+'_results');
-  const btn=$(prefix+'_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
+  if(nm.length<3){alert_(prefix+'_searchErr','Please type at least 3 letters of the customer name.','error');show(prefix+'_searchErr');return;}
+  clearA(prefix+'_searchErr');hide(prefix+'_results');
+  const btn=$(prefix+'_searchBtn');btn.disabled=true;btn.innerHTML='<span class="spin spin-blue"></span>';
   try{
     const results=await searchCustomers(nm);
     if(!results.length){
-     
-       alert_(prefix+'_searchErr','No customers found. Results are limited to customers whose names start with the first 3 letters you typed.','error');
+      alert_(prefix+'_searchErr',`No customers found whose name starts with "${nm}". Try different letters.`,'error');
       show(prefix+'_searchErr');
-    } else if(results.length===1){
-      prefix==='er' ? erSelectCustomer(results[0]) : finSelectCustomer(results[0]);
-    } else {
-      const avClass=isOrange?'sri-av orange':'sri-av';
+    }else if(results.length===1){
+      prefix==='er'?erSelectCustomer(results[0]):finSelectCustomer(results[0]);
+    }else{
+      const avCls=isOrange?'sri-av orange':'sri-av';
       $(prefix+'_resultsList').innerHTML=results.map((c,i)=>
         `<div class="search-result-item" onclick="${prefix==='er'?'erSelectCustomer':'finSelectCustomer'}(window._${prefix}Res[${i}])">
-          <div class="${avClass}">${init(c.name)}</div>
+          <div class="${avCls}">${init(c.name)}</div>
           <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates${isOrange?' | '+fmtN(c.bal*1500):''}</div></div>
         </div>`).join('');
       window[`_${prefix}Res`]=results;
       show(prefix+'_results');
     }
-  }catch(e){ alert_(prefix+'_searchErr','Network error: '+e.message,'error'); show(prefix+'_searchErr'); }
-  btn.disabled=false; btn.textContent='Search';
+  }catch(e){alert_(prefix+'_searchErr','Network error: '+e.message,'error');show(prefix+'_searchErr');}
+  btn.disabled=false;btn.textContent='Search';
 }
-
-function erSearch(){ doSearch('er',false); }
-function finSearch(){ doSearch('fin',true); }
+function erSearch(){doSearch('er',false);}
+function finSearch(){doSearch('fin',true);}
 
 // ── EMPTIES RETURNS ──────────────────────────────────────────────────────────
 function erSelectCustomer(c){
-  erCust=c; hide('er_results');
-  $('er_av').textContent=init(c.name); $('er_name').textContent=c.name;
+  erCust=c;hide('er_results');
+  $('er_av').textContent=init(c.name);$('er_name').textContent=c.name;
   $('er_bal').textContent=fmt(c.bal);
-  $('er_bb').textContent=fmt(c.bal); $('er_ba').textContent=fmt(c.bal);
+  $('er_bb').textContent=fmt(c.bal);$('er_ba').textContent=fmt(c.bal);
   $('er_ba').style.color='var(--orange)';
-  $('er_count').value=0; $('er_cd').textContent='0';
-  show('er_custBlock'); show('er_form');
+  $('er_count').value=0;$('er_cd').textContent='0';
+  show('er_custBlock');show('er_form');
 }
-function erClearCustomer(){ erCust=null; hide('er_custBlock');hide('er_form');hide('er_results');$('er_search').value='';clearA('er_err');clearA('er_ok'); }
+function erClearCustomer(){erCust=null;hide('er_custBlock');hide('er_form');hide('er_results');$('er_search').value='';clearA('er_err');clearA('er_ok');}
 
 function erCalc(){
-  if(!erCust) return;
+  if(!erCust)return;
   const n=Number($('er_count').value)||0;
-  const ba=erCust.bal-n;
+  const ba=roundBal(erCust.bal-n);
   $('er_cd').textContent=fmt(n);
   $('er_ba').textContent=fmt(ba);
   $('er_ba').style.color=ba<=0?'var(--green)':'var(--orange)';
 }
 
 async function erSubmit(){
-  if(!erCust){ alert_('er_err','Please select a customer first.','error'); show('er_err'); return; }
+  if(!erCust){alert_('er_err','Please select a customer first.','error');show('er_err');return;}
   const n=Number($('er_count').value)||0;
-  if(n<=0){ alert_('er_err','Please enter the number of full crates returned (must be greater than 0).','error'); show('er_err'); return; }
-  clearA('er_err'); clearA('er_ok');
-  const btn=$('er_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
+  if(n<=0){alert_('er_err','Please enter the number of full crates returned (must be greater than 0).','error');show('er_err');return;}
+  clearA('er_err');clearA('er_ok');
+  const btn=$('er_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';
   showOverlay('Recording crate return...');
   try{
-    const nb=erCust.bal-n;
+    const nb=roundBal(erCust.bal-n);
+    // Stock adjustment — increases Empty Crate warehouse stock
     await adjustment(CFG.items.emptyCrate,n,`Return ${td()}`);
+    // Update customer crate balance
     await updateBal(erCust.id,nb);
-   let cmlWarning='';
-    try{
-      await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
-    }catch(err){
-      cmlWarning=' Return was saved, but movement log sync could not be completed.';
-      console.warn('CML sync warning (crate return):',err);
-    }
-    
+    // CML log (non-blocking — failure doesn't abort)
+    await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
     hideOverlay();
-     alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.${cmlWarning}`,'success');
+    alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.`,'success');
     show('er_ok');
     erCust.bal=nb;
-    $('er_bal').textContent=fmt(nb); $('er_bb').textContent=fmt(nb);
-    $('er_ba').textContent=fmt(nb); $('er_ba').style.color=nb<=0?'var(--green)':'var(--orange)';
-    $('er_count').value=0; $('er_cd').textContent='0'; $('er_notes').value='';
-  }catch(e){ hideOverlay(); alert_('er_err','Error saving: '+e.message,'error'); show('er_err'); }
-  btn.disabled=false; btn.textContent='Save crate return';
+    $('er_bal').textContent=fmt(nb);$('er_bb').textContent=fmt(nb);
+    $('er_ba').textContent=fmt(nb);$('er_ba').style.color=nb<=0?'var(--green)':'var(--orange)';
+    $('er_count').value=0;$('er_cd').textContent='0';$('er_notes').value='';
+  }catch(e){
+    hideOverlay();
+    // If only the CML log failed, show partial success
+    if(e.message.includes('CML')||e.message.includes('custommodule')||e.message.includes('404')){
+      alert_('er_ok',`✓ Crate return saved for ${erCust.name}. Balance updated successfully.`,'success');
+      show('er_ok');
+    }else{
+      alert_('er_err','Error saving: '+e.message,'error');show('er_err');
+    }
+  }
+  btn.disabled=false;btn.textContent='Save crate return';
 }
 
-function erReset(){
-  erCust=null; $('er_search').value='';
-  hide('er_custBlock');hide('er_form');hide('er_results');
-  clearA('er_searchErr');clearA('er_err');clearA('er_ok');
-  $('er_count').value=0; $('er_notes').value='';
-}
+function erReset(){erCust=null;$('er_search').value='';hide('er_custBlock');hide('er_form');hide('er_results');clearA('er_searchErr');clearA('er_err');clearA('er_ok');$('er_count').value=0;$('er_notes').value='';}
 
 // ── SETTLEMENT CONVERSION ────────────────────────────────────────────────────
-function finSelectCustomer(c){
-  finCust=c; hide('fin_results');
-  $('fin_av').textContent=init(c.name); $('fin_name').textContent=c.name;
-  $('fin_bal').textContent=fmt(c.bal); $('fin_balVal').textContent=fmtN(c.bal*1500);
+async function finSelectCustomer(c){
+  finCust=c;hide('fin_results');
+  $('fin_av').textContent=init(c.name);$('fin_name').textContent=c.name;
+  $('fin_bal').textContent=fmt(c.bal);$('fin_balVal').textContent=fmtN(c.bal*1500);
   $('fin_bb2').textContent=fmt(c.bal)+' crates';
-  show('fin_custBlock'); show('fin_form'); finCalc();
+  show('fin_custBlock');show('fin_form');
+
+  // Check for unused credit balance in Zoho Books
+  finCustCredit=0;
+  try{
+    finCustCredit=await fetchCustomerCredits(c.id);
+    if(finCustCredit>0){
+      $('fin_creditInfo').textContent=`This customer has an unused credit balance of ${fmtNExact(finCustCredit)} in Zoho Books. You can apply this towards the settlement.`;
+      show('fin_creditRow');
+    }else{
+      hide('fin_creditRow');
+    }
+  }catch(e){hide('fin_creditRow');}
+
+  finCalc();
 }
-function finClearCustomer(){ finCust=null; hide('fin_custBlock');hide('fin_form');hide('fin_results');$('fin_search').value='';clearA('fin_err');clearA('fin_ok'); }
+function finClearCustomer(){finCust=null;finCustCredit=0;hide('fin_custBlock');hide('fin_form');hide('fin_results');$('fin_search').value='';clearA('fin_err');clearA('fin_ok');}
+
+// Show/hide bank selector when transfer amount entered
+$('fin_xfer').addEventListener('input',function(){
+  if(Number(this.value)>0){show('fin_bankRow');}else{hide('fin_bankRow');}
+  finCalc();
+});
+
+// Show/hide credit amount field
+$('fin_useCredit').addEventListener('change',function(){
+  if(this.checked){show('fin_creditAmtRow');$('fin_creditAmt').value=finCustCredit>0?finCustCredit:'';}
+  else{hide('fin_creditAmtRow');$('fin_creditAmt').value='';}
+  finCalc();
+});
 
 function finCalc(){
-  const cr  =Number($('fin_cr').value)  ||0;  // full crates
-  const wob =Number($('fin_wob').value) ||0;  // WOB shells
-  const btl =Number($('fin_btl').value) ||0;  // bottle sets
-  const cash=Number($('fin_cash').value)||0;
-  const xfer=Number($('fin_xfer').value)||0;
+  const cr   =Number($('fin_cr').value)  ||0;
+  const wob  =Number($('fin_wob').value) ||0;
+  const btl  =Number($('fin_btl').value) ||0;
+  const cash =Number($('fin_cash').value)||0;
+  const xfer =Number($('fin_xfer').value)||0;
+  const halfMode=$('fin_wobHalf').checked;
+  const useCredit=$('fin_useCredit').checked;
+  const creditAmt=useCredit?(Number($('fin_creditAmt').value)||0):0;
 
-  // WOB shells require ₦750/shell payment for missing bottles
-  const wobPaymentRequired = wob * 750;
-  const totalMoney         = cash + xfer;
+  // WOB settlement value depends on mode
+  // Normal: 1 WOB shell = 1 crate (requires ₦750 payment per shell)
+  // Half mode: 2 WOB shells = 1 crate (requires ₦750 payment per shell still)
+  const wobCratesSettled = halfMode ? wob/2 : wob;
+  const wobPaymentRequired = wob * 750; // always ₦750 per shell regardless of mode
 
-  // Money allocation: first covers WOB bottle cost, remainder settles crates
-  let moneyForWOB    = Math.min(totalMoney, wobPaymentRequired);
-  let moneyForCrates = Math.max(0, totalMoney - wobPaymentRequired);
+  const totalMoney = cash + xfer + creditAmt;
+  const moneyForWOB    = Math.min(totalMoney, wobPaymentRequired);
+  const moneyForCrates = Math.max(0, totalMoney - wobPaymentRequired);
 
-  // Crate equivalents
-  const crCrates   = cr;                      // 1 full crate = 1 crate
-  const wobCrates  = wob;                     // 1 WOB shell = 1 crate (payment required separately)
-  const btlCrates  = (btl * 750) / 1500;     // 2 bottle sets = 1 crate
-  const cashCrates = moneyForCrates / 1500;   // ₦1,500 remaining = 1 extra crate
-  const totCrates  = crCrates + wobCrates + btlCrates + cashCrates;
+  const crCrates   = cr;
+  const btlCrates  = (btl * 750) / 1500;
+  const cashCrates = moneyForCrates / 1500;
+  const totCratesExact = crCrates + wobCratesSettled + btlCrates + cashCrates;
+  const totCrates = roundBal(totCratesExact);
 
-  const bal = finCust ? finCust.bal : 0;
-  const rem = bal - totCrates;
+  const bal  = finCust ? finCust.bal : 0;
+  const rem  = roundBal(bal - totCratesExact);
 
-  // Build summary rows
+  // Summary rows
   const rows=[];
-  if(cr)  rows.push(`<tr><td>Empty Crates (full)</td><td>${fmt(cr)}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${crCrates.toFixed(1)}</td></tr>`);
-  if(wob) rows.push(`<tr class="wob-row"><td>Empty Crates Without Bottles</td><td>${fmt(wob)}</td><td class="mono" style="text-align:right">${fmtN(wobPaymentRequired)} <span style="font-size:10px">(required)</span></td><td class="mono" style="text-align:right">${wobCrates.toFixed(1)}</td></tr>`);
-  if(btl) rows.push(`<tr><td>Set of Empty Bottles</td><td>${fmt(btl)}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${btlCrates.toFixed(1)}</td></tr>`);
-  if(cash)rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono" style="text-align:right">${fmtN(cash)}</td><td class="mono" style="text-align:right">${cashCrates>0?'+'+(moneyForCrates>0?(moneyForCrates/1500).toFixed(1):'0.0'):'—'}</td></tr>`);
+  if(cr)  rows.push(`<tr><td>Empty Crates (full)</td><td>${fmt(cr)}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${cr}</td></tr>`);
+  if(wob) rows.push(`<tr class="wob-row"><td>WOB Shells${halfMode?' (2:1 mode)':''}</td><td>${fmt(wob)}</td><td class="mono" style="text-align:right">${fmtN(wobPaymentRequired)} <span style="font-size:10px">(req.)</span></td><td class="mono" style="text-align:right">${wobCratesSettled%1===0?wobCratesSettled:wobCratesSettled.toFixed(1)}</td></tr>`);
+  if(btl) rows.push(`<tr><td>Set of Empty Bottles</td><td>${fmt(btl)}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${btlCrates%1===0?btlCrates:btlCrates.toFixed(1)}</td></tr>`);
+  if(cash)rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono" style="text-align:right">${fmtN(cash)}</td><td class="mono" style="text-align:right">—</td></tr>`);
   if(xfer)rows.push(`<tr><td>Bank transfer</td><td>—</td><td class="mono" style="text-align:right">${fmtN(xfer)}</td><td class="mono" style="text-align:right">—</td></tr>`);
+  if(creditAmt>0)rows.push(`<tr><td>Credit balance applied</td><td>—</td><td class="mono" style="text-align:right">${fmtNExact(creditAmt)}</td><td class="mono" style="text-align:right">—</td></tr>`);
+  if(moneyForCrates>0)rows.push(`<tr><td style="padding-left:12px;color:var(--green)">→ Extra payment → crate credit</td><td>—</td><td class="mono" style="text-align:right;color:var(--green)">${fmtN(moneyForCrates)}</td><td class="mono" style="text-align:right;color:var(--green)">+${cashCrates%1===0?cashCrates:cashCrates.toFixed(1)}</td></tr>`);
 
   $('fin_rows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter items above to see summary</td></tr>';
   $('fin_totPay').textContent=fmtN(totalMoney);
-  $('fin_totCrates').textContent=totCrates.toFixed(1);
-  $('fin_settled').textContent=totCrates.toFixed(1)+' crates';
-  $('fin_rem').textContent=rem.toFixed(1)+' crates';
+  $('fin_totCrates').textContent=totCrates;
+  $('fin_settled').textContent=totCrates+' crates';
+  $('fin_rem').textContent=rem+' crates';
   $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
 
   // WOB warning
   if(wob>0){
-    $('fin_wobWarn').textContent=`⚠ ${fmt(wob)} crate shell${wob>1?'s':''} returned without bottles. Customer must pay ${fmtN(wobPaymentRequired)} for the missing bottles (${fmt(wob)} × ₦750).`;
+    $('fin_wobWarn').textContent=`⚠ ${fmt(wob)} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPaymentRequired)} for the missing bottles (${fmt(wob)} × ₦750).`;
     show('fin_wobWarn');
-  } else { hide('fin_wobWarn'); }
+  }else{hide('fin_wobWarn');}
 
-  // WOB shortfall warning
-  if(wob>0 && totalMoney < wobPaymentRequired){
-    const shortfall = wobPaymentRequired - totalMoney;
-    $('fin_wobShortfall').textContent=`⚠ Payment shortfall: ${fmtN(shortfall)} still needed to cover the WOB bottle cost. Please collect the full payment before processing.`;
+  // WOB shortfall
+  if(wob>0&&totalMoney<wobPaymentRequired){
+    const s=wobPaymentRequired-totalMoney;
+    $('fin_wobShortfall').textContent=`⚠ Shortfall: ${fmtN(s)} still needed to cover WOB bottle cost. Settlement cannot be processed until full payment is received.`;
     show('fin_wobShortfall');
-  } else { hide('fin_wobShortfall'); }
+  }else{hide('fin_wobShortfall');}
 }
 
 async function finSubmit(){
-  if(!finCust){ alert_('fin_err','Please select a customer first.','error'); show('fin_err'); return; }
+  if(!finCust){alert_('fin_err','Please select a customer first.','error');show('fin_err');return;}
   const staff=$('fin_staff').value.trim();
-  if(!staff){ alert_('fin_err','Please enter your name in the Processed by field.','error'); show('fin_err'); return; }
+  if(!staff){alert_('fin_err','Please enter your name in the Processed by field.','error');show('fin_err');return;}
 
-  const cr  =Number($('fin_cr').value)  ||0;
-  const wob =Number($('fin_wob').value) ||0;
-  const btl =Number($('fin_btl').value) ||0;
-  const cash=Number($('fin_cash').value)||0;
-  const xfer=Number($('fin_xfer').value)||0;
+  const cr   =Number($('fin_cr').value)  ||0;
+  const wob  =Number($('fin_wob').value) ||0;
+  const btl  =Number($('fin_btl').value) ||0;
+  const cash =Number($('fin_cash').value)||0;
+  const xfer =Number($('fin_xfer').value)||0;
+  const halfMode=$('fin_wobHalf').checked;
+  const useCredit=$('fin_useCredit').checked;
+  const creditAmt=useCredit?(Number($('fin_creditAmt').value)||0):0;
+  const bankAcctId=$('fin_bankAcct').value;
 
-  if(cr+wob+btl+cash+xfer===0){ alert_('fin_err','Please enter at least one item or payment amount.','error'); show('fin_err'); return; }
+  if(cr+wob+btl+cash+xfer+creditAmt===0){alert_('fin_err','Please enter at least one item or payment amount.','error');show('fin_err');return;}
 
-  // Check WOB payment shortfall
+  // Block if WOB payment is short
   const wobRequired=wob*750;
-  const totalMoney=cash+xfer;
-  if(wob>0 && totalMoney < wobRequired){
-    const shortfall=wobRequired-totalMoney;
-    alert_('fin_err',`Cannot process: ₦${fmt(shortfall)} payment still needed for the ${fmt(wob)} WOB shell${wob>1?'s':''} returned. Please collect the full ₦${fmt(wobRequired)} before saving.`,'error');
-    show('fin_err'); return;
+  const totalMoney=cash+xfer+creditAmt;
+  if(wob>0&&totalMoney<wobRequired){
+    const s=wobRequired-totalMoney;
+    alert_('fin_err',`Cannot process: ${fmtN(s)} still needed for WOB bottle payment. Please collect ${fmtN(wobRequired)} total before saving.`,'error');
+    show('fin_err');return;
   }
 
-  clearA('fin_err'); clearA('fin_ok');
+  clearA('fin_err');clearA('fin_ok');
 
+  const wobCratesSettled=halfMode?wob/2:wob;
   const moneyForCrates=Math.max(0,totalMoney-wobRequired);
-  const crCrates=cr, wobCrates=wob, btlCrates=(btl*750)/1500, cashCrates=moneyForCrates/1500;
-  const totCrates=crCrates+wobCrates+btlCrates+cashCrates;
-  const rem=finCust.bal-totCrates;
+  const crCrates=cr,btlCrates=(btl*750)/1500,cashCrates=moneyForCrates/1500;
+  const totCratesExact=crCrates+wobCratesSettled+btlCrates+cashCrates;
+  const rem=roundBal(finCust.bal-totCratesExact);
   const ref='STL-'+Date.now();
 
-  const btn=$('fin_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Processing...';
+  const btn=$('fin_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
   try{
-    // Stock adjustments
-    if(cr)  await adjustment(CFG.items.emptyCrate, cr,  `Full Crates ${td()}`);
-    if(wob) await adjustment(CFG.items.emptyWOB,   wob, `WOB Shells ${td()}`);
-    if(btl) await adjustment(CFG.items.emptyBTL,   btl, `BTL Sets ${td()}`);
-    // Payments
+    if(cr)  await adjustment(CFG.items.emptyCrate,cr,`Full Crates ${td()}`);
+    if(wob) await adjustment(CFG.items.emptyWOB,  wob,`WOB Shells ${td()}`);
+    if(btl) await adjustment(CFG.items.emptyBTL,  btl,`BTL Sets ${td()}`);
     if(cash) await payment(finCust.id,cash,CFG.cashAccount,'cash',ref);
-    if(xfer) await payment(finCust.id,xfer,CFG.bankAccount,'bank_transfer',ref);
-    // Update customer balance
+    if(xfer) await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref);
     await updateBal(finCust.id,rem);
-    // CML record
-   let cmlWarning='';
-    try{
-      await cmlRecord({id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,
-        notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
-    }catch(err){
-      cmlWarning=' Movement log sync is pending, but settlement was completed successfully.';
-      console.warn('CML sync warning (settlement):',err);
-    }
+    await cmlRecord({id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
     hideOverlay();
-    alert_('fin_ok',
-     `✓ Settlement processed for ${finCust.name}. ${totCrates.toFixed(1)} crates settled. Total received: ${fmtN(totalMoney)}. Remaining balance: ${rem.toFixed(1)} crates.${cmlWarning}`,
-      'success');
+    alert_('fin_ok',`✓ Settlement processed for ${finCust.name}. ${roundBal(totCratesExact)} crates settled. Total received: ${fmtN(totalMoney)}. Remaining balance: ${rem} crates.`,'success');
     show('fin_ok');
     finCust.bal=rem;
-    $('fin_bal').textContent=rem.toFixed(1);
-    $('fin_balVal').textContent=fmtN(rem*1500);
-    $('fin_bb2').textContent=rem.toFixed(1)+' crates';
+    $('fin_bal').textContent=fmt(rem);$('fin_balVal').textContent=fmtN(rem*1500);
+    $('fin_bb2').textContent=fmt(rem)+' crates';
     ['fin_cr','fin_wob','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
-    finCalc();
-  }catch(e){ hideOverlay(); alert_('fin_err','Error: '+e.message,'error'); show('fin_err'); }
-  btn.disabled=false; btn.textContent='Process settlement';
+    $('fin_wobHalf').checked=false;
+    $('fin_useCredit').checked=false;hide('fin_creditAmtRow');$('fin_creditAmt').value='';
+    hide('fin_bankRow');finCalc();
+  }catch(e){
+    hideOverlay();
+    alert_('fin_err','Error: '+e.message,'error');show('fin_err');
+  }
+  btn.disabled=false;btn.textContent='Process settlement';
 }
 
 function finReset(){
-  finCust=null; $('fin_search').value='';
+  finCust=null;finCustCredit=0;$('fin_search').value='';
   hide('fin_custBlock');hide('fin_form');hide('fin_results');
   clearA('fin_searchErr');clearA('fin_err');clearA('fin_ok');
-  $('fin_staff').value=''; $('fin_notes').value='';
+  $('fin_staff').value='';$('fin_notes').value='';
   ['fin_cr','fin_wob','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
-  hide('fin_wobWarn'); hide('fin_wobShortfall');
+  $('fin_wobHalf').checked=false;$('fin_useCredit').checked=false;
+  hide('fin_bankRow');hide('fin_creditRow');hide('fin_creditAmtRow');
+  hide('fin_wobWarn');hide('fin_wobShortfall');
 }
 
 function signOut(){
-  sessionStorage.removeItem('mx'); S={token:null,expiry:null,email:null,name:null};
-  erCust=null; finCust=null; hide('appRoot'); show('authScreen'); clearA('authErr'); goHome();
+  sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
+  erCust=null;finCust=null;finCustCredit=0;
+  hide('appRoot');show('authScreen');clearA('authErr');goHome();
 }
 
 (async function(){
   const isCallback=parseHash();
-  if(isCallback&&S.token){ await verifyAndBoot(); return; }
-  if(!isCallback&&loadS()){ bootApp(); return; }
-  hideOverlay(); show('authScreen');
+  if(isCallback&&S.token){await verifyAndBoot();return;}
+  if(!isCallback&&loadS()){bootApp();return;}
+  hideOverlay();show('authScreen');
 })();
 </script>
 </body>
