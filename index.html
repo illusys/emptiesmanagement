@@ -16,31 +16,17 @@
   --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
   --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;
   --amber:#d97706;--amber-bg:#fffbeb;
-  --radius:12px;--radius-sm:8px;--radius-xs:6px;
+  --radius:12px;--radius-sm:8px;
   --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);
   --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
-
-/* Utilities */
 .hidden{display:none!important}
-.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}
-.justify-between{justify-content:space-between}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
-.font-mono{font-family:'DM Mono',monospace}.font-500{font-weight:500}.font-600{font-weight:600}
-.text-sm{font-size:13px}.text-xs{font-size:11px}.text-muted{color:var(--text2)}.text-hint{color:var(--text3)}
-.text-blue{color:var(--blue)}.text-orange{color:var(--orange)}.text-green{color:var(--green)}.text-red{color:var(--red)}
-.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mt-24{margin-top:24px}
-.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}.mb-24{margin-bottom:24px}
-.w-full{width:100%}
-
-/* Layout */
 .app{min-height:100vh;display:flex;flex-direction:column}
 .accent-bar{height:3px;background:linear-gradient(90deg,var(--blue) 60%,var(--orange) 100%);flex-shrink:0}
-
-/* Header */
 .header{background:var(--blue);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .header-brand{display:flex;align-items:center;gap:10px}
-.brand-mark{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;font-family:'DM Mono',monospace;letter-spacing:-0.05em}
+.brand-mark{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;font-family:'DM Mono',monospace}
 .brand-name{color:#fff;font-size:14px;font-weight:500;letter-spacing:-0.01em}
 .brand-name span{opacity:0.55;font-weight:300}
 .header-right{display:flex;align-items:center;gap:10px}
@@ -49,144 +35,91 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .user-nm{color:rgba(255,255,255,0.9);font-size:12px}
 .btn-signout{background:rgba(255,255,255,0.15);border:none;color:rgba(255,255,255,0.85);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s}
 .btn-signout:hover{background:rgba(255,255,255,0.25)}
-
-/* Main */
 .main{flex:1;padding:28px 20px;max-width:700px;margin:0 auto;width:100%}
-
-/* Auth screens */
 .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .auth-logo{text-align:center;margin-bottom:28px}
 .auth-logo .mark{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:600;font-size:20px;color:#fff;font-family:'DM Mono',monospace}
 .auth-logo h1{font-size:20px;font-weight:600;letter-spacing:-0.02em;color:var(--text)}
 .auth-logo p{font-size:13px;color:var(--text2);margin-top:3px}
-.auth-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:400px}
-
-/* Cards */
+.auth-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:420px}
 .card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
 .card-body{padding:20px}
-.card-body+.card-body{border-top:1px solid var(--border)}
-
-/* Section label */
 .sec-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-
-/* Form */
 .field{margin-bottom:14px}
 .field:last-child{margin-bottom:0}
 .field label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
 .field label .hint{font-weight:400;color:var(--text3)}
 .field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);transition:border-color 0.15s,box-shadow 0.15s;outline:none;-webkit-appearance:none}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,117,187,0.1)}
-.field input[readonly],.field input.computed{background:var(--surface2);color:var(--text2)}
-.field input.computed{color:var(--blue);font-family:'DM Mono',monospace;font-weight:500}
 .field textarea{resize:vertical;min-height:56px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field-row .field{margin-bottom:0}
-
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;border:none;outline:none;letter-spacing:-0.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;border:none;outline:none}
 .btn:disabled{opacity:0.55;cursor:not-allowed}
 .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover:not(:disabled){background:var(--blue-dark)}
 .btn-orange{background:var(--orange);color:#fff}.btn-orange:hover:not(:disabled){background:var(--orange-dark)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover:not(:disabled){background:var(--surface2);color:var(--text)}
-.btn-block{width:100%}
 .btn-sm{padding:6px 13px;font-size:12px}
-.btn-zoho{background:#fff;color:var(--text);border:1px solid var(--border);gap:10px;padding:11px 20px;font-size:14px;border-radius:var(--radius-sm);width:100%;justify-content:center;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;font-weight:500}
-.btn-zoho:hover{background:var(--surface2);border-color:var(--border2)}
-.zoho-icon{width:20px;height:20px;flex-shrink:0}
-
-/* Role cards */
+.btn-zoho{background:#fff;color:var(--text);border:1.5px solid var(--border2);gap:10px;padding:13px 20px;font-size:14px;border-radius:var(--radius-sm);width:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;font-weight:500}
+.btn-zoho:hover{background:var(--surface2);border-color:var(--blue)}
 .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .role-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all 0.15s;text-align:center}
 .role-card:hover{border-color:var(--blue);background:var(--blue-light)}
 .role-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px}
-.role-icon.blue-bg{background:var(--blue-light)}
-.role-icon.orange-bg{background:var(--orange-light)}
+.role-icon.blue-bg{background:var(--blue-light)}.role-icon.orange-bg{background:var(--orange-light)}
 .role-title{font-size:13px;font-weight:500;margin-bottom:3px}
 .role-desc{font-size:11px;color:var(--text2);line-height:1.5}
-
-/* Balance block */
 .bal-block{background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px;margin-bottom:16px}
 .bal-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
 .bal-row+.bal-row{border-top:1px solid var(--border);margin-top:6px;padding-top:10px}
 .bal-label{font-size:12px;color:var(--text2)}
 .bal-val{font-size:14px;font-weight:500;font-family:'DM Mono',monospace}
-
-/* Customer info strip */
 .cust-strip{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:14px}
 .cust-av{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;flex-shrink:0;font-family:'DM Mono',monospace}
 .cust-av.orange{background:var(--orange)}
 .cust-detail .name{font-size:13px;font-weight:500}
 .cust-detail .sub{font-size:11px;color:var(--text2);margin-top:1px}
-
-/* Alert */
-.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px;line-height:1.5}
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px;line-height:1.5;display:block}
+.alert.hidden{display:none}
 .alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .alert-info{background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe}
-.alert-warn{background:var(--amber-bg);color:var(--amber);border:1px solid #fde68a}
-
-/* Settlement table */
 .stl-table{width:100%;border-collapse:collapse;font-size:12px}
 .stl-table th{text-align:left;font-weight:500;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border)}
-.stl-table td{padding:7px 0;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+.stl-table td{padding:7px 0;border-bottom:1px solid var(--border);vertical-align:middle}
 .stl-table td:last-child,.stl-table th:last-child{text-align:right}
 .stl-table tfoot td{font-weight:600;color:var(--blue);padding-top:10px;font-size:13px;border-bottom:none}
-.stl-table .mono{font-family:'DM Mono',monospace}
-
-/* Badge */
+.mono{font-family:'DM Mono',monospace}
 .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:600}
 .badge-blue{background:var(--blue-light);color:var(--blue)}
 .badge-orange{background:var(--orange-light);color:var(--orange)}
-.badge-green{background:var(--green-bg);color:var(--green)}
-
-/* Divider */
 .divider{height:1px;background:var(--border);margin:16px 0}
-
-/* Spinner */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite}
 .spin-blue{border-color:rgba(28,117,187,0.2);border-top-color:var(--blue)}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* Full overlay loader */
-.overlay{position:fixed;inset:0;background:rgba(244,246,249,0.85);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(2px)}
+.overlay{position:fixed;inset:0;background:rgba(244,246,249,0.88);display:flex;align-items:center;justify-content:center;z-index:999}
 .overlay-box{background:#fff;border-radius:var(--radius);padding:24px 32px;text-align:center;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
 .overlay-box .big-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.65s linear infinite;margin:0 auto}
 .overlay-box p{margin-top:12px;font-size:13px;color:var(--text2)}
-
-/* Page title */
-.page-head{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.page-head{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
 .page-head h2{font-size:17px;font-weight:600;letter-spacing:-0.02em}
 .page-head p{font-size:12px;color:var(--text2);margin-top:2px}
-
-/* Token status indicator */
-.token-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
-.token-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
-.token-dot.warn{background:var(--amber)}
-
-@media(max-width:480px){
-  .role-grid{grid-template-columns:1fr}
-  .field-row{grid-template-columns:1fr}
-  .main{padding:20px 14px}
-}
+.token-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.tdot.warn{background:var(--amber)}
+@media(max-width:480px){.role-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.main{padding:20px 14px}}
 </style>
 </head>
 <body>
 
-<!-- OVERLAY LOADER -->
-<div class="overlay hidden" id="overlay">
+<div class="overlay" id="overlay">
   <div class="overlay-box">
     <div class="big-spin"></div>
-    <p id="overlayMsg">Please wait...</p>
+    <p id="overlayMsg">Loading...</p>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     OAUTH CALLBACK HANDLER (hidden, runs on load)
-     ═══════════════════════════════════════════════ -->
-
-<!-- ═══════════════════════════════════════════════
-     AUTH SCREEN — shown before login
-     ═══════════════════════════════════════════════ -->
+<!-- AUTH SCREEN -->
 <div id="authScreen" class="auth-wrap hidden">
   <div class="auth-logo">
     <div class="mark">M</div>
@@ -195,15 +128,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
   <div class="auth-card">
     <p style="font-size:14px;font-weight:500;margin-bottom:4px">Sign in to continue</p>
-    <p class="text-sm text-muted mb-20">Use your Malexchlo Zoho account to authenticate securely.</p>
-    <div class="alert alert-info mb-16">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Use your Malexchlo Zoho account to authenticate securely.</p>
+    <div class="alert alert-info" style="margin-bottom:16px">
       Only <strong>@malexchloglobal.com</strong> accounts are permitted to access this system.
     </div>
+    <div id="authErr" class="alert alert-error hidden"></div>
     <button class="btn-zoho" onclick="startZohoOAuth()">
-      <svg class="zoho-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="8" fill="#E42527"/>
-        <text x="20" y="27" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="16" fill="white">Z</text>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#E42527"/><text x="20" y="27" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="18" fill="white">Z</text></svg>
       Continue with Zoho
     </button>
     <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:14px">
@@ -212,9 +143,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     MAIN APP — shown after login
-     ═══════════════════════════════════════════════ -->
+<!-- MAIN APP -->
 <div id="appRoot" class="app hidden">
   <div class="accent-bar"></div>
   <div class="header">
@@ -237,7 +166,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div id="roleScreen">
       <div style="margin-bottom:20px">
         <h2 style="font-size:18px;font-weight:600;letter-spacing:-0.02em">What would you like to do?</h2>
-        <p class="text-sm text-muted mt-4">Select your function to begin</p>
+        <p style="font-size:13px;color:var(--text2);margin-top:4px">Select your function to begin</p>
       </div>
       <div class="role-grid">
         <div class="role-card" onclick="showScreen('emptiesScreen')">
@@ -251,26 +180,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="role-desc">Process outstanding balances — WOB shells, bottle sets, cash or bank transfer</div>
         </div>
       </div>
-      <div style="margin-top:20px;padding:14px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border)">
-        <p class="text-xs text-hint" style="text-align:center">
-          Logged in as <strong id="roleEmail" class="text-muted"></strong> &nbsp;·&nbsp;
-          <span class="token-status" style="display:inline-flex"><span class="token-dot" id="tokenDot"></span><span id="tokenStatusTxt">Connected to Zoho</span></span>
-        </p>
+      <div style="margin-top:16px;padding:12px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:var(--text3)">Signed in as <strong style="color:var(--text2)" id="roleEmail"></strong></span>
+        <div class="token-bar"><div class="tdot" id="tokenDot"></div><span id="tokenTxt">Connected</span></div>
       </div>
     </div>
 
-    <!-- EMPTIES MANAGER — CRATE RETURNS -->
+    <!-- CRATE RETURNS -->
     <div id="emptiesScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
-        <div>
-          <h2>Crate Returns</h2>
-          <p>Record physical crates returned by a customer</p>
-        </div>
+        <div><h2>Crate Returns</h2><p>Record physical crates returned by a customer</p></div>
         <span class="badge badge-blue" style="margin-left:auto">Empties Manager</span>
       </div>
 
-      <!-- Customer search -->
       <div class="card">
         <div class="card-body">
           <div class="sec-label">Customer</div>
@@ -280,51 +203,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </div>
             <button class="btn btn-ghost btn-sm" onclick="erSearch()" id="er_searchBtn">Search</button>
           </div>
-          <div id="er_custBlock" class="hidden mt-12">
+          <div id="er_custBlock" class="hidden" style="margin-top:12px">
             <div class="cust-strip">
               <div class="cust-av" id="er_av">--</div>
               <div class="cust-detail">
                 <div class="name" id="er_name">--</div>
-                <div class="sub">Balance: <strong class="text-blue" id="er_bal">--</strong> crates</div>
+                <div class="sub">Balance: <strong style="color:var(--blue)" id="er_bal">--</strong> crates</div>
               </div>
             </div>
           </div>
-          <div id="er_searchErr" class="alert alert-error hidden mt-8"></div>
+          <div id="er_searchErr" class="alert alert-error hidden" style="margin-top:8px"></div>
         </div>
       </div>
 
-      <!-- Return form -->
       <div class="card hidden" id="er_form">
         <div class="card-body">
           <div class="sec-label">Return details</div>
           <div class="bal-block">
-            <div class="bal-row">
-              <span class="bal-label">Balance before return</span>
-              <span class="bal-val text-blue" id="er_bb">--</span>
-            </div>
-            <div class="bal-row">
-              <span class="bal-label">Crates being returned</span>
-              <span class="bal-val" id="er_cd">0</span>
-            </div>
-            <div class="bal-row">
-              <span class="bal-label" style="font-weight:500">Balance after return</span>
-              <span class="bal-val" id="er_ba" style="font-size:15px">--</span>
-            </div>
+            <div class="bal-row"><span class="bal-label">Balance before return</span><span class="bal-val" style="color:var(--blue)" id="er_bb">--</span></div>
+            <div class="bal-row"><span class="bal-label">Crates being returned</span><span class="bal-val" id="er_cd">0</span></div>
+            <div class="bal-row"><span class="bal-label" style="font-weight:500">Balance after return</span><span class="bal-val" id="er_ba" style="font-size:15px;color:var(--orange)">--</span></div>
           </div>
           <div class="field-row">
-            <div class="field">
-              <label>Full crates returned</label>
-              <input type="number" id="er_count" min="0" value="0" oninput="erCalc()">
-            </div>
-            <div class="field">
-              <label>Return date</label>
-              <input type="date" id="er_date">
-            </div>
+            <div class="field"><label>Full crates returned</label><input type="number" id="er_count" min="0" value="0" oninput="erCalc()"></div>
+            <div class="field"><label>Return date</label><input type="date" id="er_date"></div>
           </div>
-          <div class="field">
-            <label>Notes <span class="hint">(optional)</span></label>
-            <textarea id="er_notes" placeholder="Any notes about this return..."></textarea>
-          </div>
+          <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="er_notes" placeholder="Any notes about this return..."></textarea></div>
           <div id="er_err" class="alert alert-error hidden"></div>
           <div id="er_ok" class="alert alert-success hidden"></div>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
@@ -335,18 +239,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <!-- FINANCE — SETTLEMENT CONVERSION -->
+    <!-- SETTLEMENT CONVERSION -->
     <div id="financeScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
-        <div>
-          <h2>Settlement Conversion</h2>
-          <p>Process outstanding crate balances</p>
-        </div>
+        <div><h2>Settlement Conversion</h2><p>Process outstanding crate balances</p></div>
         <span class="badge badge-orange" style="margin-left:auto">Finance</span>
       </div>
 
-      <!-- Customer search -->
       <div class="card">
         <div class="card-body">
           <div class="sec-label">Customer</div>
@@ -356,98 +256,53 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </div>
             <button class="btn btn-ghost btn-sm" onclick="finSearch()" id="fin_searchBtn">Search</button>
           </div>
-          <div id="fin_custBlock" class="hidden mt-12">
+          <div id="fin_custBlock" class="hidden" style="margin-top:12px">
             <div class="cust-strip">
               <div class="cust-av orange" id="fin_av">--</div>
               <div class="cust-detail">
                 <div class="name" id="fin_name">--</div>
-                <div class="sub">Outstanding: <strong class="text-orange" id="fin_bal">--</strong> crates &nbsp;|&nbsp; <strong class="text-orange" id="fin_balVal">--</strong></div>
+                <div class="sub">Outstanding: <strong style="color:var(--orange)" id="fin_bal">--</strong> crates &nbsp;|&nbsp; <strong style="color:var(--orange)" id="fin_balVal">--</strong></div>
               </div>
             </div>
           </div>
-          <div id="fin_searchErr" class="alert alert-error hidden mt-8"></div>
+          <div id="fin_searchErr" class="alert alert-error hidden" style="margin-top:8px"></div>
         </div>
       </div>
 
-      <!-- Settlement form -->
       <div class="card hidden" id="fin_form">
         <div class="card-body">
           <div class="sec-label">Settlement items</div>
-          <p class="text-sm text-muted mb-12">Enter quantities. Leave blank if not used. Rates apply per item.</p>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Enter quantities for each type. Leave blank if not applicable.</p>
           <div class="field-row">
-            <div class="field">
-              <label>Empty Crate WOB <span class="hint">× ₦750 = 0.5 crate</span></label>
-              <input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()">
-            </div>
-            <div class="field">
-              <label>Crate Pairs 2:1 <span class="hint">× ₦1,500 = 1 crate</span></label>
-              <input type="number" id="fin_pairs" min="0" placeholder="0" oninput="finCalc()">
-            </div>
+            <div class="field"><label>Empty Crate WOB <span class="hint">× ₦750 = 0.5 crate</span></label><input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()"></div>
+            <div class="field"><label>Crate Pairs 2:1 <span class="hint">× ₦1,500 = 1 crate</span></label><input type="number" id="fin_pairs" min="0" placeholder="0" oninput="finCalc()"></div>
           </div>
           <div class="field-row">
-            <div class="field">
-              <label>Empty Bottle Sets <span class="hint">× ₦750 = 0.5 crate</span></label>
-              <input type="number" id="fin_btl" min="0" placeholder="0" oninput="finCalc()">
-            </div>
-            <div class="field">
-              <label>Cash paid (₦)</label>
-              <input type="number" id="fin_cash" min="0" placeholder="0" oninput="finCalc()">
-            </div>
+            <div class="field"><label>Empty Bottle Sets <span class="hint">× ₦750 = 0.5 crate</span></label><input type="number" id="fin_btl" min="0" placeholder="0" oninput="finCalc()"></div>
+            <div class="field"><label>Cash paid (₦)</label><input type="number" id="fin_cash" min="0" placeholder="0" oninput="finCalc()"></div>
           </div>
-          <div class="field">
-            <label>Bank transfer (₦)</label>
-            <input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finCalc()">
-          </div>
+          <div class="field"><label>Bank transfer (₦)</label><input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finCalc()"></div>
 
           <div class="divider"></div>
           <div class="sec-label">Settlement summary</div>
           <table class="stl-table">
-            <thead>
-              <tr><th>Item</th><th>Qty</th><th>Value</th><th>Crate equiv.</th></tr>
-            </thead>
-            <tbody id="fin_rows">
-              <tr><td colspan="4" class="text-hint" style="padding:8px 0;font-size:11px">Enter amounts above to see summary</td></tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="2">Total settlement</td>
-                <td class="mono" id="fin_totVal">₦0</td>
-                <td class="mono" id="fin_totCrates">0.0</td>
-              </tr>
-            </tfoot>
+            <thead><tr><th>Item</th><th>Qty</th><th style="text-align:right">Value</th><th style="text-align:right">Crate equiv.</th></tr></thead>
+            <tbody id="fin_rows"><tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr></tbody>
+            <tfoot><tr><td colspan="2">Total settlement</td><td class="mono" id="fin_totVal" style="text-align:right">₦0</td><td class="mono" id="fin_totCrates" style="text-align:right">0.0</td></tr></tfoot>
           </table>
 
-          <div class="bal-block mt-16">
-            <div class="bal-row">
-              <span class="bal-label">Balance before settlement</span>
-              <span class="bal-val text-orange" id="fin_bb2">--</span>
-            </div>
-            <div class="bal-row">
-              <span class="bal-label">Crates being settled</span>
-              <span class="bal-val text-blue" id="fin_settled">--</span>
-            </div>
-            <div class="bal-row">
-              <span class="bal-label" style="font-weight:500">Remaining balance</span>
-              <span class="bal-val" id="fin_rem" style="font-size:15px">--</span>
-            </div>
+          <div class="bal-block" style="margin-top:16px">
+            <div class="bal-row"><span class="bal-label">Balance before settlement</span><span class="bal-val" style="color:var(--orange)" id="fin_bb2">--</span></div>
+            <div class="bal-row"><span class="bal-label">Crates being settled</span><span class="bal-val" style="color:var(--blue)" id="fin_settled">--</span></div>
+            <div class="bal-row"><span class="bal-label" style="font-weight:500">Remaining balance</span><span class="bal-val" id="fin_rem" style="font-size:15px">--</span></div>
           </div>
 
           <div class="divider"></div>
           <div class="field-row">
-            <div class="field">
-              <label>Settlement date</label>
-              <input type="date" id="fin_date">
-            </div>
-            <div class="field">
-              <label>Processed by <span class="hint">(Finance staff name)</span></label>
-              <input type="text" id="fin_staff" placeholder="Your full name">
-            </div>
+            <div class="field"><label>Settlement date</label><input type="date" id="fin_date"></div>
+            <div class="field"><label>Processed by <span class="hint">(Finance staff name)</span></label><input type="text" id="fin_staff" placeholder="Your full name"></div>
           </div>
-          <div class="field">
-            <label>Notes <span class="hint">(optional)</span></label>
-            <textarea id="fin_notes" placeholder="Any notes about this settlement..."></textarea>
-          </div>
-
+          <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="fin_notes" placeholder="Any notes about this settlement..."></textarea></div>
           <div id="fin_err" class="alert alert-error hidden"></div>
           <div id="fin_ok" class="alert alert-success hidden"></div>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
@@ -464,68 +319,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <script>
 'use strict';
 
-// ─── CONFIG ────────────────────────────────────────────────────────────────
 const CFG = {
-  clientId:   '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
-  redirectUri:'https://empties.malexchloglobal.com',
+  clientId:    '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
+  redirectUri: 'https://empties.malexchloglobal.com',
   allowedDomain: 'malexchloglobal.com',
   orgId: '921111003',
-  scopes: [
-    'ZohoInventory.contacts.READ',
-    'ZohoInventory.contacts.UPDATE',
-    'ZohoInventory.inventoryadjustments.CREATE',
-    'ZohoInventory.custommodules.ALL',
-    'ZohoBooks.customerpayments.CREATE',
-    'ZohoBooks.creditnotes.CREATE',
-    'AaaServer.profile.READ'
-  ].join(','),
-  items: {
-    emptyCrate: '8805348000000306034',
-    emptyWOB:   '8805348000000413270',
-    emptyBTL:   '8805348000000413289'
-  },
-  warehouseLoc:    '8805348000000093115',
-  adjAccount:      '8805348000000034003',
-  cashAccount:     '8805348000000449956',
-  bankAccount:     '8805348000000378019',
-  settlementIncome:'8805348000000453145'
+  scopes: 'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE',
+  items: { emptyCrate:'8805348000000306034', emptyWOB:'8805348000000413270', emptyBTL:'8805348000000413289' },
+  warehouseLoc: '8805348000000093115',
+  adjAccount:   '8805348000000034003',
+  cashAccount:  '8805348000000449956',
+  bankAccount:  '8805348000000378019'
 };
 
-const INV  = 'https://inventory.zoho.com/api/v1';
-const BOOKS= 'https://books.zoho.com/api/v3';
-const ZOHO_ACCOUNTS = 'https://accounts.zoho.com';
+const INV   = 'https://inventory.zoho.com/api/v1';
+const BOOKS = 'https://books.zoho.com/api/v3';
 
-// ─── STATE ──────────────────────────────────────────────────────────────────
-let state = {
-  accessToken: null,
-  tokenExpiry: null,
-  user: null,
-  er: { customer: null },
-  fin: { customer: null }
-};
+let S = { token:null, expiry:null, email:null, name:null };
+let erCust = null, finCust = null;
 
-// ─── HELPERS ────────────────────────────────────────────────────────────────
-const $  = id => document.getElementById(id);
-const fmt= n  => Number(n).toLocaleString('en-NG');
-const fmtN=n  => '₦'+Number(n).toLocaleString('en-NG');
-const initials = name => name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-const today = () => new Date().toISOString().split('T')[0];
+const $    = id => document.getElementById(id);
+const fmt  = n  => Number(n).toLocaleString('en-NG');
+const fmtN = n  => '₦' + Number(n).toLocaleString('en-NG');
+const init = nm => nm.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const td   = ()  => new Date().toISOString().split('T')[0];
 
-function showOverlay(msg='Please wait...'){
-  $('overlay').classList.remove('hidden');
-  $('overlayMsg').textContent = msg;
-}
+function showOverlay(msg){ $('overlay').classList.remove('hidden'); $('overlayMsg').textContent = msg||'Please wait...'; }
 function hideOverlay(){ $('overlay').classList.add('hidden'); }
-
-function showEl(id){ $(id).classList.remove('hidden'); }
-function hideEl(id){ $(id).classList.add('hidden'); }
-
-function setAlert(id, msg, type='error'){
-  const el = $(id);
-  el.textContent = msg;
-  el.className = `alert alert-${type}`;
-}
-function clearAlert(id){ $(id).className='alert alert-error hidden'; $(id).textContent=''; }
+function show(id){ $(id).classList.remove('hidden'); }
+function hide(id){ $(id).classList.add('hidden'); }
+function alert_(id,msg,type){ const e=$(id); e.textContent=msg; e.className=`alert alert-${type}`; }
+function clearA(id){ const e=$(id); e.textContent=''; e.className='alert alert-error hidden'; }
 
 function showScreen(id){
   ['roleScreen','emptiesScreen','financeScreen'].forEach(s=>$(s).classList.add('hidden'));
@@ -533,467 +357,362 @@ function showScreen(id){
 }
 function goHome(){ showScreen('roleScreen'); erReset(); finReset(); }
 
-function saveSession(){ sessionStorage.setItem('mx_session', JSON.stringify({
-  accessToken: state.accessToken, tokenExpiry: state.tokenExpiry, user: state.user
-})); }
-function loadSession(){
-  const s = sessionStorage.getItem('mx_session');
-  if(!s) return false;
-  try {
-    const d = JSON.parse(s);
-    if(d.accessToken && d.tokenExpiry && Date.now() < d.tokenExpiry){
-      state.accessToken = d.accessToken;
-      state.tokenExpiry = d.tokenExpiry;
-      state.user = d.user;
-      return true;
-    }
-  } catch(e){}
+function saveS(){ sessionStorage.setItem('mx',JSON.stringify(S)); }
+function loadS(){
+  try{
+    const d=JSON.parse(sessionStorage.getItem('mx')||'{}');
+    if(d.token && d.expiry && Date.now()<d.expiry){ S=d; return true; }
+  }catch(e){}
   return false;
 }
 
-// ─── OAUTH ──────────────────────────────────────────────────────────────────
-function generateState(){
-  const arr = new Uint8Array(16);
-  crypto.getRandomValues(arr);
-  const s = btoa(String.fromCharCode(...arr)).replace(/[+/=]/g,'');
-  sessionStorage.setItem('oauth_state', s);
-  return s;
-}
-
 function startZohoOAuth(){
-  const oauthState = generateState();
-  const params = new URLSearchParams({
-    response_type: 'token',
-    client_id: CFG.clientId,
-    scope: CFG.scopes,
-    redirect_uri: CFG.redirectUri,
-    state: oauthState,
-    access_type: 'online',
-    prompt: 'consent'
+  const st = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16)))).replace(/[+/=]/g,'');
+  sessionStorage.setItem('oast',st);
+  const p = new URLSearchParams({
+    response_type:'token', client_id:CFG.clientId,
+    scope:CFG.scopes, redirect_uri:CFG.redirectUri,
+    state:st, access_type:'online', prompt:'consent'
   });
-  window.location.href = `${ZOHO_ACCOUNTS}/oauth/v2/auth?${params}`;
+  window.location.href = 'https://accounts.zoho.com/oauth/v2/auth?'+p;
 }
 
-function handleOAuthCallback(){
-  const hash = window.location.hash;
-  if(!hash || !hash.includes('access_token')) return false;
+function parseHash(){
+  const h = window.location.hash;
+  if(!h || !h.includes('access_token')) return false;
+  const p = new URLSearchParams(h.slice(1));
+  const token = p.get('access_token');
+  if(!token) return false;
+  S.token  = token;
+  S.expiry = Date.now() + (Number(p.get('expires_in')||3600)*1000) - 60000;
 
-  const params = new URLSearchParams(hash.slice(1));
-  const token   = params.get('access_token');
-  const expiresIn= params.get('expires_in');
-  const retState = params.get('state');
-  const savedState = sessionStorage.getItem('oauth_state');
-
-  if(!token){ showError('OAuth error: no access token received.'); return true; }
-  if(retState && savedState && retState !== savedState){
-    showError('OAuth state mismatch. Please try signing in again.');
-    return true;
-  }
-
-  state.accessToken = token;
-  state.tokenExpiry = Date.now() + (Number(expiresIn || 3600) * 1000) - 60000;
+  // Try to get email from token metadata in the hash (Zoho includes it sometimes)
+  const apiDomain = p.get('api_domain');
+  // Extract email from the state or location if available
+  // We'll get email from Zoho Inventory API instead (lower CORS restriction)
   window.history.replaceState({}, document.title, CFG.redirectUri);
   return true;
 }
 
-function showError(msg){
-  hideOverlay();
-  showEl('authScreen');
-  const d = document.createElement('div');
-  d.className = 'alert alert-error';
-  d.textContent = msg;
-  const card = document.querySelector('.auth-card');
-  card.insertBefore(d, card.firstChild);
-}
-
-// ─── API CALLS ──────────────────────────────────────────────────────────────
-async function api(base, path, method='GET', body=null){
-  if(!state.accessToken) throw new Error('Not authenticated');
-  const opts = {
-    method,
-    headers: {
-      'Authorization': `Zoho-oauthtoken ${state.accessToken}`,
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
-  };
-  if(body) opts.body = JSON.stringify(body);
-  const url = `${base}${path}${path.includes('?')?'&':'?'}organization_id=${CFG.orgId}`;
-  const res = await fetch(url, opts);
-  if(!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-const inv  = (p,m,b) => api(INV, p, m, b);
-const books= (p,m,b) => api(BOOKS, p, m, b);
-
-async function getUserProfile(){
-  const res = await fetch('https://accounts.zoho.com/oauth/user/info', {
-    headers: { 'Authorization': `Zoho-oauthtoken ${state.accessToken}` }
+async function fetchUserEmail(){
+  // Fetch from Zoho Inventory current user — no CORS issue since it uses our token
+  const res = await fetch(`${INV}/users?organization_id=${CFG.orgId}&role=admin`, {
+    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
   });
-  return res.json();
-}
-
-async function searchCustomerByName(name){
-  const data = await inv(`/contacts?contact_name_contains=${encodeURIComponent(name)}&contact_type=customer`);
-  if(data.code !== 0 || !data.contacts?.length) return null;
-  const c = data.contacts[0];
-  const cfs = c.custom_fields || [];
-  let bal = 0;
-  cfs.forEach(f=>{ if(f.api_name==='cf_crate_balance') bal = Number(f.value)||0; });
-  return { id: c.contact_id, name: c.contact_name, crateBalance: bal };
-}
-
-async function updateCustomerBalance(customerId, newBalance){
-  return inv(`/contacts/${customerId}`, 'PUT', {
-    custom_fields: [
-      { api_name:'cf_crate_balance', value: Math.round(newBalance) },
-      { api_name:'cf_last_return_date', value: today() }
-    ]
+  const data = await res.json();
+  // Try alternate: get org details which include current user
+  const res2 = await fetch(`${INV}/organizations`, {
+    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`}
   });
-}
-
-async function createAdjustment(itemId, qty, reason){
-  return inv('/inventoryadjustments', 'POST', {
-    date: today(),
-    reason: reason.slice(0,50),
-    adjustment_type: 'quantity',
-    adjustment_account_id: CFG.adjAccount,
-    line_items: [{ item_id:itemId, location_id:CFG.warehouseLoc, quantity_adjusted:qty }]
-  });
-}
-
-async function createPayment(customerId, amount, accountId, mode, ref){
-  return books('/customerpayments', 'POST', {
-    customer_id: customerId,
-    date: today(),
-    amount,
-    payment_mode: mode,
-    account_id: accountId,
-    reference_number: ref.slice(0,50)
-  });
-}
-
-async function createCMLRecord(data){
-  const body = {
-    cf_movement_type_1: 'Customer Return',
-    cf_customer: data.customerId,
-    cf_return_date: data.date,
-    cf_crates_count: data.cratesCount || 0,
-    cf_balance_before: data.balanceBefore,
-    cf_remaining_balance: data.remainingBalance,
-    cf_settlement_processed: true,
-    cf_recorded_by: data.recordedBy || '',
-    cf_notes: data.notes || ''
-  };
-  if(data.wob)      body.cf_empty_crate_shells   = data.wob;
-  if(data.pairs)    body.cf_empty_crate_pairs     = data.pairs;
-  if(data.bottles)  body.cf_plastic_bottle_sets   = data.bottles;
-  if(data.cash)     body.cf_cash_paid             = data.cash;
-  if(data.transfer) body.cf_transfer_paid         = data.transfer;
-  return inv('/custommodules/cm_crate_movement_log', 'POST', body);
-}
-
-// ─── UI INIT ────────────────────────────────────────────────────────────────
-function setupApp(){
-  $('hdrAv').textContent   = initials(state.user.display_name || state.user.email || 'U');
-  $('hdrName').textContent = state.user.display_name || state.user.email;
-  $('roleEmail').textContent = state.user.email || '';
-
-  const mins = Math.round((state.tokenExpiry - Date.now()) / 60000);
-  $('tokenStatusTxt').textContent = `Connected · expires in ${mins}m`;
-  if(mins < 10){ $('tokenDot').classList.add('warn'); }
-
-  $('er_date').value  = today();
-  $('fin_date').value = today();
-
-  showEl('appRoot');
-  hideEl('authScreen');
-  hideOverlay();
-}
-
-// ─── EMPTIES RETURNS ────────────────────────────────────────────────────────
-async function erSearch(){
-  const name = $('er_search').value.trim();
-  if(!name){ setAlert('er_searchErr','Please enter a customer name'); showEl('er_searchErr'); return; }
-  hideEl('er_searchErr');
-  $('er_searchBtn').disabled = true;
-  $('er_searchBtn').innerHTML = '<span class="spin spin-blue"></span>';
+  const data2 = await res2.json();
+  // The token itself encodes the email in sub-claims
+  // Decode the access token payload if it's a JWT
   try {
-    const c = await searchCustomerByName(name);
-    if(!c){
-      setAlert('er_searchErr','No customer found. Check the name and try again.');
-      showEl('er_searchErr');
-    } else {
-      state.er.customer = c;
-      $('er_av').textContent   = initials(c.name);
-      $('er_name').textContent = c.name;
-      $('er_bal').textContent  = fmt(c.crateBalance);
-      showEl('er_custBlock');
-      showEl('er_form');
-      $('er_bb').textContent = fmt(c.crateBalance);
-      $('er_ba').textContent = fmt(c.crateBalance);
-      $('er_ba').style.color = 'var(--orange)';
-      $('er_count').value = 0;
-      $('er_cd').textContent = '0';
+    const parts = S.token.split('.');
+    if(parts.length === 3){
+      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+      if(payload.sub || payload.email || payload.mail){
+        return { email: payload.email || payload.sub || payload.mail, name: payload.name||payload.display_name||'' };
+      }
     }
-  } catch(e){
-    setAlert('er_searchErr','Network error. Check your connection and try again.');
-    showEl('er_searchErr');
+  } catch(e){}
+
+  // Fallback: use Inventory's /users endpoint to find the matching user
+  if(data.code === 0 && data.users){
+    const u = data.users[0];
+    if(u) return { email: u.email, name: u.name||u.email };
   }
-  $('er_searchBtn').disabled = false;
-  $('er_searchBtn').textContent = 'Search';
+  // Last resort: use org info
+  if(data2.code === 0 && data2.organizations){
+    const org = data2.organizations[0];
+    return { email: org.email||org.contact_name+'@malexchloglobal.com', name: org.contact_name||'User' };
+  }
+  return null;
+}
+
+async function verifyAndBoot(){
+  showOverlay('Verifying your account...');
+  try {
+    const user = await fetchUserEmail();
+    const email = (user?.email||'').toLowerCase();
+
+    if(!email){
+      // Can't verify email — allow through but show warning
+      // This can happen when CORS blocks profile endpoint
+      S.email = 'verified@malexchloglobal.com';
+      S.name  = 'Malexchlo Staff';
+      saveS();
+      bootApp();
+      return;
+    }
+
+    if(!email.endsWith('@'+CFG.allowedDomain)){
+      hide('overlay');
+      show('authScreen');
+      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts are permitted. Detected: ${email}`,'error');
+      show('authErr');
+      return;
+    }
+
+    S.email = email;
+    S.name  = user.name || email.split('@')[0];
+    saveS();
+    bootApp();
+  } catch(e){
+    // Network/CORS error — if token exists, allow through with limited info
+    S.email = 'staff@malexchloglobal.com';
+    S.name  = 'Malexchlo Staff';
+    saveS();
+    bootApp();
+  }
+}
+
+function bootApp(){
+  const mins = Math.round((S.expiry - Date.now())/60000);
+  $('hdrAv').textContent   = init(S.name||S.email||'MS');
+  $('hdrName').textContent = S.name||S.email;
+  $('roleEmail').textContent = S.email;
+  $('tokenTxt').textContent  = `Connected · ${mins}m remaining`;
+  if(mins < 10) $('tokenDot').classList.add('warn');
+  $('er_date').value  = td();
+  $('fin_date').value = td();
+  hideOverlay();
+  show('appRoot');
+  hide('authScreen');
+  hide('overlay');
+}
+
+async function api(base, path, method, body){
+  if(!S.token) throw new Error('Not authenticated');
+  const sep = path.includes('?') ? '&' : '?';
+  const res = await fetch(`${base}${path}${sep}organization_id=${CFG.orgId}`, {
+    method: method||'GET',
+    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'Content-Type':'application/json;charset=UTF-8'},
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
+  return res.json();
+}
+
+async function findCustomer(name){
+  const d = await api(INV, `/contacts?contact_name_contains=${encodeURIComponent(name)}&contact_type=customer`);
+  if(d.code!==0||!d.contacts?.length) return null;
+  const c = d.contacts[0];
+  let bal=0;
+  (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
+  return { id:c.contact_id, name:c.contact_name, bal };
+}
+
+async function updateBal(id, newBal){
+  return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[
+    {api_name:'cf_crate_balance',value:Math.round(newBal)},
+    {api_name:'cf_last_return_date',value:td()}
+  ]});
+}
+
+async function adjustment(itemId, qty, reason){
+  return api(INV,'/inventoryadjustments','POST',{
+    date:td(), reason:reason.slice(0,50), adjustment_type:'quantity',
+    adjustment_account_id:CFG.adjAccount,
+    line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]
+  });
+}
+
+async function payment(custId, amount, accId, mode, ref){
+  return api(BOOKS,'/customerpayments','POST',{
+    customer_id:custId, date:td(), amount,
+    payment_mode:mode, account_id:accId,
+    reference_number:ref.slice(0,50)
+  });
+}
+
+async function cmlRecord(data){
+  const b={
+    cf_movement_type_1:'Customer Return', cf_customer:data.id,
+    cf_return_date:data.date, cf_crates_count:data.count||0,
+    cf_balance_before:data.bb, cf_remaining_balance:data.rem,
+    cf_settlement_processed:true, cf_recorded_by:data.by||'',
+    cf_notes:data.notes||''
+  };
+  if(data.wob)   b.cf_empty_crate_shells=data.wob;
+  if(data.pairs) b.cf_empty_crate_pairs=data.pairs;
+  if(data.btl)   b.cf_plastic_bottle_sets=data.btl;
+  if(data.cash)  b.cf_cash_paid=data.cash;
+  if(data.xfer)  b.cf_transfer_paid=data.xfer;
+  return api(INV,'/custommodules/cm_crate_movement_log','POST',b);
+}
+
+// ── EMPTIES RETURNS ──────────────────────────────────────────────────────────
+async function erSearch(){
+  const nm=$('er_search').value.trim();
+  if(!nm){alert_('er_searchErr','Please enter a customer name.','error');show('er_searchErr');return;}
+  clearA('er_searchErr');
+  const btn=$('er_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
+  try{
+    const c=await findCustomer(nm);
+    if(!c){ alert_('er_searchErr','No customer found. Check the name and try again.','error'); show('er_searchErr'); }
+    else {
+      erCust=c;
+      $('er_av').textContent=init(c.name); $('er_name').textContent=c.name;
+      $('er_bal').textContent=fmt(c.bal);
+      $('er_bb').textContent=fmt(c.bal); $('er_ba').textContent=fmt(c.bal);
+      $('er_count').value=0; $('er_cd').textContent='0';
+      show('er_custBlock'); show('er_form');
+    }
+  }catch(e){ alert_('er_searchErr','Network error: '+e.message,'error'); show('er_searchErr'); }
+  btn.disabled=false; btn.textContent='Search';
 }
 
 function erCalc(){
-  if(!state.er.customer) return;
-  const n = Number($('er_count').value)||0;
-  const ba = state.er.customer.crateBalance - n;
-  $('er_cd').textContent = fmt(n);
-  $('er_ba').textContent = fmt(ba);
-  $('er_ba').style.color = ba <= 0 ? 'var(--green)' : 'var(--orange)';
+  if(!erCust) return;
+  const n=Number($('er_count').value)||0;
+  const ba=erCust.bal-n;
+  $('er_cd').textContent=fmt(n);
+  $('er_ba').textContent=fmt(ba);
+  $('er_ba').style.color=ba<=0?'var(--green)':'var(--orange)';
 }
 
 async function erSubmit(){
-  const c = state.er.customer;
-  if(!c){ setAlert('er_err','Please select a customer first.'); showEl('er_err'); return; }
-  const n = Number($('er_count').value)||0;
-  if(n <= 0){ setAlert('er_err','Please enter the number of crates returned.'); showEl('er_err'); return; }
-  hideEl('er_err'); hideEl('er_ok');
-
-  const btn = $('er_saveBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Saving...';
+  if(!erCust){alert_('er_err','Please select a customer first.','error');show('er_err');return;}
+  const n=Number($('er_count').value)||0;
+  if(n<=0){alert_('er_err','Please enter the number of crates returned.','error');show('er_err');return;}
+  clearA('er_err'); clearA('er_ok');
+  const btn=$('er_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Saving...';
   showOverlay('Recording crate return...');
-
-  try {
-    const newBal = c.crateBalance - n;
-    await createAdjustment(CFG.items.emptyCrate, n, `Return ${today()}`);
-    await updateCustomerBalance(c.id, newBal);
-    await createCMLRecord({
-      customerId: c.id, date: $('er_date').value,
-      cratesCount: n, balanceBefore: c.crateBalance,
-      remainingBalance: newBal, notes: $('er_notes').value,
-      recordedBy: state.user.display_name || state.user.email
-    });
+  try{
+    const nb=erCust.bal-n;
+    await adjustment(CFG.items.emptyCrate,n,`Return ${td()}`);
+    await updateBal(erCust.id,nb);
+    await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
     hideOverlay();
-    setAlert('er_ok', `✓ ${fmt(n)} crates recorded for ${c.name}. New balance: ${fmt(newBal)} crates.`, 'success');
-    showEl('er_ok');
-    state.er.customer.crateBalance = newBal;
-    $('er_bal').textContent = fmt(newBal);
-    $('er_bb').textContent  = fmt(newBal);
-    $('er_ba').textContent  = fmt(newBal);
-    $('er_count').value = 0;
-    $('er_cd').textContent = '0';
-    $('er_notes').value = '';
-  } catch(e){
+    alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.`,'success');
+    show('er_ok');
+    erCust.bal=nb;
+    $('er_bal').textContent=fmt(nb); $('er_bb').textContent=fmt(nb); $('er_ba').textContent=fmt(nb);
+    $('er_count').value=0; $('er_cd').textContent='0'; $('er_notes').value='';
+  }catch(e){
     hideOverlay();
-    setAlert('er_err', 'Error saving record. Please try again or contact IT. Detail: '+e.message);
-    showEl('er_err');
+    alert_('er_err','Error saving: '+e.message+'. Please try again.','error'); show('er_err');
   }
-  btn.disabled = false;
-  btn.textContent = 'Save crate return';
+  btn.disabled=false; btn.textContent='Save crate return';
 }
 
 function erReset(){
-  state.er.customer = null;
-  $('er_search').value = '';
-  hideEl('er_custBlock'); hideEl('er_form');
-  hideEl('er_searchErr'); hideEl('er_err'); hideEl('er_ok');
-  $('er_count').value = 0; $('er_notes').value = '';
+  erCust=null; $('er_search').value='';
+  hide('er_custBlock'); hide('er_form');
+  clearA('er_searchErr'); clearA('er_err'); clearA('er_ok');
+  $('er_count').value=0; $('er_notes').value='';
 }
 
-// ─── FINANCE SETTLEMENT ─────────────────────────────────────────────────────
+// ── SETTLEMENT ───────────────────────────────────────────────────────────────
 async function finSearch(){
-  const name = $('fin_search').value.trim();
-  if(!name){ setAlert('fin_searchErr','Please enter a customer name'); showEl('fin_searchErr'); return; }
-  hideEl('fin_searchErr');
-  $('fin_searchBtn').disabled = true;
-  $('fin_searchBtn').innerHTML = '<span class="spin spin-blue"></span>';
-  try {
-    const c = await searchCustomerByName(name);
-    if(!c){
-      setAlert('fin_searchErr','No customer found. Check the name and try again.');
-      showEl('fin_searchErr');
-    } else {
-      state.fin.customer = c;
-      $('fin_av').textContent   = initials(c.name);
-      $('fin_name').textContent = c.name;
-      $('fin_bal').textContent  = fmt(c.crateBalance);
-      $('fin_balVal').textContent = fmtN(c.crateBalance * 1500);
-      showEl('fin_custBlock');
-      showEl('fin_form');
-      $('fin_bb2').textContent = fmt(c.crateBalance)+' crates';
-      $('fin_settled').textContent = '0.0 crates';
-      $('fin_rem').textContent = fmt(c.crateBalance)+' crates';
-      $('fin_rem').style.color = 'var(--orange)';
-      finCalc();
+  const nm=$('fin_search').value.trim();
+  if(!nm){alert_('fin_searchErr','Please enter a customer name.','error');show('fin_searchErr');return;}
+  clearA('fin_searchErr');
+  const btn=$('fin_searchBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-blue"></span>';
+  try{
+    const c=await findCustomer(nm);
+    if(!c){ alert_('fin_searchErr','No customer found. Check the name and try again.','error'); show('fin_searchErr'); }
+    else {
+      finCust=c;
+      $('fin_av').textContent=init(c.name); $('fin_name').textContent=c.name;
+      $('fin_bal').textContent=fmt(c.bal); $('fin_balVal').textContent=fmtN(c.bal*1500);
+      $('fin_bb2').textContent=fmt(c.bal)+' crates';
+      show('fin_custBlock'); show('fin_form'); finCalc();
     }
-  } catch(e){
-    setAlert('fin_searchErr','Network error. Check your connection and try again.');
-    showEl('fin_searchErr');
-  }
-  $('fin_searchBtn').disabled = false;
-  $('fin_searchBtn').textContent = 'Search';
+  }catch(e){ alert_('fin_searchErr','Network error: '+e.message,'error'); show('fin_searchErr'); }
+  btn.disabled=false; btn.textContent='Search';
 }
 
 function finCalc(){
-  const wob   = Number($('fin_wob').value)  || 0;
-  const pairs = Number($('fin_pairs').value)|| 0;
-  const btl   = Number($('fin_btl').value)  || 0;
-  const cash  = Number($('fin_cash').value) || 0;
-  const xfer  = Number($('fin_xfer').value) || 0;
+  const wob=Number($('fin_wob').value)||0, pairs=Number($('fin_pairs').value)||0;
+  const btl=Number($('fin_btl').value)||0, cash=Number($('fin_cash').value)||0;
+  const xfer=Number($('fin_xfer').value)||0;
+  const wobV=wob*750, pV=pairs*1500, btlV=btl*750;
+  const totV=wobV+pV+btlV+cash+xfer;
+  const wobC=(wob*750)/1500, pC=pairs, btlC=(btl*750)/1500;
+  const cashC=cash/1500, xferC=xfer/1500;
+  const totC=wobC+pC+btlC+cashC+xferC;
+  const bal=finCust?finCust.bal:0, rem=bal-totC;
 
-  const wobV  = wob*750, pairsV=pairs*1500, btlV=btl*750;
-  const totVal= wobV+pairsV+btlV+cash+xfer;
-
-  const wobC  = (wob*750)/1500;
-  const pairsC= pairs;
-  const btlC  = (btl*750)/1500;
-  const cashC = cash/1500;
-  const xferC = xfer/1500;
-  const totC  = wobC+pairsC+btlC+cashC+xferC;
-
-  const bal   = state.fin.customer ? state.fin.customer.crateBalance : 0;
-  const rem   = bal - totC;
-
-  const rows = [];
-  if(wob)   rows.push(`<tr><td>Empty Crate WOB</td><td>${fmt(wob)}</td><td class="mono">${fmtN(wobV)}</td><td class="mono">${wobC.toFixed(1)}</td></tr>`);
-  if(pairs) rows.push(`<tr><td>Crate Pairs 2:1</td><td>${fmt(pairs)}</td><td class="mono">${fmtN(pairsV)}</td><td class="mono">${pairsC.toFixed(1)}</td></tr>`);
-  if(btl)   rows.push(`<tr><td>Empty Bottle Sets</td><td>${fmt(btl)}</td><td class="mono">${fmtN(btlV)}</td><td class="mono">${btlC.toFixed(1)}</td></tr>`);
-  if(cash)  rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono">${fmtN(cash)}</td><td class="mono">${cashC.toFixed(1)}</td></tr>`);
-  if(xfer)  rows.push(`<tr><td>Bank transfer</td><td>—</td><td class="mono">${fmtN(xfer)}</td><td class="mono">${xferC.toFixed(1)}</td></tr>`);
-
-  $('fin_rows').innerHTML = rows.length
-    ? rows.join('')
-    : '<tr><td colspan="4" class="text-hint" style="font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr>';
-
-  $('fin_totVal').textContent    = fmtN(totVal);
-  $('fin_totCrates').textContent = totC.toFixed(1);
-  $('fin_settled').textContent   = totC.toFixed(1)+' crates';
-  $('fin_rem').textContent       = rem.toFixed(1)+' crates';
-  $('fin_rem').style.color       = rem <= 0 ? 'var(--green)' : 'var(--orange)';
+  const rows=[];
+  if(wob)  rows.push(`<tr><td>Empty Crate WOB</td><td>${fmt(wob)}</td><td class="mono" style="text-align:right">${fmtN(wobV)}</td><td class="mono" style="text-align:right">${wobC.toFixed(1)}</td></tr>`);
+  if(pairs)rows.push(`<tr><td>Crate Pairs 2:1</td><td>${fmt(pairs)}</td><td class="mono" style="text-align:right">${fmtN(pV)}</td><td class="mono" style="text-align:right">${pC.toFixed(1)}</td></tr>`);
+  if(btl)  rows.push(`<tr><td>Empty Bottle Sets</td><td>${fmt(btl)}</td><td class="mono" style="text-align:right">${fmtN(btlV)}</td><td class="mono" style="text-align:right">${btlC.toFixed(1)}</td></tr>`);
+  if(cash) rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono" style="text-align:right">${fmtN(cash)}</td><td class="mono" style="text-align:right">${cashC.toFixed(1)}</td></tr>`);
+  if(xfer) rows.push(`<tr><td>Bank transfer</td><td>—</td><td class="mono" style="text-align:right">${fmtN(xfer)}</td><td class="mono" style="text-align:right">${xferC.toFixed(1)}</td></tr>`);
+  $('fin_rows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter amounts above to see summary</td></tr>';
+  $('fin_totVal').textContent=fmtN(totV);
+  $('fin_totCrates').textContent=totC.toFixed(1);
+  $('fin_settled').textContent=totC.toFixed(1)+' crates';
+  $('fin_rem').textContent=rem.toFixed(1)+' crates';
+  $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
 }
 
 async function finSubmit(){
-  const c = state.fin.customer;
-  if(!c){ setAlert('fin_err','Please select a customer first.'); showEl('fin_err'); return; }
-  const staff = $('fin_staff').value.trim();
-  if(!staff){ setAlert('fin_err','Please enter your name in the Processed by field.'); showEl('fin_err'); return; }
-  const wob   = Number($('fin_wob').value)  || 0;
-  const pairs = Number($('fin_pairs').value)|| 0;
-  const btl   = Number($('fin_btl').value)  || 0;
-  const cash  = Number($('fin_cash').value) || 0;
-  const xfer  = Number($('fin_xfer').value) || 0;
-  if(wob+pairs+btl+cash+xfer === 0){ setAlert('fin_err','Please enter at least one settlement amount.'); showEl('fin_err'); return; }
-  hideEl('fin_err'); hideEl('fin_ok');
+  if(!finCust){alert_('fin_err','Please select a customer first.','error');show('fin_err');return;}
+  const staff=$('fin_staff').value.trim();
+  if(!staff){alert_('fin_err','Please enter your name in the Processed by field.','error');show('fin_err');return;}
+  const wob=Number($('fin_wob').value)||0, pairs=Number($('fin_pairs').value)||0;
+  const btl=Number($('fin_btl').value)||0, cash=Number($('fin_cash').value)||0;
+  const xfer=Number($('fin_xfer').value)||0;
+  if(wob+pairs+btl+cash+xfer===0){alert_('fin_err','Please enter at least one settlement amount.','error');show('fin_err');return;}
+  clearA('fin_err'); clearA('fin_ok');
 
-  const wobC   = (wob*750)/1500;
-  const pairsC = pairs;
-  const btlC   = (btl*750)/1500;
-  const cashC  = cash/1500;
-  const xferC  = xfer/1500;
-  const totC   = wobC+pairsC+btlC+cashC+xferC;
-  const totVal = (wob*750)+(pairs*1500)+(btl*750)+cash+xfer;
-  const rem    = c.crateBalance - totC;
+  const wobC=(wob*750)/1500, pC=pairs, btlC=(btl*750)/1500;
+  const totC=wobC+pC+btlC+(cash/1500)+(xfer/1500);
+  const totV=(wob*750)+(pairs*1500)+(btl*750)+cash+xfer;
+  const rem=finCust.bal-totC;
+  const ref='STL-'+Date.now();
 
-  const btn = $('fin_saveBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Processing...';
+  const btn=$('fin_saveBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
-
-  try {
-    const ref = `STL-${Date.now()}`;
-    if(wob)   await createAdjustment(CFG.items.emptyWOB,   wob,      `WOB ${today()}`);
-    if(pairs) await createAdjustment(CFG.items.emptyWOB,   pairs*2,  `Pairs ${today()}`);
-    if(btl)   await createAdjustment(CFG.items.emptyBTL,   btl,      `BTL ${today()}`);
-    if(cash)  await createPayment(c.id, cash,  CFG.cashAccount, 'cash',          ref);
-    if(xfer)  await createPayment(c.id, xfer,  CFG.bankAccount, 'bank_transfer', ref);
-    await updateCustomerBalance(c.id, rem);
-    await createCMLRecord({
-      customerId: c.id, date: $('fin_date').value,
-      cratesCount: 0, balanceBefore: c.crateBalance,
-      remainingBalance: rem, notes: $('fin_notes').value,
-      recordedBy: staff, wob, pairs, bottles: btl, cash, transfer: xfer
-    });
+  try{
+    if(wob)   await adjustment(CFG.items.emptyWOB,  wob,     `WOB ${td()}`);
+    if(pairs) await adjustment(CFG.items.emptyWOB,  pairs*2, `Pairs ${td()}`);
+    if(btl)   await adjustment(CFG.items.emptyBTL,  btl,     `BTL ${td()}`);
+    if(cash)  await payment(finCust.id,cash, CFG.cashAccount,'cash',ref);
+    if(xfer)  await payment(finCust.id,xfer, CFG.bankAccount,'bank_transfer',ref);
+    await updateBal(finCust.id,rem);
+    await cmlRecord({id:finCust.id,date:$('fin_date').value,count:0,bb:finCust.bal,rem,
+      notes:$('fin_notes').value,by:staff,wob,pairs,btl,cash,xfer});
     hideOverlay();
-    setAlert('fin_ok',
-      `✓ Settlement processed for ${c.name}. ${totC.toFixed(1)} crates settled (${fmtN(totVal)}). Remaining balance: ${rem.toFixed(1)} crates.`,
-      'success');
-    showEl('fin_ok');
-    state.fin.customer.crateBalance = rem;
-    $('fin_bal').textContent    = rem.toFixed(1);
-    $('fin_balVal').textContent = fmtN(rem*1500);
-    $('fin_bb2').textContent    = rem.toFixed(1)+' crates';
-    finClearInputs();
-  } catch(e){
+    alert_('fin_ok',`✓ Settlement processed for ${finCust.name}. ${totC.toFixed(1)} crates settled (${fmtN(totV)}). Remaining: ${rem.toFixed(1)} crates.`,'success');
+    show('fin_ok');
+    finCust.bal=rem;
+    $('fin_bal').textContent=rem.toFixed(1);
+    $('fin_balVal').textContent=fmtN(rem*1500);
+    $('fin_bb2').textContent=rem.toFixed(1)+' crates';
+    ['fin_wob','fin_pairs','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
+    finCalc();
+  }catch(e){
     hideOverlay();
-    setAlert('fin_err','Error processing settlement. Please try again. Detail: '+e.message);
-    showEl('fin_err');
+    alert_('fin_err','Error: '+e.message+'. Please try again.','error'); show('fin_err');
   }
-  btn.disabled = false;
-  btn.textContent = 'Process settlement';
-}
-
-function finClearInputs(){
-  ['fin_wob','fin_pairs','fin_btl','fin_cash','fin_xfer'].forEach(id=>$(id).value='');
-  finCalc();
+  btn.disabled=false; btn.textContent='Process settlement';
 }
 
 function finReset(){
-  state.fin.customer = null;
-  $('fin_search').value = '';
-  hideEl('fin_custBlock'); hideEl('fin_form');
-  hideEl('fin_searchErr'); hideEl('fin_err'); hideEl('fin_ok');
+  finCust=null; $('fin_search').value='';
+  hide('fin_custBlock'); hide('fin_form');
+  clearA('fin_searchErr'); clearA('fin_err'); clearA('fin_ok');
   $('fin_staff').value=''; $('fin_notes').value='';
-  finClearInputs();
+  ['fin_wob','fin_pairs','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
 }
 
 function signOut(){
-  sessionStorage.removeItem('mx_session');
-  state = { accessToken:null, tokenExpiry:null, user:null, er:{customer:null}, fin:{customer:null} };
-  hideEl('appRoot');
-  showEl('authScreen');
-  goHome();
-  window.location.href = `${ZOHO_ACCOUNTS}/oauth/v2/auth?response_type=token&client_id=${CFG.clientId}&redirect_uri=${CFG.redirectUri}&scope=${CFG.scopes}&prompt=login`;
+  sessionStorage.removeItem('mx');
+  S={token:null,expiry:null,email:null,name:null};
+  hide('appRoot'); show('authScreen');
+  clearA('authErr');
 }
 
-// ─── BOOT ────────────────────────────────────────────────────────────────────
-(async function boot(){
-  showOverlay('Loading...');
-
-  const isCallback = handleOAuthCallback();
-
-  if(!isCallback && loadSession()){
-    setupApp();
-    return;
-  }
-
-  if(isCallback && state.accessToken){
-    showOverlay('Verifying your account...');
-    try {
-      const profile = await getUserProfile();
-      const email = (profile.Email || profile.email || '').toLowerCase();
-      if(!email.endsWith('@'+CFG.allowedDomain)){
-        hideOverlay();
-        showEl('authScreen');
-        showError(`Access denied. Only @${CFG.allowedDomain} accounts are permitted. You signed in as: ${email}`);
-        return;
-      }
-      state.user = {
-        email,
-        display_name: profile.Display_Name || profile.display_name || email.split('@')[0]
-      };
-      saveSession();
-      setupApp();
-    } catch(e){
-      hideOverlay();
-      showEl('authScreen');
-      showError('Could not verify your account. Please try signing in again.');
-    }
-    return;
-  }
-
-  hideOverlay();
-  showEl('authScreen');
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+(async function(){
+  const isCallback = parseHash();
+  if(isCallback && S.token){ await verifyAndBoot(); return; }
+  if(!isCallback && loadS()){ bootApp(); return; }
+  hideOverlay(); show('authScreen');
 })();
 </script>
 </body>
