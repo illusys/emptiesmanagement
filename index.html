@@ -600,47 +600,103 @@ function parseHash(){
 }
 
 async function fetchUserProfile(){
-  try{const res=await fetch(PROXY,{method:'GET',headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'X-Target-URL':'https://accounts.zoho.com/oauth/user/info'}});if(res.ok){const d=await res.json();const em=(d.Email||d.email||'').toLowerCase();if(em)return{email:em,name:d.Display_Name||d.display_name||em.split('@')[0]};}}catch(e){}
-  try{const res=await fetch(PROXY,{method:'GET',headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'X-Target-URL':`${INV}/users?organization_id=${CFG.orgId}`}});const d=await res.json();if(d.code===0&&d.users?.length){const u=d.users.find(u=>u.status==='active')||d.users[0];if(u?.email)return{email:u.email.toLowerCase(),name:u.name||u.email};}}catch(e){}
+  // Strategy 1: Try Zoho Inventory /organizations — works with our existing scopes
+  // Returns org info including the user email of the logged-in account
+  try{
+    const res=await fetch(PROXY,{method:'GET',headers:{
+      'Authorization':`Zoho-oauthtoken ${S.token}`,
+      'X-Target-URL':`${INV}/organizations?organization_id=${CFG.orgId}`
+    }});
+    if(res.ok){
+      const d=await res.json();
+      console.log('Organizations response:',d.code, JSON.stringify(d).slice(0,300));
+      if(d.code===0&&d.organizations?.length){
+        const org=d.organizations[0];
+        // org.email is the account email; org.contact_name is the org name
+        const email=(org.user_email||org.email||'').toLowerCase();
+        const name=org.user_name||org.contact_name||email.split('@')[0];
+        if(email) return{email,name};
+      }
+    }
+  }catch(e){ console.log('Org fetch error:',e.message); }
+
+  // Strategy 2: accounts.zoho.com/oauth/user/info (needs openid scope)
+  try{
+    const res=await fetch(PROXY,{method:'GET',headers:{
+      'Authorization':`Zoho-oauthtoken ${S.token}`,
+      'X-Target-URL':'https://accounts.zoho.com/oauth/user/info'
+    }});
+    if(res.ok){
+      const d=await res.json();
+      const em=(d.Email||d.email||'').toLowerCase();
+      if(em) return{email:em,name:d.Display_Name||d.display_name||d.First_Name||em.split('@')[0]};
+    }
+  }catch(e){}
+
+  // Strategy 3: Inventory users list
+  try{
+    const res=await fetch(PROXY,{method:'GET',headers:{
+      'Authorization':`Zoho-oauthtoken ${S.token}`,
+      'X-Target-URL':`${INV}/users?organization_id=${CFG.orgId}`
+    }});
+    if(res.ok){
+      const d=await res.json();
+      if(d.code===0&&d.users?.length){
+        const u=d.users.find(u=>u.is_current_user)||d.users[0];
+        if(u?.email) return{email:u.email.toLowerCase(),name:u.name||u.email};
+      }
+    }
+  }catch(e){}
+
   return null;
 }
 
 async function verifyAndBoot(){
   showOverlay('Verifying your account...');
 
+  // Helper: format email prefix as display name (ifeanyi.unigwe → Ifeanyi Unigwe)
+  const nameFromEmail=e=>e.split('@')[0].replace(/[._-]/g,' ').replace(/\w/g,c=>c.toUpperCase());
+
   // If we already have a verified malexchloglobal.com email in session, boot immediately
-  if(S.email&&S.email.endsWith('@'+CFG.allowedDomain)&&S.name&&!S.name.startsWith('Malexchlo')){
+  if(S.email&&S.email.endsWith('@'+CFG.allowedDomain)){
+    if(!S.name||S.name==='Malexchlo Staff') S.name=nameFromEmail(S.email);
     saveS();bootApp();return;
   }
 
-  // Try to get real user profile from Zoho
+  // Try to get real user profile from Zoho API
   const user=await fetchUserProfile();
+  console.log('fetchUserProfile result:',user);
+
   if(user&&user.email){
     const email=user.email.toLowerCase();
+    // Strict domain check
     if(!email.endsWith('@'+CFG.allowedDomain)){
       hideOverlay();show('authScreen');
-      alert_('authErr',`Access denied. "${email}" is not a Malexchlo Global account. Only @${CFG.allowedDomain} addresses are permitted.`,'error');
+      alert_('authErr',`Access denied. "${email}" is not a Malexchlo Global account. Only @${CFG.allowedDomain} email addresses are permitted.`,'error');
       show('authErr');return;
     }
     S.email=email;
-    // Extract clean display name from email if no name returned
-    S.name=user.name&&user.name.trim()&&user.name!==email
+    S.name=(user.name&&user.name.trim()&&user.name!==email)
       ? user.name.trim()
-      : email.split('@')[0].replace(/\./g,' ').replace(/\w/g,c=>c.toUpperCase());
+      : nameFromEmail(email);
     saveS();bootApp();return;
   }
 
-  // Profile fetch failed (CORS) — check if token hash had email
-  if(S.email&&S.email.endsWith('@'+CFG.allowedDomain)){
-    if(!S.name||S.name.startsWith('Malexchlo')){
-      S.name=S.email.split('@')[0].replace(/\./g,' ').replace(/\w/g,c=>c.toUpperCase());
+  // All profile fetch methods failed — but we have a token (Zoho authenticated them)
+  // If email was captured from the hash, use it with domain check
+  if(S.email&&S.email.includes('@')){
+    if(!S.email.endsWith('@'+CFG.allowedDomain)){
+      hideOverlay();show('authScreen');
+      alert_('authErr',`Access denied. Only @${CFG.allowedDomain} email addresses are permitted.`,'error');
+      show('authErr');return;
     }
+    S.name=nameFromEmail(S.email);
     saveS();bootApp();return;
   }
 
-  // Cannot verify domain — deny access
+  // No email at all — cannot verify. Block access.
   hideOverlay();show('authScreen');
-  alert_('authErr','Could not verify your account email. Please ensure you are signing in with your @malexchloglobal.com Zoho account and try again.','error');
+  alert_('authErr','Could not verify your Malexchlo account. Please sign in with your @malexchloglobal.com Zoho email address.','error');
   show('authErr');
 }
 
