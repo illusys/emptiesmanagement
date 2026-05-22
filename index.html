@@ -536,7 +536,7 @@ const CFG={
   redirectUri:'https://empties.malexchloglobal.com',
   allowedDomain:'malexchloglobal.com',
   orgId:'921111003',
-  scopes:'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.items.READ,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,openid,email,profile',
+  scopes:'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.items.READ,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,AaaServer.profile.READ',
   items:{emptyCrate:'8805348000000505652',emptyWOB:'8805348000000505666',emptyBTL:'8805348000000505685'},
   warehouseLoc:'8805348000000093115',
   adjAccount:'8805348000000034003',
@@ -591,10 +591,38 @@ function parseHash(){
   if(!token)return false;
   S.token=token;
   S.expiry=Date.now()+(Number(p.get('expires_in')||3600)*1000)-60000;
+
+  // Log all hash params for debugging (except token)
+  const allParams={};
+  p.forEach((v,k)=>{if(k!=='access_token')allParams[k]=v;});
+  console.log('OAuth hash params (excl token):', JSON.stringify(allParams));
+
+  // Extract email and name from hash
   const email=p.get('email')||'';
-  const fn=p.get('first_name')||'',ln=p.get('last_name')||'',dn=p.get('display_name')||'';
-  if(email){S.email=email.toLowerCase();S.name=dn||(fn+' '+ln).trim()||email.split('@')[0];}
-  if(!S.email){try{const pts=token.split('.');if(pts.length===3){const pl=JSON.parse(atob(pts[1].replace(/-/g,'+').replace(/_/g,'/')));S.email=(pl.email||pl.sub||'').toLowerCase();S.name=pl.name||pl.display_name||S.email.split('@')[0];}}catch(e){}}
+  const fn=p.get('first_name')||'';
+  const ln=p.get('last_name')||'';
+  const dn=p.get('display_name')||'';
+
+  if(email){
+    S.email=email.toLowerCase();
+    S.name=dn||(fn+' '+ln).trim()||email.split('@')[0];
+    console.log('Email from hash:', S.email, 'Name:', S.name);
+  }
+
+  // Try JWT decode as fallback
+  if(!S.email){
+    try{
+      const pts=token.split('.');
+      if(pts.length===3){
+        const pl=JSON.parse(atob(pts[1].replace(/-/g,'+').replace(/_/g,'/')));
+        console.log('JWT payload:', JSON.stringify(pl).slice(0,200));
+        S.email=(pl.email||pl.sub||'').toLowerCase();
+        S.name=pl.name||pl.display_name||S.email.split('@')[0];
+      }
+    }catch(e){}
+  }
+
+  console.log('After parseHash — email:', S.email, 'name:', S.name);
   window.history.replaceState({},document.title,CFG.redirectUri);
   return true;
 }
@@ -694,10 +722,16 @@ async function verifyAndBoot(){
     saveS();bootApp();return;
   }
 
-  // No email at all — cannot verify. Block access.
-  hideOverlay();show('authScreen');
-  alert_('authErr','Could not verify your Malexchlo account. Please sign in with your @malexchloglobal.com Zoho email address.','error');
+  // No email found — force a fresh OAuth login which will include email in hash
+  console.log('No email found — forcing fresh consent to capture email');
+  sessionStorage.removeItem('mx');
+  hideOverlay();
+  // Small delay so user sees the screen before redirect
+  show('authScreen');
+  $('authErr').textContent='Please sign in again to verify your account.';
+  $('authErr').className='alert alert-info';
   show('authErr');
+  setTimeout(()=>startZohoOAuth(),1500);
 }
 
 function bootApp(){
