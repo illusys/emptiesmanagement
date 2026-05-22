@@ -35,7 +35,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .user-nm{color:rgba(255,255,255,.9);font-size:12px}
 .btn-signout{background:rgba(255,255,255,.15);border:none;color:rgba(255,255,255,.85);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .btn-signout:hover{background:rgba(255,255,255,.25)}
-.main{flex:1;padding:28px 20px;max-width:720px;margin:0 auto;width:100%}
+.main{flex:1;padding:24px 20px;max-width:760px;margin:0 auto;width:100%}
 .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .auth-logo{text-align:center;margin-bottom:28px}
 .auth-logo .mark{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:600;font-size:20px;color:#fff;font-family:'DM Mono',monospace}
@@ -58,17 +58,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover:not(:disabled){background:var(--blue-dark)}
 .btn-orange{background:var(--orange);color:#fff}.btn-orange:hover:not(:disabled){background:var(--orange-dark)}
+.btn-green{background:var(--green);color:#fff}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover:not(:disabled){background:var(--surface2)}
 .btn-sm{padding:6px 13px;font-size:12px}
 .btn-zoho{background:#fff;color:var(--text);border:1.5px solid var(--border2);gap:10px;padding:13px 20px;font-size:14px;border-radius:var(--radius-sm);width:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
 .btn-zoho:hover{background:var(--surface2);border-color:var(--blue)}
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.role-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .15s;text-align:center}
+.role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.role-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 12px;cursor:pointer;transition:all .15s;text-align:center}
 .role-card:hover{border-color:var(--blue);background:var(--blue-light)}
-.role-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px}
+.role-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:18px}
 .role-icon.blue-bg{background:var(--blue-light)}.role-icon.orange-bg{background:var(--orange-light)}
-.role-title{font-size:13px;font-weight:500;margin-bottom:3px}
-.role-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.role-icon.green-bg{background:var(--green-bg)}.role-icon.purple-bg{background:#f3f0ff}
+.role-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.role-desc{font-size:10px;color:var(--text2);line-height:1.4}
 .bal-block{background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px;margin-bottom:16px}
 .bal-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
 .bal-row+.bal-row{border-top:1px solid var(--border);margin-top:6px;padding-top:11px}
@@ -86,14 +88,46 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .alert-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .alert-success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .alert-info{background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe}
-.search-results{margin-top:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface);max-height:320px;overflow-y:auto}
-.search-result-item{padding:12px 14px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.search-results{margin-top:10px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface);max-height:300px;overflow-y:auto}
+.search-result-item{padding:11px 14px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
 .search-result-item:last-child{border-bottom:none}
 .search-result-item:hover{background:var(--blue-light)}
-.sri-av{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
+.sri-av{width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
 .sri-av.orange{background:var(--orange)}
 .sri-name{font-size:13px;font-weight:500}
-.sri-bal{font-size:11px;color:var(--text2);margin-top:1px}
+.sri-bal{font-size:11px;color:var(--text2)}
+/* Stock display grid */
+.stock-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stock-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.stock-card .label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stock-card .val{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:var(--blue)}
+.stock-card .sub{font-size:10px;color:var(--text2);margin-top:2px}
+/* Debtor list */
+.debtor-list{margin-top:16px}
+.debtor-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px}
+.debtor-rank{width:22px;font-size:11px;font-weight:600;color:var(--text3);text-align:center;flex-shrink:0}
+.debtor-av{width:32px;height:32px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
+.debtor-name{font-size:13px;font-weight:500;flex:1}
+.debtor-bal{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--orange)}
+.debtor-val{font-size:11px;color:var(--text2)}
+/* Report */
+.report-filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end}
+.report-filter-row .field{margin:0;flex:1;min-width:120px}
+.report-table{width:100%;border-collapse:collapse;font-size:12px}
+.report-table th{text-align:left;font-weight:600;color:var(--text2);padding:8px 10px;border-bottom:2px solid var(--border);background:var(--surface2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.report-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.report-table tr:hover td{background:var(--surface2)}
+.report-table .mono{font-family:'DM Mono',monospace}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600}
+.tag-blue{background:var(--blue-light);color:var(--blue)}
+.tag-orange{background:var(--orange-light);color:var(--orange)}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-red{background:var(--red-bg);color:var(--red)}
+/* Summary stat cards */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.stat-card .lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-card .val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace}
 .stl-table{width:100%;border-collapse:collapse;font-size:12px}
 .stl-table th{text-align:left;font-weight:500;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border)}
 .stl-table td{padding:7px 0;border-bottom:1px solid var(--border);vertical-align:middle}
@@ -104,12 +138,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:600}
 .badge-blue{background:var(--blue-light);color:var(--blue)}
 .badge-orange{background:var(--orange-light);color:var(--orange)}
+.badge-green{background:var(--green-bg);color:var(--green)}
 .divider{height:1px;background:var(--border);margin:16px 0}
 .toggle-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:12px}
 .toggle-row label{font-size:12px;color:var(--text2);cursor:pointer;flex:1}
 .toggle-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite}
 .spin-blue{border-color:rgba(28,117,187,.2);border-top-color:var(--blue)}
+.spin-dark{border-color:rgba(0,0,0,.1);border-top-color:var(--text2)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .overlay{position:fixed;inset:0;background:rgba(244,246,249,.88);display:flex;align-items:center;justify-content:center;z-index:999}
 .overlay-box{background:#fff;border-radius:var(--radius);padding:24px 32px;text-align:center;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
@@ -121,7 +157,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .token-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .tdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .tdot.warn{background:var(--amber)}
-@media(max-width:600px){.role-grid{grid-template-columns:1fr!important}.field-row{grid-template-columns:1fr}.main{padding:20px 14px}}
+.empty-state{text-align:center;padding:32px 16px;color:var(--text3);font-size:13px}
+@media(max-width:600px){.role-grid{grid-template-columns:1fr 1fr}.stock-grid{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}.field-row{grid-template-columns:1fr}.main{padding:16px 14px}}
 </style>
 </head>
 <body>
@@ -130,7 +167,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="overlay-box"><div class="big-spin"></div><p id="overlayMsg">Loading...</p></div>
 </div>
 
-<!-- AUTH SCREEN -->
+<!-- AUTH -->
 <div id="authScreen" class="auth-wrap hidden">
   <div class="auth-logo">
     <div class="mark">M</div>
@@ -169,36 +206,77 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <div class="main">
 
-    <!-- ROLE SELECTION -->
+    <!-- ═══ ROLE SELECTION / DASHBOARD ═══ -->
     <div id="roleScreen">
-      <div style="margin-bottom:20px">
-        <h2 style="font-size:18px;font-weight:600;letter-spacing:-.02em">What would you like to do?</h2>
-        <p style="font-size:13px;color:var(--text2);margin-top:4px">Select your function to begin</p>
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;letter-spacing:-.02em">Empties Dashboard</h2>
+          <p style="font-size:12px;color:var(--text2);margin-top:3px" id="roleEmail"></p>
+        </div>
+        <div class="token-bar"><div class="tdot" id="tokenDot"></div><span id="tokenTxt">Connected</span></div>
       </div>
-      <div class="role-grid" style="grid-template-columns:1fr 1fr 1fr">
+
+      <!-- Action cards -->
+      <div class="role-grid">
         <div class="role-card" onclick="showScreen('emptiesScreen')">
           <div class="role-icon blue-bg">📦</div>
           <div class="role-title">Crate Returns</div>
-          <div class="role-desc">Record full crates returned by customers and update warehouse stock</div>
+          <div class="role-desc">Record crates returned by customers</div>
         </div>
         <div class="role-card" onclick="showScreen('financeScreen')">
           <div class="role-icon orange-bg">💳</div>
-          <div class="role-title">Settlement Conversion</div>
-          <div class="role-desc">Process WOB shells, bottle sets, cash and transfer payments</div>
+          <div class="role-title">Settlement</div>
+          <div class="role-desc">Process WOB shells, bottles, cash & transfer</div>
         </div>
         <div class="role-card" onclick="showScreen('backloadScreen')">
-          <div class="role-icon" style="background:#f0fdf4">🚛</div>
-          <div class="role-title">NBL Backloading</div>
-          <div class="role-desc">Return empty crates to Nigeria Breweries and reduce warehouse stock</div>
+          <div class="role-icon green-bg">🚛</div>
+          <div class="role-title">NBL Backload</div>
+          <div class="role-desc">Return crates to Nigeria Breweries</div>
+        </div>
+        <div class="role-card" onclick="showScreen('reportScreen')">
+          <div class="role-icon purple-bg">📊</div>
+          <div class="role-title">Reports</div>
+          <div class="role-desc">View all empties transactions</div>
         </div>
       </div>
-      <div style="margin-top:16px;padding:12px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <span style="font-size:11px;color:var(--text3)">Signed in as <strong style="color:var(--text2)" id="roleEmail"></strong></span>
-        <div class="token-bar"><div class="tdot" id="tokenDot"></div><span id="tokenTxt">Connected</span></div>
+
+      <!-- Warehouse stock -->
+      <div class="card">
+        <div class="card-body">
+          <div class="sec-label">Current warehouse stock</div>
+          <div class="stock-grid">
+            <div class="stock-card">
+              <div class="label">Empty Crates</div>
+              <div class="val" id="dash_crStock"><span class="spin spin-dark"></span></div>
+              <div class="sub">EMP-CR</div>
+            </div>
+            <div class="stock-card">
+              <div class="label">WOB Shells</div>
+              <div class="val" id="dash_wobStock"><span class="spin spin-dark"></span></div>
+              <div class="sub">EMP-WOB</div>
+            </div>
+            <div class="stock-card">
+              <div class="label">Bottle Sets</div>
+              <div class="val" id="dash_btlStock"><span class="spin spin-dark"></span></div>
+              <div class="sub">EMP-BTL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top debtors -->
+      <div class="card">
+        <div class="card-body">
+          <div class="sec-label" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Top customers with outstanding crate balance</span>
+            <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">Highest to lowest</span>
+          </div>
+          <div id="dash_debtors"><div class="empty-state"><span class="spin spin-dark"></span><br><br>Loading...</div></div>
+        </div>
       </div>
     </div>
 
-    <!-- CRATE RETURNS -->
+    <!-- ═══ CRATE RETURNS ═══ -->
     <div id="emptiesScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
@@ -209,19 +287,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="card-body">
           <div class="sec-label">Customer</div>
           <div style="display:flex;gap:8px">
-            <div class="field" style="flex:1;margin:0">
-              <input type="text" id="er_search" placeholder="Type at least 3 letters of customer name..." onkeydown="if(event.key==='Enter')erSearch()">
-            </div>
+            <div class="field" style="flex:1;margin:0"><input type="text" id="er_search" placeholder="Type name (min 3 letters)..." onkeydown="if(event.key==='Enter')erSearch()" oninput="erLiveSearch(this.value)"></div>
             <button class="btn btn-ghost btn-sm" onclick="erSearch()" id="er_searchBtn">Search</button>
           </div>
           <div id="er_results" class="hidden"><div class="search-results" id="er_resultsList"></div></div>
           <div id="er_custBlock" class="hidden" style="margin-top:12px">
             <div class="cust-strip">
               <div class="cust-av" id="er_av">--</div>
-              <div class="cust-detail">
-                <div class="name" id="er_name">--</div>
-                <div class="sub">Balance: <strong style="color:var(--blue)" id="er_bal">--</strong> crates</div>
-              </div>
+              <div class="cust-detail"><div class="name" id="er_name">--</div><div class="sub">Balance: <strong style="color:var(--blue)" id="er_bal">--</strong> crates</div></div>
               <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="erClearCustomer()">Change</button>
             </div>
           </div>
@@ -251,7 +324,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <!-- SETTLEMENT CONVERSION -->
+    <!-- ═══ SETTLEMENT CONVERSION ═══ -->
     <div id="financeScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
@@ -262,73 +335,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="card-body">
           <div class="sec-label">Customer</div>
           <div style="display:flex;gap:8px">
-            <div class="field" style="flex:1;margin:0">
-              <input type="text" id="fin_search" placeholder="Type at least 3 letters of customer name..." onkeydown="if(event.key==='Enter')finSearch()">
-            </div>
+            <div class="field" style="flex:1;margin:0"><input type="text" id="fin_search" placeholder="Type name (min 3 letters)..." onkeydown="if(event.key==='Enter')finSearch()" oninput="finLiveSearch(this.value)"></div>
             <button class="btn btn-ghost btn-sm" onclick="finSearch()" id="fin_searchBtn">Search</button>
           </div>
           <div id="fin_results" class="hidden"><div class="search-results" id="fin_resultsList"></div></div>
           <div id="fin_custBlock" class="hidden" style="margin-top:12px">
             <div class="cust-strip">
               <div class="cust-av orange" id="fin_av">--</div>
-              <div class="cust-detail">
-                <div class="name" id="fin_name">--</div>
-                <div class="sub">Outstanding: <strong style="color:var(--orange)" id="fin_bal">--</strong> crates &nbsp;|&nbsp; <strong style="color:var(--orange)" id="fin_balVal">--</strong></div>
-              </div>
+              <div class="cust-detail"><div class="name" id="fin_name">--</div><div class="sub">Outstanding: <strong style="color:var(--orange)" id="fin_bal">--</strong> crates &nbsp;|&nbsp; <strong style="color:var(--orange)" id="fin_balVal">--</strong></div></div>
               <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="finClearCustomer()">Change</button>
             </div>
           </div>
           <div id="fin_searchErr" class="alert alert-error hidden" style="margin-top:8px"></div>
         </div>
       </div>
-
       <div class="card hidden" id="fin_form">
         <div class="card-body">
-
           <div class="sec-label">Physical items returned</div>
-
-          <!-- Full crates -->
-          <div class="field">
-            <label>Empty Crates (full) <span class="hint">= 1 crate each, no payment needed</span></label>
-            <input type="number" id="fin_cr" min="0" placeholder="0" oninput="finCalc()">
-          </div>
-
-          <!-- WOB shells -->
-          <div class="field">
-            <label>Empty Crates Without Bottles (WOB shells) <span class="hint">= 1 crate each + ₦750/shell payment required</span></label>
-            <input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()">
-          </div>
-
-          <!-- 2-for-1 toggle -->
+          <div class="field"><label>Empty Crates (full) <span class="hint">= 1 crate each, no payment needed</span></label><input type="number" id="fin_cr" min="0" placeholder="0" oninput="finCalc()"></div>
+          <div class="field"><label>Empty Crates Without Bottles (WOB shells) <span class="hint">= 1 crate each + ₦750/shell payment</span></label><input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()"></div>
           <div class="toggle-row">
             <input type="checkbox" id="fin_wobHalf" onchange="finCalc()">
-            <label for="fin_wobHalf">Count 2 WOB shells as 1 crate (half-crate mode) — use when shells are damaged or partial</label>
+            <label for="fin_wobHalf">Count 2 WOB shells as 1 crate (half-crate mode — use when shells are damaged or partial)</label>
           </div>
-
-          <!-- WOB warning -->
           <div id="fin_wobWarn" class="warn-box hidden"></div>
-
-          <!-- Bottle sets -->
-          <div class="field">
-            <label>Set of Empty Bottles <span class="hint">= 0.5 crate per set, no payment needed</span></label>
-            <input type="number" id="fin_btl" min="0" placeholder="0" oninput="finCalc()">
-          </div>
-
+          <div class="field"><label>Set of Empty Bottles <span class="hint">= 0.5 crate per set, no payment needed</span></label><input type="number" id="fin_btl" min="0" placeholder="0" oninput="finCalc()"></div>
           <div class="divider"></div>
           <div class="sec-label">Payments received</div>
-          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Cash and/or transfer received. For WOB shells, ₦750 per shell is required. Any excess reduces crate balance at ₦1,500 per crate.</p>
-
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">For WOB shells, ₦750/shell required. Any excess reduces balance at ₦1,500/crate.</p>
           <div class="field-row">
             <div class="field"><label>Cash paid (₦)</label><input type="number" id="fin_cash" min="0" placeholder="0" oninput="finCalc()"></div>
-            <div class="field">
-              <label>Bank transfer (₦)</label>
-              <input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finCalc()">
-            </div>
+            <div class="field"><label>Bank transfer (₦)</label><input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finXferInput()"></div>
           </div>
-
-          <!-- Bank account selector — shown when transfer > 0 -->
           <div id="fin_bankRow" class="field hidden">
-            <label>Transfer to bank account</label>
+            <label>Transfer destination account</label>
             <select id="fin_bankAcct">
               <option value="8805348000000378019">Access Bank (Nigeria Breweries)</option>
               <option value="8805348000000378035">Zenith Bank (Nigeria Breweries)</option>
@@ -336,12 +376,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               <option value="8805348000000378071">Zenith Bank (Can and Pets)</option>
             </select>
           </div>
-
-          <!-- Pay from credit balance -->
           <div id="fin_creditRow" class="hidden">
             <div class="info-box" id="fin_creditInfo"></div>
             <div class="toggle-row" style="border-bottom:none;padding-bottom:0;margin-bottom:0">
-              <input type="checkbox" id="fin_useCredit" onchange="finCalc()">
+              <input type="checkbox" id="fin_useCredit" onchange="finCreditToggle()">
               <label for="fin_useCredit">Apply customer credit balance to this settlement</label>
             </div>
             <div class="field hidden" id="fin_creditAmtRow" style="margin-top:10px">
@@ -349,30 +387,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               <input type="number" id="fin_creditAmt" min="0" placeholder="0" oninput="finCalc()">
             </div>
           </div>
-
           <div class="divider"></div>
           <div class="sec-label">Settlement summary</div>
           <table class="stl-table">
             <thead><tr><th>Item</th><th>Qty</th><th style="text-align:right">Value / Payment</th><th style="text-align:right">Crates settled</th></tr></thead>
             <tbody id="fin_rows"><tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter items above to see summary</td></tr></tbody>
-            <tfoot>
-              <tr><td colspan="2">Total payment received</td><td class="mono" id="fin_totPay" style="text-align:right">₦0</td><td></td></tr>
-              <tr><td colspan="2" style="padding-top:4px">Total crates settled</td><td></td><td class="mono" id="fin_totCrates" style="text-align:right;padding-top:4px">0</td></tr>
-            </tfoot>
+            <tfoot><tr><td colspan="2">Total payment received</td><td class="mono" id="fin_totPay" style="text-align:right">₦0</td><td></td></tr><tr><td colspan="2" style="padding-top:4px">Total crates settled</td><td></td><td class="mono" id="fin_totCrates" style="text-align:right;padding-top:4px">0</td></tr></tfoot>
           </table>
-
           <div class="bal-block" style="margin-top:16px">
             <div class="bal-row"><span class="bal-label">Balance before settlement</span><span class="bal-val" style="color:var(--orange)" id="fin_bb2">--</span></div>
             <div class="bal-row"><span class="bal-label">Crates being settled</span><span class="bal-val" style="color:var(--blue)" id="fin_settled">--</span></div>
             <div class="bal-row"><span class="bal-label" style="font-weight:500">Remaining balance</span><span class="bal-val" id="fin_rem" style="font-size:15px">--</span></div>
           </div>
-
           <div id="fin_wobShortfall" class="warn-box hidden"></div>
-
           <div class="divider"></div>
           <div class="field-row">
             <div class="field"><label>Settlement date</label><input type="date" id="fin_date"></div>
-            <div class="field"><label>Processed by <span class="hint">(Finance staff name)</span></label><input type="text" id="fin_staff" placeholder="Your full name"></div>
+            <div class="field"><label>Processed by</label><input type="text" id="fin_staff" placeholder="Finance staff name"></div>
           </div>
           <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="fin_notes" placeholder="Any notes..."></textarea></div>
           <div id="fin_err" class="alert alert-error hidden"></div>
@@ -385,72 +416,111 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <!-- NBL BACKLOADING -->
+    <!-- ═══ NBL BACKLOADING ═══ -->
     <div id="backloadScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
         <div><h2>NBL Backloading</h2><p>Return empty crates to Nigeria Breweries — decreases warehouse stock</p></div>
-        <span class="badge" style="background:#f0fdf4;color:var(--green);margin-left:auto">Empties Manager</span>
+        <span class="badge badge-green" style="margin-left:auto">Empties Manager</span>
       </div>
-
+      <div class="info-box">Backloading records crates sent back to NBL. This reduces Malexchlo's warehouse stock. No customer is involved.</div>
       <div class="card">
         <div class="card-body">
-          <div class="info-box" style="margin-bottom:0">
-            Backloading records crates being sent back to NBL. This reduces Malexchlo's warehouse empty crate stock. No customer is involved in this transaction.
+          <div class="sec-label">Current warehouse stock</div>
+          <div class="stock-grid">
+            <div class="stock-card"><div class="label">Empty Crates</div><div class="val" id="bl_crStock">—</div><div class="sub">EMP-CR</div></div>
+            <div class="stock-card"><div class="label">WOB Shells</div><div class="val" id="bl_wobStock">—</div><div class="sub">EMP-WOB</div></div>
+            <div class="stock-card"><div class="label">Bottle Sets</div><div class="val" id="bl_btlStock">—</div><div class="sub">EMP-BTL</div></div>
           </div>
         </div>
       </div>
-
       <div class="card">
         <div class="card-body">
           <div class="sec-label">Backload details</div>
-
           <div class="bal-block">
-            <div class="bal-row">
-              <span class="bal-label">Current warehouse Empty Crate stock</span>
-              <span class="bal-val" style="color:var(--blue)" id="bl_currentStock">—</span>
-            </div>
-            <div class="bal-row">
-              <span class="bal-label">Crates being sent to NBL</span>
-              <span class="bal-val" id="bl_count_display">0</span>
-            </div>
-            <div class="bal-row">
-              <span class="bal-label" style="font-weight:500">Stock after backload</span>
-              <span class="bal-val" id="bl_afterStock" style="font-size:15px;color:var(--orange)">—</span>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label>Number of crates sent to NBL</label>
-              <input type="number" id="bl_count" min="1" value="" placeholder="0" oninput="blCalc()">
-            </div>
-            <div class="field">
-              <label>Backload date</label>
-              <input type="date" id="bl_date">
-            </div>
+            <div class="bal-row"><span class="bal-label">Current Empty Crate stock</span><span class="bal-val" style="color:var(--blue)" id="bl_currentStock">—</span></div>
+            <div class="bal-row"><span class="bal-label">Crates being sent to NBL</span><span class="bal-val" id="bl_count_display">0</span></div>
+            <div class="bal-row"><span class="bal-label" style="font-weight:500">Stock after backload</span><span class="bal-val" id="bl_afterStock" style="font-size:15px;color:var(--orange)">—</span></div>
           </div>
           <div class="field-row">
-            <div class="field">
-              <label>NBL truck / waybill number <span class="hint">(optional)</span></label>
-              <input type="text" id="bl_waybill" placeholder="e.g. WB-20260521-001">
-            </div>
-            <div class="field">
-              <label>Recorded by</label>
-              <input type="text" id="bl_recordedBy" placeholder="Your full name">
-            </div>
+            <div class="field"><label>Number of crates sent to NBL</label><input type="number" id="bl_count" min="1" placeholder="0" oninput="blCalc()"></div>
+            <div class="field"><label>Backload date</label><input type="date" id="bl_date"></div>
           </div>
-          <div class="field">
-            <label>Notes <span class="hint">(optional)</span></label>
-            <textarea id="bl_notes" placeholder="Any notes about this backload..."></textarea>
+          <div class="field-row">
+            <div class="field"><label>NBL truck / waybill number <span class="hint">(optional)</span></label><input type="text" id="bl_waybill" placeholder="e.g. WB-20260522-001"></div>
+            <div class="field"><label>Recorded by</label><input type="text" id="bl_recordedBy" placeholder="Your full name"></div>
           </div>
-
+          <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="bl_notes" placeholder="Any notes about this backload..."></textarea></div>
           <div id="bl_err" class="alert alert-error hidden"></div>
           <div id="bl_ok" class="alert alert-success hidden"></div>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
             <button class="btn btn-ghost" onclick="blReset()">Reset</button>
-            <button class="btn" id="bl_saveBtn" onclick="blSubmit()" style="background:var(--green);color:#fff">Submit backload</button>
+            <button class="btn btn-green" id="bl_saveBtn" onclick="blSubmit()">Submit backload</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REPORTS ═══ -->
+    <div id="reportScreen" class="hidden">
+      <div class="page-head">
+        <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
+        <div><h2>Empties Report</h2><p>All crate movement transactions</p></div>
+        <span class="badge" style="background:#f3f0ff;color:#6d28d9;margin-left:auto">Management</span>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stat-row" id="rep_stats">
+        <div class="stat-card"><div class="lbl">Total Transactions</div><div class="val" id="rep_totTx">—</div></div>
+        <div class="stat-card"><div class="lbl">Crates Returned</div><div class="val" id="rep_totCratesRet" style="color:var(--green)">—</div></div>
+        <div class="stat-card"><div class="lbl">Cash Received</div><div class="val" id="rep_totCash" style="color:var(--blue)">—</div></div>
+        <div class="stat-card"><div class="lbl">Outstanding Balance</div><div class="val" id="rep_totBal" style="color:var(--orange)">—</div></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card">
+        <div class="card-body">
+          <div class="sec-label">Filter transactions</div>
+          <div class="report-filter-row">
+            <div class="field"><label>From date</label><input type="date" id="rep_from"></div>
+            <div class="field"><label>To date</label><input type="date" id="rep_to"></div>
+            <div class="field"><label>Movement type</label>
+              <select id="rep_type">
+                <option value="">All types</option>
+                <option value="Customer Return">Customer Return</option>
+                <option value="NB Return">NB Backload</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end;padding-bottom:0">
+              <button class="btn btn-blue btn-sm" onclick="repLoad()" id="rep_loadBtn">Load report</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report table -->
+      <div class="card">
+        <div class="card-body" style="padding:0;overflow-x:auto">
+          <div id="rep_loading" class="empty-state" style="padding:32px">Click <strong>Load report</strong> to fetch transactions.</div>
+          <table class="report-table hidden" id="rep_table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Ref</th>
+                <th>Customer / Type</th>
+                <th>Movement</th>
+                <th style="text-align:right">Bal Before</th>
+                <th style="text-align:right">Crates</th>
+                <th style="text-align:right">Settled</th>
+                <th style="text-align:right">Remaining</th>
+                <th style="text-align:right">Cash</th>
+                <th style="text-align:right">Transfer</th>
+                <th>Recorded by</th>
+              </tr>
+            </thead>
+            <tbody id="rep_tbody"></tbody>
+          </table>
+          <div id="rep_empty" class="empty-state hidden">No transactions found for the selected filters.</div>
         </div>
       </div>
     </div>
@@ -476,7 +546,8 @@ const INV='https://www.zohoapis.com/inventory/v1';
 const BOOKS='https://www.zohoapis.com/books/v3';
 
 let S={token:null,expiry:null,email:null,name:null};
-let erCust=null,finCust=null,finCustCredit=0;
+let erCust=null,finCust=null,finCustCredit=0,blStockOnHand=null;
+let searchTimer=null;
 
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.round(Number(n)).toLocaleString('en-NG');
@@ -492,101 +563,15 @@ function show(id){$(id).classList.remove('hidden');}
 function hide(id){$(id).classList.add('hidden');}
 function alert_(id,msg,type){const e=$(id);e.textContent=msg;e.className=`alert alert-${type}`;}
 function clearA(id){const e=$(id);e.textContent='';e.className='alert alert-error hidden';}
+
 function showScreen(id){
-  ['roleScreen','emptiesScreen','financeScreen','backloadScreen'].forEach(s=>$(s).classList.add('hidden'));
+  ['roleScreen','emptiesScreen','financeScreen','backloadScreen','reportScreen'].forEach(s=>$(s).classList.add('hidden'));
   $(id).classList.remove('hidden');
-  if(id==='backloadScreen') blInit();
+  if(id==='backloadScreen')blInit();
+  if(id==='reportScreen')repSetDefaultDates();
 }
-function goHome(){showScreen('roleScreen');erReset();finReset();blReset();}
+function goHome(){showScreen('roleScreen');}
 
-// ── NBL BACKLOADING ──────────────────────────────────────────────────────────
-let blStockOnHand = null;
-
-async function blInit(){
-  // Fetch current Empty Crate stock on hand
-  $('bl_currentStock').textContent='Loading...';
-  try{
-    const d=await api(INV,`/items/${CFG.items.emptyCrate}`,'GET');
-    if(d.code===0&&d.item){
-      blStockOnHand=Number(d.item.stock_on_hand)||0;
-      $('bl_currentStock').textContent=fmt(blStockOnHand)+' crates';
-      blCalc();
-    }else{
-      $('bl_currentStock').textContent='Could not load';
-    }
-  }catch(e){
-    $('bl_currentStock').textContent='Error loading stock';
-  }
-}
-
-function blCalc(){
-  const n=Number($('bl_count').value)||0;
-  $('bl_count_display').textContent=fmt(n);
-  if(blStockOnHand!==null){
-    const after=blStockOnHand-n;
-    $('bl_afterStock').textContent=fmt(after)+' crates';
-    $('bl_afterStock').style.color=after<0?'var(--red)':after===0?'var(--green)':'var(--orange)';
-  }
-}
-
-async function blSubmit(){
-  const n=Number($('bl_count').value)||0;
-  const recordedBy=$('bl_recordedBy').value.trim();
-  if(n<=0){alert_('bl_err','Please enter the number of crates being sent to NBL.','error');show('bl_err');return;}
-  if(!recordedBy){alert_('bl_err','Please enter your name in the Recorded by field.','error');show('bl_err');return;}
-  if(blStockOnHand!==null&&n>blStockOnHand){
-    alert_('bl_err',`Cannot backload ${fmt(n)} crates — only ${fmt(blStockOnHand)} in stock. Please check the count.`,'error');
-    show('bl_err');return;
-  }
-  clearA('bl_err');clearA('bl_ok');
-
-  const btn=$('bl_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Submitting...';
-  showOverlay('Recording NBL backload...');
-  try{
-    const waybill=$('bl_waybill').value.trim();
-    const notes=$('bl_notes').value.trim();
-    const reason=`NBL Backload${waybill?' '+waybill:''}`;
-
-    // Negative stock adjustment — removes crates from warehouse
-    await adjustment(CFG.items.emptyCrate, -n, reason.slice(0,50));
-
-    // CML record with NB Return type
-    const cmlBody={
-      cf_movement_type_1:'NB Return',
-      cf_return_date:$('bl_date').value,
-      cf_crates_count:n,
-      cf_balance_before:blStockOnHand||0,
-      cf_remaining_balance:(blStockOnHand||0)-n,
-      cf_recorded_by:recordedBy,
-      cf_notes:(waybill?`Waybill: ${waybill}. `:'')+notes
-    };
-    await api(INV,'/custommodules/cm_crate_movement_log','POST',cmlBody).catch(()=>{});
-
-    hideOverlay();
-    const newStock=(blStockOnHand||0)-n;
-    alert_('bl_ok',`✓ Backload recorded. ${fmt(n)} crates sent to NBL${waybill?' ('+waybill+')':''}. New warehouse stock: ${fmt(newStock)} crates.`,'success');
-    show('bl_ok');
-    blStockOnHand=newStock;
-    $('bl_currentStock').textContent=fmt(newStock)+' crates';
-    $('bl_count').value='';
-    $('bl_waybill').value='';
-    $('bl_notes').value='';
-    blCalc();
-  }catch(e){
-    hideOverlay();
-    alert_('bl_err','Error: '+e.message,'error');show('bl_err');
-  }
-  btn.disabled=false;btn.innerHTML='Submit backload';
-}
-
-function blReset(){
-  blStockOnHand=null;
-  $('bl_count').value='';$('bl_waybill').value='';
-  $('bl_notes').value='';$('bl_recordedBy').value='';
-  $('bl_count_display').textContent='0';
-  $('bl_currentStock').textContent='—';$('bl_afterStock').textContent='—';
-  clearA('bl_err');clearA('bl_ok');
-}
 function saveS(){sessionStorage.setItem('mx',JSON.stringify(S));}
 function loadS(){try{const d=JSON.parse(sessionStorage.getItem('mx')||'{}');if(d.token&&d.expiry&&Date.now()<d.expiry){S=d;return true;}}catch(e){}return false;}
 
@@ -638,11 +623,15 @@ async function verifyAndBoot(){
 function bootApp(){
   const mins=Math.max(0,Math.round((S.expiry-Date.now())/60000));
   $('hdrAv').textContent=init(S.name);$('hdrName').textContent=S.name;
-  $('roleEmail').textContent=S.email;
-  $('tokenTxt').textContent=`Connected · ${mins}m remaining`;
+  $('roleEmail').textContent='Signed in as '+S.email;
+  $('tokenTxt').textContent=`Connected · ${mins}m`;
   if(mins<10)$('tokenDot').classList.add('warn');
   $('er_date').value=td();$('fin_date').value=td();$('bl_date').value=td();
+  // Pre-fill Finance processed by with logged-in user name
+  $('fin_staff').value=S.name&&!S.name.startsWith('Malexchlo')?S.name:'';
   hideOverlay();show('appRoot');hide('authScreen');hide('overlay');
+  // Load dashboard data
+  dashLoad();
 }
 
 // ── PROXY API ────────────────────────────────────────────────────────────────
@@ -659,326 +648,237 @@ async function api(base,path,method,body){
   return res.json();
 }
 
-// ── CUSTOMER SEARCH — startswith, no minimum letter requirement enforced server-side ──
-async function searchCustomers(name){
-  // Use contact_name_startswith so only names beginning with the typed text are returned
-  const d=await api(INV,`/contacts?contact_name_startswith=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=25`);
-  if(d.code!==0||!d.contacts?.length)return[];
-  return d.contacts.map(c=>{
-    let bal=0,unusedCredits=0;
-    (c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});
-    return{id:c.contact_id,name:c.contact_name,bal,unusedCredits};
-  });
+async function getItemStock(itemId){
+  try{const d=await api(INV,`/items/${itemId}`,'GET');if(d.code===0)return Number(d.item.stock_on_hand)||0;}catch(e){}return null;
 }
 
-async function fetchCustomerCredits(customerId){
-  // Fetch unused credits from Zoho Books
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+async function dashLoad(){
+  // Load all three stock levels in parallel
+  const [crSt,wobSt,btlSt]=await Promise.all([
+    getItemStock(CFG.items.emptyCrate),
+    getItemStock(CFG.items.emptyWOB),
+    getItemStock(CFG.items.emptyBTL)
+  ]);
+  $('dash_crStock').textContent=crSt!==null?fmt(crSt):'—';
+  $('dash_wobStock').textContent=wobSt!==null?fmt(wobSt):'—';
+  $('dash_btlStock').textContent=btlSt!==null?fmt(btlSt):'—';
+
+  // Load top debtors
   try{
-    const d=await api(BOOKS,`/contacts/${customerId}`,'GET');
-    if(d.code===0&&d.contact){
-      return Number(d.contact.unused_credits_receivable_amount)||0;
+    const d=await api(INV,'/contacts?contact_type=customer&filter_by=Status.Active&per_page=200&sort_column=contact_name&sort_order=A');
+    if(d.code===0&&d.contacts?.length){
+      const debtors=d.contacts
+        .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{name:c.contact_name,bal};})
+        .filter(c=>c.bal>0)
+        .sort((a,b)=>b.bal-a.bal)
+        .slice(0,10);
+      if(debtors.length){
+        $('dash_debtors').innerHTML=debtors.map((c,i)=>`
+          <div class="debtor-item">
+            <div class="debtor-rank">${i+1}</div>
+            <div class="debtor-av">${init(c.name)}</div>
+            <div class="debtor-name">${c.name}</div>
+            <div style="text-align:right">
+              <div class="debtor-bal">${fmt(c.bal)} crates</div>
+              <div class="debtor-val">${fmtN(c.bal*1500)}</div>
+            </div>
+          </div>`).join('');
+      }else{
+        $('dash_debtors').innerHTML='<div class="empty-state">No customers with outstanding crate balance.</div>';
+      }
     }
-  }catch(e){}
-  return 0;
+  }catch(e){$('dash_debtors').innerHTML='<div class="empty-state">Could not load debtor list.</div>';}
 }
 
-async function updateBal(id,newBal){
-  return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[
-    {api_name:'cf_crate_balance',value:roundBal(newBal)},
-    {api_name:'cf_last_return_date',value:td()}
-  ]});
+// ── CUSTOMER SEARCH ──────────────────────────────────────────────────────────
+let erSearchDebounce=null,finSearchDebounce=null;
+
+async function searchCustomers(name){
+  // Use contact_name= (Zoho's supported param) then filter client-side for startswith
+  const d=await api(INV,`/contacts?contact_name=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=50`);
+  if(d.code!==0||!d.contacts?.length)return[];
+  const nl=name.toLowerCase();
+  return d.contacts
+    .filter(c=>c.contact_name.toLowerCase().startsWith(nl))
+    .slice(0,10)
+    .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{id:c.contact_id,name:c.contact_name,bal};});
 }
 
-async function adjustment(itemId,qty,reason){
-  return api(INV,'/inventoryadjustments','POST',{
-    date:td(),reason:reason.slice(0,50),adjustment_type:'quantity',
-    adjustment_account_id:CFG.adjAccount,
-    line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]
-  });
+function renderResults(listId,results,isOrange,selectFn){
+  const avCls=isOrange?'sri-av orange':'sri-av';
+  $(listId).innerHTML=results.map((c,i)=>
+    `<div class="search-result-item" onclick="${selectFn}(window._res_${listId}[${i}])">
+      <div class="${avCls}">${init(c.name)}</div>
+      <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates${isOrange?' | '+fmtN(c.bal*1500):''}</div></div>
+    </div>`).join('');
+  window[`_res_${listId}`]=results;
 }
 
-async function payment(custId,amount,accId,mode,ref){
-  return api(BOOKS,'/customerpayments','POST',{
-    customer_id:custId,date:td(),amount,payment_mode:mode,account_id:accId,reference_number:ref.slice(0,50)
-  });
-}
-
-// CML record — uses correct Zoho Inventory custom module POST endpoint
-async function cmlRecord(data){
-  // Zoho Inventory custom module records are created via the modules API
-  const b={
-    cf_movement_type_1:'Customer Return',
-    cf_customer:data.id,
-    cf_return_date:data.date,
-    cf_crates_count:data.count||0,
-    cf_balance_before:roundBal(data.bb),
-    cf_remaining_balance:roundBal(data.rem),
-    cf_settlement_processed:true,
-    cf_recorded_by:data.by||'',
-    cf_notes:data.notes||''
-  };
-  if(data.wob)  b.cf_empty_crate_shells=data.wob;
-  if(data.btl)  b.cf_plastic_bottle_sets=data.btl;
-  if(data.cash) b.cf_cash_paid=data.cash;
-  if(data.xfer) b.cf_transfer_paid=data.xfer;
-  // Try custom modules endpoint — Zoho Inventory API v1
-  try{
-    const d=await api(INV,'/custommodules/cm_crate_movement_log','POST',b);
-    if(d.code===0)return d;
-  }catch(e){}
-  // Fallback: some orgs use different path structure
-  try{
-    const d=await api(INV,'/modules/cm_crate_movement_log','POST',b);
-    if(d.code===0)return d;
-  }catch(e){}
-  // Non-critical — log silently; balance + stock updates already succeeded
-  console.warn('CML record creation failed — balance and stock updates already applied');
-  return{code:-1,message:'CML log skipped'};
-}
-
-// ── SHARED SEARCH RENDERING ──────────────────────────────────────────────────
-async function doSearch(prefix,isOrange){
+async function doSearch(prefix,isOrange,selectFn){
   const nm=$(prefix+'_search').value.trim();
   if(nm.length<3){alert_(prefix+'_searchErr','Please type at least 3 letters of the customer name.','error');show(prefix+'_searchErr');return;}
   clearA(prefix+'_searchErr');hide(prefix+'_results');
-  const btn=$(prefix+'_searchBtn');btn.disabled=true;btn.innerHTML='<span class="spin spin-blue"></span>';
+  const btn=$(prefix+'_searchBtn');btn.disabled=true;btn.innerHTML='<span class="spin spin-dark"></span>';
   try{
     const results=await searchCustomers(nm);
-    if(!results.length){
-      alert_(prefix+'_searchErr',`No customers found whose name starts with "${nm}". Try different letters.`,'error');
-      show(prefix+'_searchErr');
-    }else if(results.length===1){
-      prefix==='er'?erSelectCustomer(results[0]):finSelectCustomer(results[0]);
-    }else{
-      const avCls=isOrange?'sri-av orange':'sri-av';
-      $(prefix+'_resultsList').innerHTML=results.map((c,i)=>
-        `<div class="search-result-item" onclick="${prefix==='er'?'erSelectCustomer':'finSelectCustomer'}(window._${prefix}Res[${i}])">
-          <div class="${avCls}">${init(c.name)}</div>
-          <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates${isOrange?' | '+fmtN(c.bal*1500):''}</div></div>
-        </div>`).join('');
-      window[`_${prefix}Res`]=results;
-      show(prefix+'_results');
-    }
+    if(!results.length){alert_(prefix+'_searchErr',`No customers found whose name starts with "${nm}".`,'error');show(prefix+'_searchErr');}
+    else if(results.length===1){window[selectFn](results[0]);}
+    else{renderResults(prefix+'_resultsList',results,isOrange,selectFn);show(prefix+'_results');}
   }catch(e){alert_(prefix+'_searchErr','Network error: '+e.message,'error');show(prefix+'_searchErr');}
   btn.disabled=false;btn.textContent='Search';
 }
-function erSearch(){doSearch('er',false);}
-function finSearch(){doSearch('fin',true);}
+
+// Live search — fires after 400ms pause while typing
+function erLiveSearch(v){clearTimeout(erSearchDebounce);if(v.length>=3){erSearchDebounce=setTimeout(()=>doSearch('er',false,'erSelectCustomer'),400);}else{hide('er_results');}}
+function finLiveSearch(v){clearTimeout(finSearchDebounce);if(v.length>=3){finSearchDebounce=setTimeout(()=>doSearch('fin',true,'finSelectCustomer'),400);}else{hide('fin_results');}}
+function erSearch(){doSearch('er',false,'erSelectCustomer');}
+function finSearch(){doSearch('fin',true,'finSelectCustomer');}
 
 // ── EMPTIES RETURNS ──────────────────────────────────────────────────────────
 function erSelectCustomer(c){
   erCust=c;hide('er_results');
-  $('er_av').textContent=init(c.name);$('er_name').textContent=c.name;
-  $('er_bal').textContent=fmt(c.bal);
-  $('er_bb').textContent=fmt(c.bal);$('er_ba').textContent=fmt(c.bal);
-  $('er_ba').style.color='var(--orange)';
+  $('er_av').textContent=init(c.name);$('er_name').textContent=c.name;$('er_bal').textContent=fmt(c.bal);
+  $('er_bb').textContent=fmt(c.bal);$('er_ba').textContent=fmt(c.bal);$('er_ba').style.color='var(--orange)';
   $('er_count').value=0;$('er_cd').textContent='0';
   show('er_custBlock');show('er_form');
 }
 function erClearCustomer(){erCust=null;hide('er_custBlock');hide('er_form');hide('er_results');$('er_search').value='';clearA('er_err');clearA('er_ok');}
+function erCalc(){if(!erCust)return;const n=Number($('er_count').value)||0;const ba=roundBal(erCust.bal-n);$('er_cd').textContent=fmt(n);$('er_ba').textContent=fmt(ba);$('er_ba').style.color=ba<=0?'var(--green)':'var(--orange)';}
 
-function erCalc(){
-  if(!erCust)return;
-  const n=Number($('er_count').value)||0;
-  const ba=roundBal(erCust.bal-n);
-  $('er_cd').textContent=fmt(n);
-  $('er_ba').textContent=fmt(ba);
-  $('er_ba').style.color=ba<=0?'var(--green)':'var(--orange)';
+async function updateBal(id,newBal){
+  return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[{api_name:'cf_crate_balance',value:roundBal(newBal)},{api_name:'cf_last_return_date',value:td()}]});
+}
+async function adjustment(itemId,qty,reason){
+  return api(INV,'/inventoryadjustments','POST',{date:td(),reason:reason.slice(0,50),adjustment_type:'quantity',adjustment_account_id:CFG.adjAccount,line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]});
+}
+async function payment(custId,amount,accId,mode,ref){
+  return api(BOOKS,'/customerpayments','POST',{customer_id:custId,date:td(),amount,payment_mode:mode,account_id:accId,reference_number:ref.slice(0,50)});
+}
+async function cmlRecord(data){
+  const b={cf_movement_type_1:data.type||'Customer Return',cf_customer:data.id||'',cf_return_date:data.date,cf_crates_count:data.count||0,cf_balance_before:roundBal(data.bb||0),cf_remaining_balance:roundBal(data.rem||0),cf_settlement_processed:true,cf_recorded_by:data.by||'',cf_notes:data.notes||''};
+  if(data.wob)b.cf_empty_crate_shells=data.wob;
+  if(data.btl)b.cf_plastic_bottle_sets=data.btl;
+  if(data.cash)b.cf_cash_paid=data.cash;
+  if(data.xfer)b.cf_transfer_paid=data.xfer;
+  try{const d=await api(INV,'/custommodules/cm_crate_movement_log','POST',b);if(d.code===0)return d;}catch(e){}
+  return{code:-1};
 }
 
 async function erSubmit(){
   if(!erCust){alert_('er_err','Please select a customer first.','error');show('er_err');return;}
   const n=Number($('er_count').value)||0;
-  if(n<=0){alert_('er_err','Please enter the number of full crates returned (must be greater than 0).','error');show('er_err');return;}
+  if(n<=0){alert_('er_err','Please enter the number of full crates returned.','error');show('er_err');return;}
   clearA('er_err');clearA('er_ok');
   const btn=$('er_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';
   showOverlay('Recording crate return...');
   try{
     const nb=roundBal(erCust.bal-n);
-    // Stock adjustment — increases Empty Crate warehouse stock
     await adjustment(CFG.items.emptyCrate,n,`Return ${td()}`);
-    // Update customer crate balance
     await updateBal(erCust.id,nb);
-    // CML log (non-blocking — failure doesn't abort)
-    await cmlRecord({id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
+    await cmlRecord({type:'Customer Return',id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
     hideOverlay();
     alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.`,'success');
     show('er_ok');
-    erCust.bal=nb;
-    $('er_bal').textContent=fmt(nb);$('er_bb').textContent=fmt(nb);
-    $('er_ba').textContent=fmt(nb);$('er_ba').style.color=nb<=0?'var(--green)':'var(--orange)';
+    erCust.bal=nb;$('er_bal').textContent=fmt(nb);$('er_bb').textContent=fmt(nb);$('er_ba').textContent=fmt(nb);$('er_ba').style.color=nb<=0?'var(--green)':'var(--orange)';
     $('er_count').value=0;$('er_cd').textContent='0';$('er_notes').value='';
-  }catch(e){
-    hideOverlay();
-    // If only the CML log failed, show partial success
-    if(e.message.includes('CML')||e.message.includes('custommodule')||e.message.includes('404')){
-      alert_('er_ok',`✓ Crate return saved for ${erCust.name}. Balance updated successfully.`,'success');
-      show('er_ok');
-    }else{
-      alert_('er_err','Error saving: '+e.message,'error');show('er_err');
-    }
-  }
+  }catch(e){hideOverlay();alert_('er_err','Error: '+e.message,'error');show('er_err');}
   btn.disabled=false;btn.textContent='Save crate return';
 }
-
 function erReset(){erCust=null;$('er_search').value='';hide('er_custBlock');hide('er_form');hide('er_results');clearA('er_searchErr');clearA('er_err');clearA('er_ok');$('er_count').value=0;$('er_notes').value='';}
 
-// ── SETTLEMENT CONVERSION ────────────────────────────────────────────────────
+// ── SETTLEMENT ───────────────────────────────────────────────────────────────
 async function finSelectCustomer(c){
   finCust=c;hide('fin_results');
   $('fin_av').textContent=init(c.name);$('fin_name').textContent=c.name;
   $('fin_bal').textContent=fmt(c.bal);$('fin_balVal').textContent=fmtN(c.bal*1500);
   $('fin_bb2').textContent=fmt(c.bal)+' crates';
-  show('fin_custBlock');show('fin_form');
-
-  // Check for unused credit balance in Zoho Books
+  show('fin_custBlock');show('fin_form');finCalc();
   finCustCredit=0;
-  try{
-    finCustCredit=await fetchCustomerCredits(c.id);
-    if(finCustCredit>0){
-      $('fin_creditInfo').textContent=`This customer has an unused credit balance of ${fmtNExact(finCustCredit)} in Zoho Books. You can apply this towards the settlement.`;
-      show('fin_creditRow');
-    }else{
-      hide('fin_creditRow');
-    }
-  }catch(e){hide('fin_creditRow');}
-
-  finCalc();
+  try{const d=await api(BOOKS,`/contacts/${c.id}`,'GET');if(d.code===0){finCustCredit=Number(d.contact?.unused_credits_receivable_amount)||0;if(finCustCredit>0){$('fin_creditInfo').textContent=`This customer has an unused credit of ${fmtNExact(finCustCredit)} in Zoho Books. You can apply it here.`;show('fin_creditRow');}else{hide('fin_creditRow');}}}catch(e){hide('fin_creditRow');}
 }
 function finClearCustomer(){finCust=null;finCustCredit=0;hide('fin_custBlock');hide('fin_form');hide('fin_results');$('fin_search').value='';clearA('fin_err');clearA('fin_ok');}
 
-// Show/hide bank selector when transfer amount entered
-$('fin_xfer').addEventListener('input',function(){
-  if(Number(this.value)>0){show('fin_bankRow');}else{hide('fin_bankRow');}
-  finCalc();
-});
-
-// Show/hide credit amount field
-$('fin_useCredit').addEventListener('change',function(){
-  if(this.checked){show('fin_creditAmtRow');$('fin_creditAmt').value=finCustCredit>0?finCustCredit:'';}
-  else{hide('fin_creditAmtRow');$('fin_creditAmt').value='';}
-  finCalc();
-});
+function finXferInput(){const v=Number($('fin_xfer').value)||0;v>0?show('fin_bankRow'):hide('fin_bankRow');finCalc();}
+function finCreditToggle(){const on=$('fin_useCredit').checked;on?show('fin_creditAmtRow'):hide('fin_creditAmtRow');if(on)$('fin_creditAmt').value=finCustCredit||'';finCalc();}
 
 function finCalc(){
-  const cr   =Number($('fin_cr').value)  ||0;
-  const wob  =Number($('fin_wob').value) ||0;
-  const btl  =Number($('fin_btl').value) ||0;
-  const cash =Number($('fin_cash').value)||0;
-  const xfer =Number($('fin_xfer').value)||0;
+  const cr=Number($('fin_cr').value)||0,wob=Number($('fin_wob').value)||0;
+  const btl=Number($('fin_btl').value)||0,cash=Number($('fin_cash').value)||0;
+  const xfer=Number($('fin_xfer').value)||0;
   const halfMode=$('fin_wobHalf').checked;
-  const useCredit=$('fin_useCredit').checked;
-  const creditAmt=useCredit?(Number($('fin_creditAmt').value)||0):0;
+  const creditAmt=$('fin_useCredit').checked?(Number($('fin_creditAmt').value)||0):0;
 
-  // WOB settlement value depends on mode
-  // Normal: 1 WOB shell = 1 crate (requires ₦750 payment per shell)
-  // Half mode: 2 WOB shells = 1 crate (requires ₦750 payment per shell still)
-  const wobCratesSettled = halfMode ? wob/2 : wob;
-  const wobPaymentRequired = wob * 750; // always ₦750 per shell regardless of mode
+  const wobCratesSettled=halfMode?wob/2:wob;
+  const wobPayReq=wob*750;
+  const totalMoney=cash+xfer+creditAmt;
+  const moneyForWOB=Math.min(totalMoney,wobPayReq);
+  const moneyForCrates=Math.max(0,totalMoney-wobPayReq);
 
-  const totalMoney = cash + xfer + creditAmt;
-  const moneyForWOB    = Math.min(totalMoney, wobPaymentRequired);
-  const moneyForCrates = Math.max(0, totalMoney - wobPaymentRequired);
+  const crCrates=cr,btlCrates=(btl*750)/1500,cashCrates=moneyForCrates/1500;
+  const totExact=crCrates+wobCratesSettled+btlCrates+cashCrates;
+  const totCrates=roundBal(totExact);
+  const bal=finCust?finCust.bal:0;
+  const rem=roundBal(bal-totExact);
 
-  const crCrates   = cr;
-  const btlCrates  = (btl * 750) / 1500;
-  const cashCrates = moneyForCrates / 1500;
-  const totCratesExact = crCrates + wobCratesSettled + btlCrates + cashCrates;
-  const totCrates = roundBal(totCratesExact);
-
-  const bal  = finCust ? finCust.bal : 0;
-  const rem  = roundBal(bal - totCratesExact);
-
-  // Summary rows
   const rows=[];
-  if(cr)  rows.push(`<tr><td>Empty Crates (full)</td><td>${fmt(cr)}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${cr}</td></tr>`);
-  if(wob) rows.push(`<tr class="wob-row"><td>WOB Shells${halfMode?' (2:1 mode)':''}</td><td>${fmt(wob)}</td><td class="mono" style="text-align:right">${fmtN(wobPaymentRequired)} <span style="font-size:10px">(req.)</span></td><td class="mono" style="text-align:right">${wobCratesSettled%1===0?wobCratesSettled:wobCratesSettled.toFixed(1)}</td></tr>`);
-  if(btl) rows.push(`<tr><td>Set of Empty Bottles</td><td>${fmt(btl)}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${btlCrates%1===0?btlCrates:btlCrates.toFixed(1)}</td></tr>`);
+  if(cr)rows.push(`<tr><td>Empty Crates (full)</td><td>${cr}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${cr}</td></tr>`);
+  if(wob)rows.push(`<tr class="wob-row"><td>WOB Shells${halfMode?' (2:1)':''}</td><td>${wob}</td><td class="mono" style="text-align:right">${fmtN(wobPayReq)} <small>(req.)</small></td><td class="mono" style="text-align:right">${wobCratesSettled%1===0?wobCratesSettled:wobCratesSettled.toFixed(1)}</td></tr>`);
+  if(btl)rows.push(`<tr><td>Set of Empty Bottles</td><td>${btl}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${btlCrates%1===0?btlCrates:btlCrates.toFixed(1)}</td></tr>`);
   if(cash)rows.push(`<tr><td>Cash paid</td><td>—</td><td class="mono" style="text-align:right">${fmtN(cash)}</td><td class="mono" style="text-align:right">—</td></tr>`);
   if(xfer)rows.push(`<tr><td>Bank transfer</td><td>—</td><td class="mono" style="text-align:right">${fmtN(xfer)}</td><td class="mono" style="text-align:right">—</td></tr>`);
-  if(creditAmt>0)rows.push(`<tr><td>Credit balance applied</td><td>—</td><td class="mono" style="text-align:right">${fmtNExact(creditAmt)}</td><td class="mono" style="text-align:right">—</td></tr>`);
-  if(moneyForCrates>0)rows.push(`<tr><td style="padding-left:12px;color:var(--green)">→ Extra payment → crate credit</td><td>—</td><td class="mono" style="text-align:right;color:var(--green)">${fmtN(moneyForCrates)}</td><td class="mono" style="text-align:right;color:var(--green)">+${cashCrates%1===0?cashCrates:cashCrates.toFixed(1)}</td></tr>`);
+  if(creditAmt>0)rows.push(`<tr><td>Credit applied</td><td>—</td><td class="mono" style="text-align:right">${fmtNExact(creditAmt)}</td><td class="mono" style="text-align:right">—</td></tr>`);
+  if(moneyForCrates>0)rows.push(`<tr><td style="padding-left:12px;color:var(--green);font-size:11px">→ Excess → extra crate credit</td><td>—</td><td class="mono" style="text-align:right;color:var(--green)">${fmtN(moneyForCrates)}</td><td class="mono" style="text-align:right;color:var(--green)">+${cashCrates%1===0?cashCrates:cashCrates.toFixed(1)}</td></tr>`);
 
   $('fin_rows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="4" style="color:var(--text3);font-size:11px;padding:8px 0">Enter items above to see summary</td></tr>';
-  $('fin_totPay').textContent=fmtN(totalMoney);
-  $('fin_totCrates').textContent=totCrates;
-  $('fin_settled').textContent=totCrates+' crates';
-  $('fin_rem').textContent=rem+' crates';
+  $('fin_totPay').textContent=fmtN(totalMoney);$('fin_totCrates').textContent=totCrates;
+  $('fin_settled').textContent=totCrates+' crates';$('fin_rem').textContent=rem+' crates';
   $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
 
-  // WOB warning
-  if(wob>0){
-    $('fin_wobWarn').textContent=`⚠ ${fmt(wob)} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPaymentRequired)} for the missing bottles (${fmt(wob)} × ₦750).`;
-    show('fin_wobWarn');
-  }else{hide('fin_wobWarn');}
-
-  // WOB shortfall
-  if(wob>0&&totalMoney<wobPaymentRequired){
-    const s=wobPaymentRequired-totalMoney;
-    $('fin_wobShortfall').textContent=`⚠ Shortfall: ${fmtN(s)} still needed to cover WOB bottle cost. Settlement cannot be processed until full payment is received.`;
-    show('fin_wobShortfall');
-  }else{hide('fin_wobShortfall');}
+  if(wob>0){$('fin_wobWarn').textContent=`⚠ ${wob} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPayReq)} for missing bottles (${wob} × ₦750).`;show('fin_wobWarn');}else{hide('fin_wobWarn');}
+  if(wob>0&&totalMoney<wobPayReq){const s=wobPayReq-totalMoney;$('fin_wobShortfall').textContent=`⚠ Shortfall: ${fmtN(s)} still needed. Settlement cannot proceed until full WOB payment is received.`;show('fin_wobShortfall');}else{hide('fin_wobShortfall');}
 }
 
 async function finSubmit(){
   if(!finCust){alert_('fin_err','Please select a customer first.','error');show('fin_err');return;}
   const staff=$('fin_staff').value.trim();
-  if(!staff){alert_('fin_err','Please enter your name in the Processed by field.','error');show('fin_err');return;}
-
-  const cr   =Number($('fin_cr').value)  ||0;
-  const wob  =Number($('fin_wob').value) ||0;
-  const btl  =Number($('fin_btl').value) ||0;
-  const cash =Number($('fin_cash').value)||0;
-  const xfer =Number($('fin_xfer').value)||0;
+  if(!staff){alert_('fin_err','Please enter the name of the Finance staff processing this.','error');show('fin_err');return;}
+  const cr=Number($('fin_cr').value)||0,wob=Number($('fin_wob').value)||0;
+  const btl=Number($('fin_btl').value)||0,cash=Number($('fin_cash').value)||0;
+  const xfer=Number($('fin_xfer').value)||0;
   const halfMode=$('fin_wobHalf').checked;
-  const useCredit=$('fin_useCredit').checked;
-  const creditAmt=useCredit?(Number($('fin_creditAmt').value)||0):0;
+  const creditAmt=$('fin_useCredit').checked?(Number($('fin_creditAmt').value)||0):0;
   const bankAcctId=$('fin_bankAcct').value;
 
-  if(cr+wob+btl+cash+xfer+creditAmt===0){alert_('fin_err','Please enter at least one item or payment amount.','error');show('fin_err');return;}
+  if(cr+wob+btl+cash+xfer+creditAmt===0){alert_('fin_err','Please enter at least one item or payment.','error');show('fin_err');return;}
 
-  // Block if WOB payment is short
-  const wobRequired=wob*750;
-  const totalMoney=cash+xfer+creditAmt;
-  if(wob>0&&totalMoney<wobRequired){
-    const s=wobRequired-totalMoney;
-    alert_('fin_err',`Cannot process: ${fmtN(s)} still needed for WOB bottle payment. Please collect ${fmtN(wobRequired)} total before saving.`,'error');
-    show('fin_err');return;
-  }
+  const wobPayReq=wob*750,totalMoney=cash+xfer+creditAmt;
+  if(wob>0&&totalMoney<wobPayReq){alert_('fin_err',`Cannot process: ${fmtN(wobPayReq-totalMoney)} WOB bottle payment still outstanding. Collect full amount first.`,'error');show('fin_err');return;}
 
   clearA('fin_err');clearA('fin_ok');
-
   const wobCratesSettled=halfMode?wob/2:wob;
-  const moneyForCrates=Math.max(0,totalMoney-wobRequired);
-  const crCrates=cr,btlCrates=(btl*750)/1500,cashCrates=moneyForCrates/1500;
-  const totCratesExact=crCrates+wobCratesSettled+btlCrates+cashCrates;
-  const rem=roundBal(finCust.bal-totCratesExact);
+  const moneyForCrates=Math.max(0,totalMoney-wobPayReq);
+  const totExact=cr+wobCratesSettled+(btl*750/1500)+(moneyForCrates/1500);
+  const rem=roundBal(finCust.bal-totExact);
   const ref='STL-'+Date.now();
 
   const btn=$('fin_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
   try{
-    if(cr)  await adjustment(CFG.items.emptyCrate,cr,`Full Crates ${td()}`);
-    if(wob) await adjustment(CFG.items.emptyWOB,  wob,`WOB Shells ${td()}`);
-    if(btl) await adjustment(CFG.items.emptyBTL,  btl,`BTL Sets ${td()}`);
-    if(cash) await payment(finCust.id,cash,CFG.cashAccount,'cash',ref);
-    if(xfer) await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref);
+    if(cr)await adjustment(CFG.items.emptyCrate,cr,`Full Crates ${td()}`);
+    if(wob)await adjustment(CFG.items.emptyWOB,wob,`WOB Shells ${td()}`);
+    if(btl)await adjustment(CFG.items.emptyBTL,btl,`BTL Sets ${td()}`);
+    if(cash)await payment(finCust.id,cash,CFG.cashAccount,'cash',ref);
+    if(xfer)await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref);
     await updateBal(finCust.id,rem);
-    await cmlRecord({id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
+    await cmlRecord({type:'Customer Return',id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
     hideOverlay();
-    alert_('fin_ok',`✓ Settlement processed for ${finCust.name}. ${roundBal(totCratesExact)} crates settled. Total received: ${fmtN(totalMoney)}. Remaining balance: ${rem} crates.`,'success');
+    alert_('fin_ok',`✓ Settlement done for ${finCust.name}. ${roundBal(totExact)} crates settled. Received: ${fmtN(totalMoney)}. Remaining: ${rem} crates.`,'success');
     show('fin_ok');
-    finCust.bal=rem;
-    $('fin_bal').textContent=fmt(rem);$('fin_balVal').textContent=fmtN(rem*1500);
-    $('fin_bb2').textContent=fmt(rem)+' crates';
+    finCust.bal=rem;$('fin_bal').textContent=fmt(rem);$('fin_balVal').textContent=fmtN(rem*1500);$('fin_bb2').textContent=fmt(rem)+' crates';
     ['fin_cr','fin_wob','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
-    $('fin_wobHalf').checked=false;
-    $('fin_useCredit').checked=false;hide('fin_creditAmtRow');$('fin_creditAmt').value='';
-    hide('fin_bankRow');finCalc();
-  }catch(e){
-    hideOverlay();
-    alert_('fin_err','Error: '+e.message,'error');show('fin_err');
-  }
+    $('fin_wobHalf').checked=false;$('fin_useCredit').checked=false;hide('fin_creditAmtRow');hide('fin_bankRow');finCalc();
+  }catch(e){hideOverlay();alert_('fin_err','Error: '+e.message,'error');show('fin_err');}
   btn.disabled=false;btn.textContent='Process settlement';
 }
 
@@ -986,17 +886,133 @@ function finReset(){
   finCust=null;finCustCredit=0;$('fin_search').value='';
   hide('fin_custBlock');hide('fin_form');hide('fin_results');
   clearA('fin_searchErr');clearA('fin_err');clearA('fin_ok');
-  $('fin_staff').value='';$('fin_notes').value='';
+  $('fin_staff').value=S.name&&!S.name.startsWith('Malexchlo')?S.name:'';
+  $('fin_notes').value='';
   ['fin_cr','fin_wob','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
   $('fin_wobHalf').checked=false;$('fin_useCredit').checked=false;
-  hide('fin_bankRow');hide('fin_creditRow');hide('fin_creditAmtRow');
-  hide('fin_wobWarn');hide('fin_wobShortfall');
+  hide('fin_bankRow');hide('fin_creditRow');hide('fin_creditAmtRow');hide('fin_wobWarn');hide('fin_wobShortfall');
+}
+
+// ── NBL BACKLOADING ──────────────────────────────────────────────────────────
+async function blInit(){
+  // Load all three stock figures
+  ['bl_crStock','bl_wobStock','bl_btlStock'].forEach(id=>$(id).innerHTML='<span class="spin spin-dark"></span>');
+  const [crSt,wobSt,btlSt]=await Promise.all([
+    getItemStock(CFG.items.emptyCrate),getItemStock(CFG.items.emptyWOB),getItemStock(CFG.items.emptyBTL)
+  ]);
+  blStockOnHand=crSt;
+  $('bl_crStock').textContent=crSt!==null?fmt(crSt):'Error';
+  $('bl_wobStock').textContent=wobSt!==null?fmt(wobSt):'Error';
+  $('bl_btlStock').textContent=btlSt!==null?fmt(btlSt):'Error';
+  $('bl_currentStock').textContent=crSt!==null?fmt(crSt)+' crates':'Could not load';
+  blCalc();
+}
+function blCalc(){
+  const n=Number($('bl_count').value)||0;
+  $('bl_count_display').textContent=fmt(n);
+  if(blStockOnHand!==null){const after=blStockOnHand-n;$('bl_afterStock').textContent=fmt(after)+' crates';$('bl_afterStock').style.color=after<0?'var(--red)':after===0?'var(--green)':'var(--orange)';}
+}
+async function blSubmit(){
+  const n=Number($('bl_count').value)||0;
+  const recordedBy=$('bl_recordedBy').value.trim();
+  if(n<=0){alert_('bl_err','Please enter the number of crates being sent to NBL.','error');show('bl_err');return;}
+  if(!recordedBy){alert_('bl_err','Please enter your name in the Recorded by field.','error');show('bl_err');return;}
+  if(blStockOnHand!==null&&n>blStockOnHand){alert_('bl_err',`Cannot backload ${fmt(n)} crates — only ${fmt(blStockOnHand)} in stock.`,'error');show('bl_err');return;}
+  clearA('bl_err');clearA('bl_ok');
+  const btn=$('bl_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Submitting...';
+  showOverlay('Recording NBL backload...');
+  try{
+    const waybill=$('bl_waybill').value.trim();
+    const notes=$('bl_notes').value.trim();
+    await adjustment(CFG.items.emptyCrate,-n,`NBL Backload${waybill?' '+waybill:''}`.slice(0,50));
+    await cmlRecord({type:'NB Return',id:'',date:$('bl_date').value,count:n,bb:blStockOnHand||0,rem:(blStockOnHand||0)-n,notes:(waybill?`Waybill: ${waybill}. `:'')+notes,by:recordedBy});
+    hideOverlay();
+    const newStock=(blStockOnHand||0)-n;
+    alert_('bl_ok',`✓ Backload recorded. ${fmt(n)} crates sent to NBL${waybill?' ('+waybill+')':''}. New stock: ${fmt(newStock)} crates.`,'success');
+    show('bl_ok');
+    blStockOnHand=newStock;
+    $('bl_crStock').textContent=fmt(newStock);$('bl_currentStock').textContent=fmt(newStock)+' crates';
+    $('bl_count').value='';$('bl_waybill').value='';$('bl_notes').value='';blCalc();
+  }catch(e){hideOverlay();alert_('bl_err','Error: '+e.message,'error');show('bl_err');}
+  btn.disabled=false;btn.textContent='Submit backload';
+}
+function blReset(){
+  blStockOnHand=null;$('bl_count').value='';$('bl_waybill').value='';$('bl_notes').value='';$('bl_recordedBy').value='';
+  $('bl_count_display').textContent='0';$('bl_currentStock').textContent='—';$('bl_afterStock').textContent='—';
+  ['bl_crStock','bl_wobStock','bl_btlStock'].forEach(id=>$(id).textContent='—');
+  clearA('bl_err');clearA('bl_ok');
+}
+
+// ── REPORTS ──────────────────────────────────────────────────────────────────
+function repSetDefaultDates(){
+  const now=new Date();
+  const firstDay=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  $('rep_from').value=firstDay;$('rep_to').value=td();
+}
+
+async function repLoad(){
+  const btn=$('rep_loadBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  hide('rep_table');hide('rep_empty');
+  $('rep_loading').classList.remove('hidden');
+  $('rep_loading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading transactions...';
+  try{
+    const from=$('rep_from').value,to=$('rep_to').value,type=$('rep_type').value;
+    let path=`/custommodules/cm_crate_movement_log?per_page=200&sort_column=date&sort_order=D`;
+    if(from)path+=`&date_after=${from}`;
+    if(to)path+=`&date_before=${to}`;
+
+    const d=await api(INV,path,'GET');
+    hide('rep_loading');
+
+    if(d.code!==0){$('rep_loading').textContent='Could not load report. Check connection.';show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;}
+
+    let records=(d.module_records||d.records||[]);
+    if(type)records=records.filter(r=>(r.cf_movement_type_1||'')===type);
+
+    // Update summary stats
+    const totCratesRet=records.reduce((s,r)=>s+(Number(r.cf_crates_count)||0),0);
+    const totCash=records.reduce((s,r)=>s+(Number(r.cf_cash_paid)||0)+(Number(r.cf_transfer_paid)||0),0);
+    const custMap={};
+    records.forEach(r=>{if(r.cf_customer&&r.cf_movement_type_1==='Customer Return'){custMap[r.cf_customer]=(Number(r.cf_remaining_balance)||0);}});
+    const totOutstanding=Object.values(custMap).reduce((s,v)=>s+v,0);
+    $('rep_totTx').textContent=records.length;
+    $('rep_totCratesRet').textContent=fmt(totCratesRet);
+    $('rep_totCash').textContent=fmtN(totCash);
+    $('rep_totBal').textContent=fmt(totOutstanding)+' crates';
+
+    if(!records.length){show('rep_empty');btn.disabled=false;btn.textContent='Load report';return;}
+
+    $('rep_tbody').innerHTML=records.map(r=>{
+      const mvType=r.cf_movement_type_1||'—';
+      const tag=mvType==='Customer Return'?'<span class="tag tag-blue">Customer</span>':'<span class="tag tag-orange">NBL</span>';
+      const cash=Number(r.cf_cash_paid)||0,xfer=Number(r.cf_transfer_paid)||0;
+      const settled=Number(r.cf_crates_settled)||0;
+      return `<tr>
+        <td>${r.cf_return_date||r.date||'—'}</td>
+        <td class="mono" style="font-size:11px;color:var(--text3)">${(r.id||r.module_record_id||'').slice(-6)}</td>
+        <td>${r.cf_customer_name||r.cf_customer||'—'}</td>
+        <td>${tag}</td>
+        <td class="mono" style="text-align:right">${fmt(r.cf_balance_before||0)}</td>
+        <td class="mono" style="text-align:right">${fmt(r.cf_crates_count||0)}</td>
+        <td class="mono" style="text-align:right">${settled>0?fmt(settled):'—'}</td>
+        <td class="mono" style="text-align:right;font-weight:500;color:${Number(r.cf_remaining_balance||0)>0?'var(--orange)':'var(--green)'}">${fmt(r.cf_remaining_balance||0)}</td>
+        <td class="mono" style="text-align:right">${cash>0?fmtN(cash):'—'}</td>
+        <td class="mono" style="text-align:right">${xfer>0?fmtN(xfer):'—'}</td>
+        <td style="font-size:11px">${r.cf_recorded_by||'—'}</td>
+      </tr>`;
+    }).join('');
+    show('rep_table');
+  }catch(e){
+    $('rep_loading').textContent='Error loading report: '+e.message;
+    $('rep_loading').classList.remove('hidden');
+  }
+  btn.disabled=false;btn.textContent='Load report';
 }
 
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
   erCust=null;finCust=null;finCustCredit=0;blStockOnHand=null;
-  hide('appRoot');show('authScreen');clearA('authErr');goHome();
+  hide('appRoot');show('authScreen');clearA('authErr');
 }
 
 (async function(){
