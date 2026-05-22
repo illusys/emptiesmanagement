@@ -355,9 +355,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="card-body">
           <div class="sec-label">Physical items returned</div>
           <div class="field"><label>Empty Crates (full) <span class="hint">= 1 crate each, no payment needed</span></label><input type="number" id="fin_cr" min="0" placeholder="0" oninput="finCalc()"></div>
-          <div class="field"><label>Empty Crates Without Bottles (WOB shells) <span class="hint">= 1 crate each + ₦750/shell payment</span></label><input type="number" id="fin_wob" min="0" placeholder="0" oninput="finCalc()"></div>
+          <div class="field"><label>Empty Crates Without Bottles (WOB shells) <span class="hint">= 1 crate each + ₦750/shell payment</span></label><input type="number" id="fin_wob" min="0" placeholder="0" oninput="wobValidate()"></div>
           <div class="toggle-row">
-            <input type="checkbox" id="fin_wobHalf" onchange="finCalc()">
+            <input type="checkbox" id="fin_wobHalf" onchange="wobModeChange()">
             <label for="fin_wobHalf">Count 2 WOB shells as 1 crate (half-crate mode — use when shells are damaged or partial)</label>
           </div>
           <div id="fin_wobWarn" class="warn-box hidden"></div>
@@ -925,16 +925,36 @@ async function payment(custId,amount,accId,mode,ref){
   return api(BOOKS,'/customerpayments','POST',{customer_id:custId,date:td(),amount,payment_mode:mode,account_id:accId,reference_number:ref.slice(0,50)});
 }
 async function cmlRecord(data){
-  const b={cf_movement_type_1:data.type||'Customer Return',cf_customer:data.id||'',cf_return_date:data.date,cf_crates_count:data.count||0,cf_balance_before:roundBal(data.bb||0),cf_remaining_balance:roundBal(data.rem||0),cf_settlement_processed:true,cf_recorded_by:data.by||'',cf_notes:data.notes||''};
-  if(data.wob)b.cf_empty_crate_shells=data.wob;
-  if(data.btl)b.cf_plastic_bottle_sets=data.btl;
-  if(data.cash)b.cf_cash_paid=data.cash;
-  if(data.xfer)b.cf_transfer_paid=data.xfer;
-  try{
-    const d=await api(INV,'/custommodules/cm_crate_movement_log','POST',b);
-    if(d.code===0)return d;
-    console.log('CML record failed silently:',d.code,d.message);
-  }catch(e){ console.log('CML error:',e.message); }
+  const b={
+    cf_movement_type_1:data.type||'Customer Return',
+    cf_customer:data.id||'',
+    cf_return_date:data.date,
+    cf_crates_count:data.count||0,
+    cf_balance_before:roundBal(data.bb||0),
+    cf_remaining_balance:roundBal(data.rem||0),
+    cf_settlement_processed:true,
+    cf_recorded_by:data.by||'',
+    cf_notes:data.notes||''
+  };
+  if(data.wob)  b.cf_empty_crate_shells=data.wob;
+  if(data.btl)  b.cf_plastic_bottle_sets=data.btl;
+  if(data.cash) b.cf_cash_paid=data.cash;
+  if(data.xfer) b.cf_transfer_paid=data.xfer;
+
+  // Try multiple Zoho Inventory custom module endpoints
+  const paths=[
+    '/custommodules/cm_crate_movement_log',
+    '/custommodules/cm_crate_movement_log/records',
+    '/customrecords?entity_name=cm_crate_movement_log'
+  ];
+  for(const path of paths){
+    try{
+      const d=await api(INV,path,'POST',b);
+      console.log('CML attempt',path,'→ code:',d.code,'msg:',d.message);
+      if(d.code===0){console.log('CML record created successfully via',path);return d;}
+    }catch(e){ console.log('CML path',path,'error:',e.message); }
+  }
+  console.log('CML record creation failed on all paths — transaction data saved in Zoho Inventory adjustments and customer balance updated.');
   return{code:-1};
 }
 
@@ -975,6 +995,32 @@ function finClearCustomer(){finCust=null;finCustCredit=0;hide('fin_custBlock');h
 function finXferInput(){const v=Number($('fin_xfer').value)||0;v>0?show('fin_bankRow'):hide('fin_bankRow');finCalc();}
 function finCreditToggle(){const on=$('fin_useCredit').checked;on?show('fin_creditAmtRow'):hide('fin_creditAmtRow');if(on)$('fin_creditAmt').value=finCustCredit||'';finCalc();}
 
+function wobValidate(){
+  const halfMode=$('fin_wobHalf').checked;
+  const raw=Number($('fin_wob').value)||0;
+  if(halfMode && raw>0 && raw%2!==0){
+    // Round down to nearest even number automatically
+    $('fin_wob').value=raw-1;
+  }
+  finCalc();
+}
+
+function wobModeChange(){
+  const halfMode=$('fin_wobHalf').checked;
+  const raw=Number($('fin_wob').value)||0;
+  if(halfMode && raw>0 && raw%2!==0){
+    // When mode switches to 2:1, round down odd WOB count to even
+    $('fin_wob').value=raw-1;
+    // Show a note to the user
+    const newVal=raw-1;
+    if(newVal>0){
+      $('fin_wobWarn').textContent=`Note: WOB count adjusted from ${raw} to ${newVal} (must be even in 2:1 mode). ${newVal} shells = ${newVal/2} crates. Payment required: ₦${(newVal*750).toLocaleString('en-NG')}.`;
+      show('fin_wobWarn');
+    }
+  }
+  finCalc();
+}
+
 function finCalc(){
   const cr=Number($('fin_cr').value)||0,wob=Number($('fin_wob').value)||0;
   const btl=Number($('fin_btl').value)||0,cash=Number($('fin_cash').value)||0;
@@ -982,11 +1028,9 @@ function finCalc(){
   const halfMode=$('fin_wobHalf').checked;
   const creditAmt=$('fin_useCredit').checked?(Number($('fin_creditAmt').value)||0):0;
 
-  // In 2:1 mode: pairs of shells = full crates, odd shell = half crate
+  // In 2:1 mode: 2 shells = 1 crate (odd numbers prevented by wobValidate)
   // Payment is always ₦750 per shell regardless of mode
-  const wobPairs=halfMode?Math.floor(wob/2):wob;
-  const wobOdd=halfMode?(wob%2):0;
-  const wobCratesSettled=wobPairs+(wobOdd*0.5);
+  const wobCratesSettled=halfMode?wob/2:wob;
   const wobPayReq=wob*750; // always ₦750 per shell
   const totalMoney=cash+xfer+creditAmt;
   const moneyForWOB=Math.min(totalMoney,wobPayReq);
@@ -1013,9 +1057,9 @@ function finCalc(){
   $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
 
   if(wob>0){
-    let warnMsg=`⚠ ${wob} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPayReq)} for missing bottles (${wob} × ₦750).`;
-    if(halfMode&&wob%2!==0) warnMsg+=` Note: odd shell count in 2:1 mode — ${wob-1} shells = ${Math.floor(wob/2)} crates, 1 remaining shell = 0.5 crate.`;
-    $('fin_wobWarn').textContent=warnMsg;show('fin_wobWarn');
+    const modeNote=halfMode?` (2:1 mode: ${wob} shells = ${wob/2} crates)`:'';
+    $('fin_wobWarn').textContent=`⚠ ${wob} WOB shell${wob>1?'s':''} returned${modeNote}. Customer must pay ${fmtN(wobPayReq)} for missing bottles (${wob} × ₦750).`;
+    show('fin_wobWarn');
   }else{hide('fin_wobWarn');}
   if(wob>0&&totalMoney<wobPayReq){const s=wobPayReq-totalMoney;$('fin_wobShortfall').textContent=`⚠ Shortfall: ${fmtN(s)} still needed. Settlement cannot proceed until full WOB payment is received.`;show('fin_wobShortfall');}else{hide('fin_wobShortfall');}
 }
@@ -1144,15 +1188,32 @@ async function repLoad(){
     let path=`/custommodules/cm_crate_movement_log?per_page=200&sort_column=cf_return_date&sort_order=D`;
 
     let d=null;
-    try{ d=await api(INV,path,'GET'); }catch(e){}
+    // Try primary path with date filters
+    try{ d=await api(INV,path,'GET'); console.log('Report fetch 1:',d?.code,d?.message); }catch(e){}
+    // Try without date filters
     if(!d||d.code!==0){
       try{
-        const sp='/custommodules/cm_crate_movement_log?per_page=200&sort_column=cf_return_date&sort_order=D';
-        d=await api(INV,sp,'GET');
+        const sp='/custommodules/cm_crate_movement_log?per_page=200&sort_order=D';
+        d=await api(INV,sp,'GET'); console.log('Report fetch 2:',d?.code,d?.message);
+      }catch(e){}
+    }
+    // Try /records sub-path
+    if(!d||d.code!==0){
+      try{
+        d=await api(INV,'/custommodules/cm_crate_movement_log/records?per_page=200','GET');
+        console.log('Report fetch 3:',d?.code,d?.message);
       }catch(e){}
     }
     hide('rep_loading');
-    if(!d||d.code!==0){$('rep_loading').textContent='Could not load report. Check your Zoho connection and ensure the Crate Movement Log module is accessible.';show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;}
+    if(!d||d.code!==0){
+      $('rep_loading').innerHTML='<strong>Crate Movement Log records could not be loaded.</strong><br><br>'+
+        'This may be because:<br>'+
+        '• No transactions have been recorded yet via this app<br>'+
+        '• The Crate Movement Log module API name may differ from "cm_crate_movement_log"<br>'+
+        '• The ZohoInventory.custommodules.ALL scope may need to be re-granted<br><br>'+
+        'Transactions saved via this app update customer balances and stock in real time, even when the CML log is unavailable.';
+      show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;
+    }
 
     let records=(d.module_records||d.records||[]);
     records=records.filter(r=>{
