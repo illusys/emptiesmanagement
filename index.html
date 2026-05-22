@@ -121,7 +121,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .token-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .tdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .tdot.warn{background:var(--amber)}
-@media(max-width:480px){.role-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.main{padding:20px 14px}}
+@media(max-width:600px){.role-grid{grid-template-columns:1fr!important}.field-row{grid-template-columns:1fr}.main{padding:20px 14px}}
 </style>
 </head>
 <body>
@@ -175,7 +175,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <h2 style="font-size:18px;font-weight:600;letter-spacing:-.02em">What would you like to do?</h2>
         <p style="font-size:13px;color:var(--text2);margin-top:4px">Select your function to begin</p>
       </div>
-      <div class="role-grid">
+      <div class="role-grid" style="grid-template-columns:1fr 1fr 1fr">
         <div class="role-card" onclick="showScreen('emptiesScreen')">
           <div class="role-icon blue-bg">📦</div>
           <div class="role-title">Crate Returns</div>
@@ -185,6 +185,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="role-icon orange-bg">💳</div>
           <div class="role-title">Settlement Conversion</div>
           <div class="role-desc">Process WOB shells, bottle sets, cash and transfer payments</div>
+        </div>
+        <div class="role-card" onclick="showScreen('backloadScreen')">
+          <div class="role-icon" style="background:#f0fdf4">🚛</div>
+          <div class="role-title">NBL Backloading</div>
+          <div class="role-desc">Return empty crates to Nigeria Breweries and reduce warehouse stock</div>
         </div>
       </div>
       <div style="margin-top:16px;padding:12px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -380,6 +385,76 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
+    <!-- NBL BACKLOADING -->
+    <div id="backloadScreen" class="hidden">
+      <div class="page-head">
+        <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
+        <div><h2>NBL Backloading</h2><p>Return empty crates to Nigeria Breweries — decreases warehouse stock</p></div>
+        <span class="badge" style="background:#f0fdf4;color:var(--green);margin-left:auto">Empties Manager</span>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="info-box" style="margin-bottom:0">
+            Backloading records crates being sent back to NBL. This reduces Malexchlo's warehouse empty crate stock. No customer is involved in this transaction.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="sec-label">Backload details</div>
+
+          <div class="bal-block">
+            <div class="bal-row">
+              <span class="bal-label">Current warehouse Empty Crate stock</span>
+              <span class="bal-val" style="color:var(--blue)" id="bl_currentStock">—</span>
+            </div>
+            <div class="bal-row">
+              <span class="bal-label">Crates being sent to NBL</span>
+              <span class="bal-val" id="bl_count_display">0</span>
+            </div>
+            <div class="bal-row">
+              <span class="bal-label" style="font-weight:500">Stock after backload</span>
+              <span class="bal-val" id="bl_afterStock" style="font-size:15px;color:var(--orange)">—</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Number of crates sent to NBL</label>
+              <input type="number" id="bl_count" min="1" value="" placeholder="0" oninput="blCalc()">
+            </div>
+            <div class="field">
+              <label>Backload date</label>
+              <input type="date" id="bl_date">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>NBL truck / waybill number <span class="hint">(optional)</span></label>
+              <input type="text" id="bl_waybill" placeholder="e.g. WB-20260521-001">
+            </div>
+            <div class="field">
+              <label>Recorded by</label>
+              <input type="text" id="bl_recordedBy" placeholder="Your full name">
+            </div>
+          </div>
+          <div class="field">
+            <label>Notes <span class="hint">(optional)</span></label>
+            <textarea id="bl_notes" placeholder="Any notes about this backload..."></textarea>
+          </div>
+
+          <div id="bl_err" class="alert alert-error hidden"></div>
+          <div id="bl_ok" class="alert alert-success hidden"></div>
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
+            <button class="btn btn-ghost" onclick="blReset()">Reset</button>
+            <button class="btn" id="bl_saveBtn" onclick="blSubmit()" style="background:var(--green);color:#fff">Submit backload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -417,8 +492,101 @@ function show(id){$(id).classList.remove('hidden');}
 function hide(id){$(id).classList.add('hidden');}
 function alert_(id,msg,type){const e=$(id);e.textContent=msg;e.className=`alert alert-${type}`;}
 function clearA(id){const e=$(id);e.textContent='';e.className='alert alert-error hidden';}
-function showScreen(id){['roleScreen','emptiesScreen','financeScreen'].forEach(s=>$(s).classList.add('hidden'));$(id).classList.remove('hidden');}
-function goHome(){showScreen('roleScreen');erReset();finReset();}
+function showScreen(id){
+  ['roleScreen','emptiesScreen','financeScreen','backloadScreen'].forEach(s=>$(s).classList.add('hidden'));
+  $(id).classList.remove('hidden');
+  if(id==='backloadScreen') blInit();
+}
+function goHome(){showScreen('roleScreen');erReset();finReset();blReset();}
+
+// ── NBL BACKLOADING ──────────────────────────────────────────────────────────
+let blStockOnHand = null;
+
+async function blInit(){
+  // Fetch current Empty Crate stock on hand
+  $('bl_currentStock').textContent='Loading...';
+  try{
+    const d=await api(INV,`/items/${CFG.items.emptyCrate}`,'GET');
+    if(d.code===0&&d.item){
+      blStockOnHand=Number(d.item.stock_on_hand)||0;
+      $('bl_currentStock').textContent=fmt(blStockOnHand)+' crates';
+      blCalc();
+    }else{
+      $('bl_currentStock').textContent='Could not load';
+    }
+  }catch(e){
+    $('bl_currentStock').textContent='Error loading stock';
+  }
+}
+
+function blCalc(){
+  const n=Number($('bl_count').value)||0;
+  $('bl_count_display').textContent=fmt(n);
+  if(blStockOnHand!==null){
+    const after=blStockOnHand-n;
+    $('bl_afterStock').textContent=fmt(after)+' crates';
+    $('bl_afterStock').style.color=after<0?'var(--red)':after===0?'var(--green)':'var(--orange)';
+  }
+}
+
+async function blSubmit(){
+  const n=Number($('bl_count').value)||0;
+  const recordedBy=$('bl_recordedBy').value.trim();
+  if(n<=0){alert_('bl_err','Please enter the number of crates being sent to NBL.','error');show('bl_err');return;}
+  if(!recordedBy){alert_('bl_err','Please enter your name in the Recorded by field.','error');show('bl_err');return;}
+  if(blStockOnHand!==null&&n>blStockOnHand){
+    alert_('bl_err',`Cannot backload ${fmt(n)} crates — only ${fmt(blStockOnHand)} in stock. Please check the count.`,'error');
+    show('bl_err');return;
+  }
+  clearA('bl_err');clearA('bl_ok');
+
+  const btn=$('bl_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Submitting...';
+  showOverlay('Recording NBL backload...');
+  try{
+    const waybill=$('bl_waybill').value.trim();
+    const notes=$('bl_notes').value.trim();
+    const reason=`NBL Backload${waybill?' '+waybill:''}`;
+
+    // Negative stock adjustment — removes crates from warehouse
+    await adjustment(CFG.items.emptyCrate, -n, reason.slice(0,50));
+
+    // CML record with NB Return type
+    const cmlBody={
+      cf_movement_type_1:'NB Return',
+      cf_return_date:$('bl_date').value,
+      cf_crates_count:n,
+      cf_balance_before:blStockOnHand||0,
+      cf_remaining_balance:(blStockOnHand||0)-n,
+      cf_recorded_by:recordedBy,
+      cf_notes:(waybill?`Waybill: ${waybill}. `:'')+notes
+    };
+    await api(INV,'/custommodules/cm_crate_movement_log','POST',cmlBody).catch(()=>{});
+
+    hideOverlay();
+    const newStock=(blStockOnHand||0)-n;
+    alert_('bl_ok',`✓ Backload recorded. ${fmt(n)} crates sent to NBL${waybill?' ('+waybill+')':''}. New warehouse stock: ${fmt(newStock)} crates.`,'success');
+    show('bl_ok');
+    blStockOnHand=newStock;
+    $('bl_currentStock').textContent=fmt(newStock)+' crates';
+    $('bl_count').value='';
+    $('bl_waybill').value='';
+    $('bl_notes').value='';
+    blCalc();
+  }catch(e){
+    hideOverlay();
+    alert_('bl_err','Error: '+e.message,'error');show('bl_err');
+  }
+  btn.disabled=false;btn.innerHTML='Submit backload';
+}
+
+function blReset(){
+  blStockOnHand=null;
+  $('bl_count').value='';$('bl_waybill').value='';
+  $('bl_notes').value='';$('bl_recordedBy').value='';
+  $('bl_count_display').textContent='0';
+  $('bl_currentStock').textContent='—';$('bl_afterStock').textContent='—';
+  clearA('bl_err');clearA('bl_ok');
+}
 function saveS(){sessionStorage.setItem('mx',JSON.stringify(S));}
 function loadS(){try{const d=JSON.parse(sessionStorage.getItem('mx')||'{}');if(d.token&&d.expiry&&Date.now()<d.expiry){S=d;return true;}}catch(e){}return false;}
 
@@ -473,7 +641,7 @@ function bootApp(){
   $('roleEmail').textContent=S.email;
   $('tokenTxt').textContent=`Connected · ${mins}m remaining`;
   if(mins<10)$('tokenDot').classList.add('warn');
-  $('er_date').value=td();$('fin_date').value=td();
+  $('er_date').value=td();$('fin_date').value=td();$('bl_date').value=td();
   hideOverlay();show('appRoot');hide('authScreen');hide('overlay');
 }
 
@@ -827,7 +995,7 @@ function finReset(){
 
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
-  erCust=null;finCust=null;finCustCredit=0;
+  erCust=null;finCust=null;finCustCredit=0;blStockOnHand=null;
   hide('appRoot');show('authScreen');clearA('authErr');goHome();
 }
 
