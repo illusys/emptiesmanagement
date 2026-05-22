@@ -438,21 +438,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
       <div class="card">
         <div class="card-body">
-          <div class="sec-label">Backload details</div>
+          <div class="sec-label">Items being backloaded to NBL</div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Enter quantities for each item type being returned to Nigeria Breweries. Leave blank if not applicable.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Empty Crates (EMP-CR)</label>
+              <input type="number" id="bl_count" min="0" placeholder="0" oninput="blCalc()">
+            </div>
+            <div class="field">
+              <label>WOB Shells (EMP-WOB)</label>
+              <input type="number" id="bl_wobCount" min="0" placeholder="0" oninput="blCalc()">
+            </div>
+          </div>
+          <div class="field">
+            <label>Set of Empty Bottles (EMP-BTL)</label>
+            <input type="number" id="bl_btlCount" min="0" placeholder="0" oninput="blCalc()">
+          </div>
+
           <div class="bal-block">
-            <div class="bal-row"><span class="bal-label">Current Empty Crate stock</span><span class="bal-val" style="color:var(--blue)" id="bl_currentStock">—</span></div>
-            <div class="bal-row"><span class="bal-label">Crates being sent to NBL</span><span class="bal-val" id="bl_count_display">0</span></div>
-            <div class="bal-row"><span class="bal-label" style="font-weight:500">Stock after backload</span><span class="bal-val" id="bl_afterStock" style="font-size:15px;color:var(--orange)">—</span></div>
+            <div class="bal-row"><span class="bal-label">Empty Crates: current → after</span><span class="bal-val" style="color:var(--blue)" id="bl_crSummary">—</span></div>
+            <div class="bal-row"><span class="bal-label">WOB Shells: current → after</span><span class="bal-val" style="color:var(--blue)" id="bl_wobSummary">—</span></div>
+            <div class="bal-row"><span class="bal-label">Bottle Sets: current → after</span><span class="bal-val" style="color:var(--blue)" id="bl_btlSummary">—</span></div>
           </div>
+
           <div class="field-row">
-            <div class="field"><label>Number of crates sent to NBL</label><input type="number" id="bl_count" min="1" placeholder="0" oninput="blCalc()"></div>
             <div class="field"><label>Backload date</label><input type="date" id="bl_date"></div>
+            <div class="field"><label>NBL truck / waybill number <span class="hint">(optional)</span></label><input type="text" id="bl_waybill" placeholder="e.g. WB-20260522-001"></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>NBL truck / waybill number <span class="hint">(optional)</span></label><input type="text" id="bl_waybill" placeholder="e.g. WB-20260522-001"></div>
             <div class="field"><label>Recorded by</label><input type="text" id="bl_recordedBy" readonly style="background:var(--surface2);color:var(--text2)"></div>
+            <div class="field"><label>Notes <span class="hint">(optional)</span></label><input type="text" id="bl_notes" placeholder="Any notes..."></div>
           </div>
-          <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="bl_notes" placeholder="Any notes about this backload..."></textarea></div>
           <div id="bl_err" class="alert alert-error hidden"></div>
           <div id="bl_ok" class="alert alert-success hidden"></div>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
@@ -1119,54 +1136,104 @@ function finReset(){
 }
 
 // ── NBL BACKLOADING ──────────────────────────────────────────────────────────
+let blStock={cr:null,wob:null,btl:null};
+
 async function blInit(){
-  // Load all three stock figures
   ['bl_crStock','bl_wobStock','bl_btlStock'].forEach(id=>$(id).innerHTML='<span class="spin spin-dark"></span>');
   const [crSt,wobSt,btlSt]=await Promise.all([
-    getItemStock(CFG.items.emptyCrate),getItemStock(CFG.items.emptyWOB),getItemStock(CFG.items.emptyBTL)
+    getItemStock(CFG.items.emptyCrate),
+    getItemStock(CFG.items.emptyWOB),
+    getItemStock(CFG.items.emptyBTL)
   ]);
-  blStockOnHand=crSt;
+  blStock={cr:crSt,wob:wobSt,btl:btlSt};
+  blStockOnHand=crSt; // keep for compatibility
   $('bl_crStock').textContent=crSt!==null?fmt(crSt):'Error';
   $('bl_wobStock').textContent=wobSt!==null?fmt(wobSt):'Error';
   $('bl_btlStock').textContent=btlSt!==null?fmt(btlSt):'Error';
-  $('bl_currentStock').textContent=crSt!==null?fmt(crSt)+' crates':'Could not load';
-  // Ensure recorded by is populated with logged-in user
   if(!$('bl_recordedBy').value) $('bl_recordedBy').value=S.name||S.email||'';
   blCalc();
 }
 function blCalc(){
-  const n=Number($('bl_count').value)||0;
-  $('bl_count_display').textContent=fmt(n);
-  if(blStockOnHand!==null){const after=blStockOnHand-n;$('bl_afterStock').textContent=fmt(after)+' crates';$('bl_afterStock').style.color=after<0?'var(--red)':after===0?'var(--green)':'var(--orange)';}
+  const cr=Number($('bl_count').value)||0;
+  const wob=Number($('bl_wobCount').value)||0;
+  const btl=Number($('bl_btlCount').value)||0;
+
+  const fmtChange=(current,sending)=>{
+    if(current===null) return '— crates';
+    const after=current-sending;
+    const color=after<0?'style="color:var(--red)"':after===0?'style="color:var(--green)"':'style="color:var(--orange)"';
+    return `<span ${color}>${fmt(current)} → ${fmt(after)}</span>`;
+  };
+
+  if($('bl_crSummary'))  $('bl_crSummary').innerHTML=fmtChange(blStock.cr,cr);
+  if($('bl_wobSummary')) $('bl_wobSummary').innerHTML=fmtChange(blStock.wob,wob);
+  if($('bl_btlSummary')) $('bl_btlSummary').innerHTML=fmtChange(blStock.btl,btl);
 }
 async function blSubmit(){
-  const n=Number($('bl_count').value)||0;
-  const recordedBy=$('bl_recordedBy').value.trim();
-  if(n<=0){alert_('bl_err','Please enter the number of crates being sent to NBL.','error');show('bl_err');return;}
-  if(!recordedBy){recordedBy=S.name||S.email||'Unknown';}
-  if(blStockOnHand!==null&&n>blStockOnHand){alert_('bl_err',`Cannot backload ${fmt(n)} crates — only ${fmt(blStockOnHand)} in stock.`,'error');show('bl_err');return;}
+  const cr=Number($('bl_count').value)||0;
+  const wob=Number($('bl_wobCount').value)||0;
+  const btl=Number($('bl_btlCount').value)||0;
+  let recordedBy=$('bl_recordedBy').value.trim()||S.name||S.email||'Unknown';
+
+  if(cr+wob+btl===0){alert_('bl_err','Please enter at least one item quantity to backload.','error');show('bl_err');return;}
+
+  // Stock validation
+  if(cr>0&&blStock.cr!==null&&cr>blStock.cr){alert_('bl_err',`Cannot backload ${fmt(cr)} Empty Crates — only ${fmt(blStock.cr)} in stock.`,'error');show('bl_err');return;}
+  if(wob>0&&blStock.wob!==null&&wob>blStock.wob){alert_('bl_err',`Cannot backload ${fmt(wob)} WOB Shells — only ${fmt(blStock.wob)} in stock.`,'error');show('bl_err');return;}
+  if(btl>0&&blStock.btl!==null&&btl>blStock.btl){alert_('bl_err',`Cannot backload ${fmt(btl)} Bottle Sets — only ${fmt(blStock.btl)} in stock.`,'error');show('bl_err');return;}
+
   clearA('bl_err');clearA('bl_ok');
   const btn=$('bl_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Submitting...';
   showOverlay('Recording NBL backload...');
   try{
     const waybill=$('bl_waybill').value.trim();
-    const notes=$('bl_notes').value.trim();
-    await adjustment(CFG.items.emptyCrate,-n,`NBL Backload${waybill?' '+waybill:''}`.slice(0,50));
-    await cmlRecord({type:'NB Return',id:'',date:$('bl_date').value,count:n,bb:blStockOnHand||0,rem:(blStockOnHand||0)-n,notes:(waybill?`Waybill: ${waybill}. `:'')+notes,by:recordedBy});
+    const notes=$('bl_notes').value||'';
+    const ref=`NBL${waybill?' '+waybill:''}`.slice(0,50);
+
+    // Create separate stock adjustments for each item type
+    if(cr>0)  await adjustment(CFG.items.emptyCrate,-cr,ref);
+    if(wob>0) await adjustment(CFG.items.emptyWOB,  -wob,ref);
+    if(btl>0) await adjustment(CFG.items.emptyBTL,  -btl,ref);
+
     hideOverlay();
-    const newStock=(blStockOnHand||0)-n;
-    alert_('bl_ok',`✓ Backload recorded. ${fmt(n)} crates sent to NBL${waybill?' ('+waybill+')':''}. New stock: ${fmt(newStock)} crates.`,'success');
+
+    // Build success message
+    const parts=[];
+    if(cr>0)  parts.push(`${fmt(cr)} Empty Crates`);
+    if(wob>0) parts.push(`${fmt(wob)} WOB Shells`);
+    if(btl>0) parts.push(`${fmt(btl)} Bottle Sets`);
+
+    alert_('bl_ok',`✓ Backload recorded${waybill?' ('+waybill+')':''}. Sent to NBL: ${parts.join(', ')}.`,'success');
     show('bl_ok');
-    blStockOnHand=newStock;
-    $('bl_crStock').textContent=fmt(newStock);$('bl_currentStock').textContent=fmt(newStock)+' crates';
-    $('bl_count').value='';$('bl_waybill').value='';$('bl_notes').value='';blCalc();
-  }catch(e){hideOverlay();alert_('bl_err','Error: '+e.message,'error');show('bl_err');}
+
+    // Update local stock figures
+    if(cr>0)  { blStock.cr=(blStock.cr||0)-cr;  $('bl_crStock').textContent=fmt(blStock.cr); }
+    if(wob>0) { blStock.wob=(blStock.wob||0)-wob; $('bl_wobStock').textContent=fmt(blStock.wob); }
+    if(btl>0) { blStock.btl=(blStock.btl||0)-btl; $('bl_btlStock').textContent=fmt(blStock.btl); }
+
+    // Also update dashboard stock cards if visible
+    if($('dash_crStock'))  $('dash_crStock').textContent=fmt(blStock.cr||0);
+    if($('dash_wobStock')) $('dash_wobStock').textContent=fmt(blStock.wob||0);
+    if($('dash_btlStock')) $('dash_btlStock').textContent=fmt(blStock.btl||0);
+
+    // Reset form
+    ['bl_count','bl_wobCount','bl_btlCount','bl_waybill'].forEach(id=>$(id).value='');
+    $('bl_notes').value='';
+    blCalc();
+  }catch(e){
+    hideOverlay();
+    alert_('bl_err','Error: '+e.message,'error');
+    show('bl_err');
+  }
   btn.disabled=false;btn.textContent='Submit backload';
 }
 function blReset(){
-  blStockOnHand=null;$('bl_count').value='';$('bl_waybill').value='';$('bl_notes').value='';$('bl_recordedBy').value=S.name||S.email||'';
-  $('bl_count_display').textContent='0';$('bl_currentStock').textContent='—';$('bl_afterStock').textContent='—';
+  blStock={cr:null,wob:null,btl:null};blStockOnHand=null;
+  ['bl_count','bl_wobCount','bl_btlCount','bl_waybill'].forEach(id=>{if($(id))$(id).value='';});
+  $('bl_notes').value='';
+  $('bl_recordedBy').value=S.name||S.email||'';
   ['bl_crStock','bl_wobStock','bl_btlStock'].forEach(id=>$(id).textContent='—');
+  ['bl_crSummary','bl_wobSummary','bl_btlSummary'].forEach(id=>{if($(id))$(id).textContent='—';});
   clearA('bl_err');clearA('bl_ok');
 }
 
@@ -1175,6 +1242,80 @@ function repSetDefaultDates(){
   const now=new Date();
   const firstDay=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
   $('rep_from').value=firstDay;$('rep_to').value=td();
+}
+
+async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
+  // Fallback report: read from inventory adjustments since custom module API is unavailable
+  showOverlay('Loading from inventory adjustments...');
+  try{
+    const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
+    hideOverlay();
+    hide('rep_loading');
+
+    if(!d||d.code!==0){
+      $('rep_loading').innerHTML='Could not load report data. Please check your Zoho connection.';
+      show('rep_loading');btn.disabled=false;btn.innerHTML='Load report';return;
+    }
+
+    let records=(d.inventoryadjustments||d.adjustments||[]);
+
+    // Apply date filters
+    records=records.filter(r=>{
+      const dt=r.date||'';
+      if(dateFrom&&dt&&dt<dateFrom)return false;
+      if(dateTo&&dt&&dt>dateTo)return false;
+      return true;
+    });
+
+    // Filter by type if selected
+    if(type==='NB Return') records=records.filter(r=>(r.reason||'').startsWith('NBL'));
+    if(type==='Customer Return') records=records.filter(r=>!(r.reason||'').startsWith('NBL'));
+
+    // Update summary stats
+    const totalAdj=records.reduce((s,r)=>{
+      const qty=(r.line_items||[]).reduce((a,l)=>a+Math.abs(Number(l.quantity_adjusted)||0),0);
+      return s+qty;
+    },0);
+    $('rep_totTx').textContent=records.length;
+    $('rep_totCratesRet').textContent=fmt(totalAdj);
+    $('rep_totCash').textContent='—';
+    $('rep_totBal').textContent='—';
+
+    if(!records.length){show('rep_empty');btn.disabled=false;btn.innerHTML='Load report';return;}
+
+    $('rep_tbody').innerHTML=records.map(r=>{
+      const isNBL=(r.reason||'').startsWith('NBL');
+      const tag=isNBL?'<span class="tag tag-orange">NBL</span>':'<span class="tag tag-blue">Adj</span>';
+      const qty=(r.line_items||[]).map(l=>`${l.name||'Item'}: ${l.quantity_adjusted}`).join(', ');
+      return `<tr>
+        <td>${r.date||'—'}</td>
+        <td class="mono" style="font-size:11px;color:var(--text3)">${(r.inventory_adjustment_id||'').slice(-6)}</td>
+        <td>${r.reason||'—'}</td>
+        <td>${tag}</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">${qty}</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td style="font-size:11px">${r.created_by_name||'—'}</td>
+      </tr>`;
+    }).join('');
+    show('rep_table');
+
+    // Add note that this is from adjustments
+    const noteDiv=document.createElement('div');
+    noteDiv.className='alert alert-info';
+    noteDiv.style.marginTop='12px';
+    noteDiv.textContent='Note: Showing inventory adjustments. Full transaction details available in Zoho Inventory → Crate Movements.';
+    $('rep_table').parentNode.appendChild(noteDiv);
+
+  }catch(e){
+    hideOverlay();
+    $('rep_loading').textContent='Error loading report: '+e.message;
+    show('rep_loading');
+  }
+  btn.disabled=false;btn.innerHTML='Load report';
 }
 
 async function repLoad(){
@@ -1206,13 +1347,9 @@ async function repLoad(){
     }
     hide('rep_loading');
     if(!d||d.code!==0){
-      $('rep_loading').innerHTML='<strong>Crate Movement Log records could not be loaded.</strong><br><br>'+
-        'This may be because:<br>'+
-        '• No transactions have been recorded yet via this app<br>'+
-        '• The Crate Movement Log module API name may differ from "cm_crate_movement_log"<br>'+
-        '• The ZohoInventory.custommodules.ALL scope may need to be re-granted<br><br>'+
-        'Transactions saved via this app update customer balances and stock in real time, even when the CML log is unavailable.';
-      show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;
+      // Fall back to reading from inventory adjustments
+      await repLoadFromAdjustments(dateFrom,dateTo,type,btn);
+      return;
     }
 
     let records=(d.module_records||d.records||[]);
