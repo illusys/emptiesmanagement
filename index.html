@@ -542,8 +542,8 @@ const CFG={
   cashAccount:'8805348000000449956'
 };
 const PROXY='/api/zoho';
-const INV='https://www.zohoapis.com/inventory/v1';
-const BOOKS='https://www.zohoapis.com/books/v3';
+const INV='https://inventory.zoho.com/api/v1';
+const BOOKS='https://books.zoho.com/api/v3';
 
 let S={token:null,expiry:null,email:null,name:null};
 let erCust=null,finCust=null,finCustCredit=0,blStockOnHand=null;
@@ -703,31 +703,35 @@ async function dashLoad(){
 let erSearchDebounce=null,finSearchDebounce=null;
 
 async function searchCustomers(name){
-  // Zoho does not support startswith natively — we search broadly and filter client-side
-  // We try two approaches and merge results to catch customers anywhere in the list
+  // Zoho Inventory supports search_text for contacts list
+  // We fetch up to 200 results and filter client-side for names starting with typed text
   const nl=name.toLowerCase();
   const mapContact=c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{id:c.contact_id,name:c.contact_name,bal};};
 
-  // Approach 1: contact_name search (Zoho matches anywhere in name)
   let contacts=[];
+
+  // Try search_text parameter (searches name, email, phone)
   try{
-    const d=await api(INV,`/contacts?contact_name=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&per_page=100`);
+    const d=await api(INV,`/contacts?search_text=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&per_page=200&sort_column=contact_name&sort_order=A`);
     if(d.code===0&&d.contacts?.length) contacts=[...d.contacts];
   }catch(e){}
 
-  // If we got no results, try a broader search with just first 3 letters
-  if(!contacts.length&&name.length>3){
+  // If no results with search_text, fall back to full list (for short names)
+  if(!contacts.length){
     try{
-      const short=name.slice(0,3);
-      const d=await api(INV,`/contacts?contact_name=${encodeURIComponent(short)}&contact_type=customer&filter_by=Status.Active&per_page=100`);
+      const d=await api(INV,`/contacts?contact_type=customer&filter_by=Status.Active&per_page=200&sort_column=contact_name&sort_order=A`);
       if(d.code===0&&d.contacts?.length) contacts=[...d.contacts];
     }catch(e){}
   }
 
-  // Deduplicate by contact_id, filter to startswith, sort, cap at 10
+  // Filter client-side: only names that START WITH what was typed
   const seen=new Set();
   return contacts
-    .filter(c=>{if(seen.has(c.contact_id))return false;seen.add(c.contact_id);return c.contact_name.toLowerCase().startsWith(nl);})
+    .filter(c=>{
+      if(seen.has(c.contact_id))return false;
+      seen.add(c.contact_id);
+      return c.contact_name.toLowerCase().startsWith(nl);
+    })
     .sort((a,b)=>a.contact_name.localeCompare(b.contact_name))
     .slice(0,10)
     .map(mapContact);
