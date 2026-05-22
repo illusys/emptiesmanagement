@@ -649,7 +649,15 @@ async function api(base,path,method,body){
 }
 
 async function getItemStock(itemId){
-  try{const d=await api(INV,`/items/${itemId}`,'GET');if(d.code===0)return Number(d.item.stock_on_hand)||0;}catch(e){}return null;
+  try{
+    const d=await api(INV,`/items/${itemId}`,'GET');
+    if(d.code===0&&d.item) return Number(d.item.stock_on_hand)||0;
+  }catch(e){}
+  try{
+    const d2=await api(INV,`/items?item_id=${itemId}`,'GET');
+    if(d2.code===0&&d2.items?.length) return Number(d2.items[0].stock_on_hand)||0;
+  }catch(e){}
+  return null;
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -695,14 +703,34 @@ async function dashLoad(){
 let erSearchDebounce=null,finSearchDebounce=null;
 
 async function searchCustomers(name){
-  // Use contact_name= (Zoho's supported param) then filter client-side for startswith
-  const d=await api(INV,`/contacts?contact_name=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&sort_column=contact_name&sort_order=A&per_page=50`);
-  if(d.code!==0||!d.contacts?.length)return[];
+  // Zoho does not support startswith natively — we search broadly and filter client-side
+  // We try two approaches and merge results to catch customers anywhere in the list
   const nl=name.toLowerCase();
-  return d.contacts
-    .filter(c=>c.contact_name.toLowerCase().startsWith(nl))
+  const mapContact=c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{id:c.contact_id,name:c.contact_name,bal};};
+
+  // Approach 1: contact_name search (Zoho matches anywhere in name)
+  let contacts=[];
+  try{
+    const d=await api(INV,`/contacts?contact_name=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&per_page=100`);
+    if(d.code===0&&d.contacts?.length) contacts=[...d.contacts];
+  }catch(e){}
+
+  // If we got no results, try a broader search with just first 3 letters
+  if(!contacts.length&&name.length>3){
+    try{
+      const short=name.slice(0,3);
+      const d=await api(INV,`/contacts?contact_name=${encodeURIComponent(short)}&contact_type=customer&filter_by=Status.Active&per_page=100`);
+      if(d.code===0&&d.contacts?.length) contacts=[...d.contacts];
+    }catch(e){}
+  }
+
+  // Deduplicate by contact_id, filter to startswith, sort, cap at 10
+  const seen=new Set();
+  return contacts
+    .filter(c=>{if(seen.has(c.contact_id))return false;seen.add(c.contact_id);return c.contact_name.toLowerCase().startsWith(nl);})
+    .sort((a,b)=>a.contact_name.localeCompare(b.contact_name))
     .slice(0,10)
-    .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{id:c.contact_id,name:c.contact_name,bal};});
+    .map(mapContact);
 }
 
 function renderResults(listId,results,isOrange,selectFn){
@@ -956,17 +984,30 @@ async function repLoad(){
   $('rep_loading').classList.remove('hidden');
   $('rep_loading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading transactions...';
   try{
-    const from=$('rep_from').value,to=$('rep_to').value,type=$('rep_type').value;
-    let path=`/custommodules/cm_crate_movement_log?per_page=200&sort_column=date&sort_order=D`;
+    const type=$('rep_type').value;
+    let path=`/custommodules/cm_crate_movement_log?per_page=200&sort_column=cf_return_date&sort_order=D`;
     if(from)path+=`&date_after=${from}`;
     if(to)path+=`&date_before=${to}`;
 
-    const d=await api(INV,path,'GET');
+    let d=null;
+    try{ d=await api(INV,path,'GET'); }catch(e){}
+    if(!d||d.code!==0){
+      try{
+        const sp='/custommodules/cm_crate_movement_log?per_page=200&sort_column=cf_return_date&sort_order=D';
+        d=await api(INV,sp,'GET');
+      }catch(e){}
+    }
     hide('rep_loading');
+    if(!d||d.code!==0){$('rep_loading').textContent='Could not load report. Check your Zoho connection and ensure the Crate Movement Log module is accessible.';show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;}
 
-    if(d.code!==0){$('rep_loading').textContent='Could not load report. Check connection.';show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;}
-
+    const from=$('rep_from').value,to=$('rep_to').value;
     let records=(d.module_records||d.records||[]);
+    records=records.filter(r=>{
+      const dt=r.cf_return_date||r.date||'';
+      if(from&&dt&&dt<from)return false;
+      if(to&&dt&&dt>to)return false;
+      return true;
+    });
     if(type)records=records.filter(r=>(r.cf_movement_type_1||'')===type);
 
     // Update summary stats
