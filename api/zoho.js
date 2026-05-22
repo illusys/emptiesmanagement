@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Allow requests from your domain only
   res.setHeader('Access-Control-Allow-Origin', 'https://empties.malexchloglobal.com');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Target-URL');
@@ -13,15 +12,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing X-Target-URL header' });
   }
 
-  // Only allow Zoho API domains
+  // Allow all Zoho API domains
   const allowed = [
     'https://www.zohoapis.com',
-    'https://accounts.zoho.com',
     'https://inventory.zoho.com',
-    'https://books.zoho.com'
+    'https://books.zoho.com',
+    'https://accounts.zoho.com',
+    'https://crm.zoho.com'
   ];
   if (!allowed.some(d => targetURL.startsWith(d))) {
-    return res.status(403).json({ error: 'Domain not allowed' });
+    return res.status(403).json({ error: 'Domain not allowed: ' + targetURL.split('/')[2] });
   }
 
   try {
