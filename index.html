@@ -314,6 +314,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             <div class="field"><label>Return date</label><input type="date" id="er_date"></div>
           </div>
           <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="er_notes" placeholder="Any notes..."></textarea></div>
+          <div class="field"><label>Recorded by</label><input type="text" id="er_recordedBy" readonly style="background:var(--surface2);color:var(--text2)"></div>
           <div id="er_err" class="alert alert-error hidden"></div>
           <div id="er_ok" class="alert alert-success hidden"></div>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
@@ -448,7 +449,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           </div>
           <div class="field-row">
             <div class="field"><label>NBL truck / waybill number <span class="hint">(optional)</span></label><input type="text" id="bl_waybill" placeholder="e.g. WB-20260522-001"></div>
-            <div class="field"><label>Recorded by</label><input type="text" id="bl_recordedBy" placeholder="Your full name"></div>
+            <div class="field"><label>Recorded by</label><input type="text" id="bl_recordedBy" readonly style="background:var(--surface2);color:var(--text2)"></div>
           </div>
           <div class="field"><label>Notes <span class="hint">(optional)</span></label><textarea id="bl_notes" placeholder="Any notes about this backload..."></textarea></div>
           <div id="bl_err" class="alert alert-error hidden"></div>
@@ -606,18 +607,41 @@ async function fetchUserProfile(){
 
 async function verifyAndBoot(){
   showOverlay('Verifying your account...');
-  if(S.email&&S.email.includes('@')&&!S.email.startsWith('staff@')&&!S.email.startsWith('user@')){
-    if(!S.email.endsWith('@'+CFG.allowedDomain)){hideOverlay();show('authScreen');alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted.`,'error');show('authErr');return;}
+
+  // If we already have a verified malexchloglobal.com email in session, boot immediately
+  if(S.email&&S.email.endsWith('@'+CFG.allowedDomain)&&S.name&&!S.name.startsWith('Malexchlo')){
     saveS();bootApp();return;
   }
+
+  // Try to get real user profile from Zoho
   const user=await fetchUserProfile();
-  if(user?.email){
-    if(!user.email.endsWith('@'+CFG.allowedDomain)){hideOverlay();show('authScreen');alert_('authErr',`Access denied. Only @${CFG.allowedDomain} accounts permitted.`,'error');show('authErr');return;}
-    S.email=user.email;S.name=user.name;saveS();bootApp();return;
+  if(user&&user.email){
+    const email=user.email.toLowerCase();
+    if(!email.endsWith('@'+CFG.allowedDomain)){
+      hideOverlay();show('authScreen');
+      alert_('authErr',`Access denied. "${email}" is not a Malexchlo Global account. Only @${CFG.allowedDomain} addresses are permitted.`,'error');
+      show('authErr');return;
+    }
+    S.email=email;
+    // Extract clean display name from email if no name returned
+    S.name=user.name&&user.name.trim()&&user.name!==email
+      ? user.name.trim()
+      : email.split('@')[0].replace(/\./g,' ').replace(/\w/g,c=>c.toUpperCase());
+    saveS();bootApp();return;
   }
-  if(!S.email)S.email='user@malexchloglobal.com';
-  if(!S.name)S.name='Malexchlo Staff';
-  saveS();bootApp();
+
+  // Profile fetch failed (CORS) — check if token hash had email
+  if(S.email&&S.email.endsWith('@'+CFG.allowedDomain)){
+    if(!S.name||S.name.startsWith('Malexchlo')){
+      S.name=S.email.split('@')[0].replace(/\./g,' ').replace(/\w/g,c=>c.toUpperCase());
+    }
+    saveS();bootApp();return;
+  }
+
+  // Cannot verify domain — deny access
+  hideOverlay();show('authScreen');
+  alert_('authErr','Could not verify your account email. Please ensure you are signing in with your @malexchloglobal.com Zoho account and try again.','error');
+  show('authErr');
 }
 
 function bootApp(){
@@ -627,8 +651,11 @@ function bootApp(){
   $('tokenTxt').textContent=`Connected · ${mins}m`;
   if(mins<10)$('tokenDot').classList.add('warn');
   $('er_date').value=td();$('fin_date').value=td();$('bl_date').value=td();
-  // Pre-fill Finance processed by with logged-in user name
-  $('fin_staff').value=S.name&&!S.name.startsWith('Malexchlo')?S.name:'';
+  // Auto-fill all name fields with logged-in user's name
+  const displayName=S.name||S.email||'';
+  $('fin_staff').value=displayName;
+  $('bl_recordedBy').value=displayName;
+  $('er_recordedBy').value=displayName;
   hideOverlay();show('appRoot');hide('authScreen');hide('overlay');
   // Load dashboard data
   dashLoad();
@@ -812,7 +839,11 @@ async function cmlRecord(data){
   if(data.btl)b.cf_plastic_bottle_sets=data.btl;
   if(data.cash)b.cf_cash_paid=data.cash;
   if(data.xfer)b.cf_transfer_paid=data.xfer;
-  try{const d=await api(INV,'/custommodules/cm_crate_movement_log','POST',b);if(d.code===0)return d;}catch(e){}
+  try{
+    const d=await api(INV,'/custommodules/cm_crate_movement_log','POST',b);
+    if(d.code===0)return d;
+    console.log('CML record failed silently:',d.code,d.message);
+  }catch(e){ console.log('CML error:',e.message); }
   return{code:-1};
 }
 
@@ -836,7 +867,7 @@ async function erSubmit(){
   }catch(e){hideOverlay();alert_('er_err','Error: '+e.message,'error');show('er_err');}
   btn.disabled=false;btn.textContent='Save crate return';
 }
-function erReset(){erCust=null;$('er_search').value='';hide('er_custBlock');hide('er_form');hide('er_results');clearA('er_searchErr');clearA('er_err');clearA('er_ok');$('er_count').value=0;$('er_notes').value='';}
+function erReset(){erCust=null;$('er_search').value='';hide('er_custBlock');hide('er_form');hide('er_results');clearA('er_searchErr');clearA('er_err');clearA('er_ok');$('er_count').value=0;$('er_notes').value='';$('er_recordedBy').value=S.name||S.email||'';}
 
 // ── SETTLEMENT ───────────────────────────────────────────────────────────────
 async function finSelectCustomer(c){
@@ -937,7 +968,7 @@ function finReset(){
   finCust=null;finCustCredit=0;$('fin_search').value='';
   hide('fin_custBlock');hide('fin_form');hide('fin_results');
   clearA('fin_searchErr');clearA('fin_err');clearA('fin_ok');
-  $('fin_staff').value=S.name&&!S.name.startsWith('Malexchlo')?S.name:'';
+  $('fin_staff').value=S.name||S.email||'';
   $('fin_notes').value='';
   ['fin_cr','fin_wob','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
   $('fin_wobHalf').checked=false;$('fin_useCredit').checked=false;
@@ -956,6 +987,8 @@ async function blInit(){
   $('bl_wobStock').textContent=wobSt!==null?fmt(wobSt):'Error';
   $('bl_btlStock').textContent=btlSt!==null?fmt(btlSt):'Error';
   $('bl_currentStock').textContent=crSt!==null?fmt(crSt)+' crates':'Could not load';
+  // Ensure recorded by is populated with logged-in user
+  if(!$('bl_recordedBy').value) $('bl_recordedBy').value=S.name||S.email||'';
   blCalc();
 }
 function blCalc(){
@@ -967,7 +1000,7 @@ async function blSubmit(){
   const n=Number($('bl_count').value)||0;
   const recordedBy=$('bl_recordedBy').value.trim();
   if(n<=0){alert_('bl_err','Please enter the number of crates being sent to NBL.','error');show('bl_err');return;}
-  if(!recordedBy){alert_('bl_err','Please enter your name in the Recorded by field.','error');show('bl_err');return;}
+  if(!recordedBy){recordedBy=S.name||S.email||'Unknown';}
   if(blStockOnHand!==null&&n>blStockOnHand){alert_('bl_err',`Cannot backload ${fmt(n)} crates — only ${fmt(blStockOnHand)} in stock.`,'error');show('bl_err');return;}
   clearA('bl_err');clearA('bl_ok');
   const btn=$('bl_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Submitting...';
@@ -988,7 +1021,7 @@ async function blSubmit(){
   btn.disabled=false;btn.textContent='Submit backload';
 }
 function blReset(){
-  blStockOnHand=null;$('bl_count').value='';$('bl_waybill').value='';$('bl_notes').value='';$('bl_recordedBy').value='';
+  blStockOnHand=null;$('bl_count').value='';$('bl_waybill').value='';$('bl_notes').value='';$('bl_recordedBy').value=S.name||S.email||'';
   $('bl_count_display').textContent='0';$('bl_currentStock').textContent='—';$('bl_afterStock').textContent='—';
   ['bl_crStock','bl_wobStock','bl_btlStock'].forEach(id=>$(id).textContent='—');
   clearA('bl_err');clearA('bl_ok');
@@ -1023,12 +1056,12 @@ async function repLoad(){
     hide('rep_loading');
     if(!d||d.code!==0){$('rep_loading').textContent='Could not load report. Check your Zoho connection and ensure the Crate Movement Log module is accessible.';show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;}
 
-    const from=$('rep_from').value,to=$('rep_to').value;
+    const dateFrom=$('rep_from').value,dateTo=$('rep_to').value;
     let records=(d.module_records||d.records||[]);
     records=records.filter(r=>{
       const dt=r.cf_return_date||r.date||'';
-      if(from&&dt&&dt<from)return false;
-      if(to&&dt&&dt>to)return false;
+      if(dateFrom&&dt&&dt<dateFrom)return false;
+      if(dateTo&&dt&&dt>dateTo)return false;
       return true;
     });
     if(type)records=records.filter(r=>(r.cf_movement_type_1||'')===type);
