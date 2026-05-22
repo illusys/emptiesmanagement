@@ -649,14 +649,22 @@ async function api(base,path,method,body){
 }
 
 async function getItemStock(itemId){
+  // Try direct item endpoint
   try{
     const d=await api(INV,`/items/${itemId}`,'GET');
-    if(d.code===0&&d.item) return Number(d.item.stock_on_hand)||0;
-  }catch(e){}
+    console.log('getItemStock direct response for',itemId,'code:',d.code,'item:',d.item?.stock_on_hand);
+    if(d.code===0&&d.item!=null) return Number(d.item.stock_on_hand)||0;
+  }catch(e){ console.log('getItemStock direct error:',e.message); }
+  // Try items list
   try{
-    const d2=await api(INV,`/items?item_id=${itemId}`,'GET');
-    if(d2.code===0&&d2.items?.length) return Number(d2.items[0].stock_on_hand)||0;
-  }catch(e){}
+    const d2=await api(INV,'/items?per_page=200','GET');
+    console.log('getItemStock list response code:',d2.code,'items count:',d2.items?.length);
+    if(d2.code===0&&d2.items?.length){
+      const match=d2.items.find(it=>it.item_id===itemId||it.item_id===String(itemId));
+      console.log('Match for',itemId,match?.item_name,match?.stock_on_hand);
+      if(match) return Number(match.stock_on_hand)||0;
+    }
+  }catch(e){ console.log('getItemStock list error:',e.message); }
   return null;
 }
 
@@ -668,13 +676,15 @@ async function dashLoad(){
     getItemStock(CFG.items.emptyWOB),
     getItemStock(CFG.items.emptyBTL)
   ]);
-  $('dash_crStock').textContent=crSt!==null?fmt(crSt):'—';
-  $('dash_wobStock').textContent=wobSt!==null?fmt(wobSt):'—';
-  $('dash_btlStock').textContent=btlSt!==null?fmt(btlSt):'—';
+  console.log('Stock results — CR:',crSt,'WOB:',wobSt,'BTL:',btlSt);
+  $('dash_crStock').textContent=crSt!==null?fmt(crSt):'Err('+crSt+')';
+  $('dash_wobStock').textContent=wobSt!==null?fmt(wobSt):'Err('+wobSt+')';
+  $('dash_btlStock').textContent=btlSt!==null?fmt(btlSt):'Err('+btlSt+')';
 
   // Load top debtors
   try{
-    const d=await api(INV,'/contacts?contact_type=customer&filter_by=Status.Active&per_page=200&sort_column=contact_name&sort_order=A');
+    const d=await api(INV,'/contacts?contact_type=customer&per_page=200&sort_column=contact_name&sort_order=A');
+    console.log('dashLoad contacts response:',d.code,'count:',d.contacts?.length);
     if(d.code===0&&d.contacts?.length){
       const debtors=d.contacts
         .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{name:c.contact_name,bal};})
@@ -712,14 +722,14 @@ async function searchCustomers(name){
 
   // Try search_text parameter (searches name, email, phone)
   try{
-    const d=await api(INV,`/contacts?search_text=${encodeURIComponent(name)}&contact_type=customer&filter_by=Status.Active&per_page=200&sort_column=contact_name&sort_order=A`);
+    const d=await api(INV,`/contacts?search_text=${encodeURIComponent(name)}&contact_type=customer&per_page=200&sort_column=contact_name&sort_order=A`);
     if(d.code===0&&d.contacts?.length) contacts=[...d.contacts];
   }catch(e){}
 
   // If no results with search_text, fall back to full list (for short names)
   if(!contacts.length){
     try{
-      const d=await api(INV,`/contacts?contact_type=customer&filter_by=Status.Active&per_page=200&sort_column=contact_name&sort_order=A`);
+      const d=await api(INV,`/contacts?contact_type=customer&per_page=200&sort_column=contact_name&sort_order=A`);
       if(d.code===0&&d.contacts?.length) contacts=[...d.contacts];
     }catch(e){}
   }
