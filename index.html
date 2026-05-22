@@ -8,8 +8,9 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --blue:#1C75BB;--blue-dark:#155a8e;--blue-light:#e8f1f9;
-  --orange:#F05A28;--orange-dark:#c44820;--orange-light:#fdf0eb;
+  --blue:#254b9e;--blue-dark:#1a3878;--blue-light:#eaeefc;
+  --orange:#cb0024;--orange-dark:#a3001d;--orange-light:#fdeaee;
+  --teal:#2fb0d0;--teal-dark:#1f8fa8;--teal-light:#e8f8fb;
   --bg:#f4f6f9;--surface:#fff;--surface2:#f8f9fb;
   --border:#e2e6ec;--border2:#c8d0db;
   --text:#1a2332;--text2:#5a6a7e;--text3:#9aa4b0;
@@ -23,22 +24,22 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .hidden{display:none!important}
 .app{min-height:100vh;display:flex;flex-direction:column}
-.accent-bar{height:3px;background:linear-gradient(90deg,var(--blue) 60%,var(--orange) 100%)}
+.accent-bar{height:3px;background:linear-gradient(90deg,var(--blue) 0%,var(--teal) 60%,var(--orange) 100%)}
 .header{background:var(--blue);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between}
 .header-brand{display:flex;align-items:center;gap:10px}
-.brand-mark{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;font-family:'DM Mono',monospace}
+.brand-mark{width:30px;height:30px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;font-family:'DM Mono',monospace}
 .brand-name{color:#fff;font-size:14px;font-weight:500}
 .brand-name span{opacity:.55;font-weight:300}
 .header-right{display:flex;align-items:center;gap:10px}
 .user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:100px;padding:4px 12px 4px 6px}
-.user-av{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
+.user-av{width:24px;height:24px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
 .user-nm{color:rgba(255,255,255,.9);font-size:12px}
 .btn-signout{background:rgba(255,255,255,.15);border:none;color:rgba(255,255,255,.85);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .btn-signout:hover{background:rgba(255,255,255,.25)}
 .main{flex:1;padding:24px 20px;max-width:760px;margin:0 auto;width:100%}
 .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .auth-logo{text-align:center;margin-bottom:28px}
-.auth-logo .mark{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:600;font-size:20px;color:#fff;font-family:'DM Mono',monospace}
+/* .mark replaced by logo img */
 .auth-logo h1{font-size:20px;font-weight:600;color:var(--text)}
 .auth-logo p{font-size:13px;color:var(--text2);margin-top:3px}
 .auth-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:420px}
@@ -62,7 +63,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover:not(:disabled){background:var(--surface2)}
 .btn-sm{padding:6px 13px;font-size:12px}
 .btn-zoho{background:#fff;color:var(--text);border:1.5px solid var(--border2);gap:10px;padding:13px 20px;font-size:14px;border-radius:var(--radius-sm);width:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
-.btn-zoho:hover{background:var(--surface2);border-color:var(--blue)}
+.btn-zoho:hover{background:var(--surface2);border-color:var(--teal)}
 .role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .role-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 12px;cursor:pointer;transition:all .15s;text-align:center}
 .role-card:hover{border-color:var(--blue);background:var(--blue-light)}
@@ -80,7 +81,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .info-box{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--blue);line-height:1.5}
 .cust-strip{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:14px}
 .cust-av{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;flex-shrink:0;font-family:'DM Mono',monospace}
-.cust-av.orange{background:var(--orange)}
+.cust-av.orange{background:var(--orange)}.cust-av.teal{background:var(--teal)}
 .cust-detail .name{font-size:13px;font-weight:500}
 .cust-detail .sub{font-size:11px;color:var(--text2);margin-top:1px}
 .alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px;line-height:1.5;display:block}
@@ -106,7 +107,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .debtor-list{margin-top:16px}
 .debtor-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px}
 .debtor-rank{width:22px;font-size:11px;font-weight:600;color:var(--text3);text-align:center;flex-shrink:0}
-.debtor-av{width:32px;height:32px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
+.debtor-av{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
 .debtor-name{font-size:13px;font-weight:500;flex:1}
 .debtor-bal{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--orange)}
 .debtor-val{font-size:11px;color:var(--text2)}
@@ -170,7 +171,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <!-- AUTH -->
 <div id="authScreen" class="auth-wrap hidden">
   <div class="auth-logo">
-    <div class="mark">M</div>
+    <img src="https://www.malexchloglobal.com/malexchlo%20logo.png" alt="Malexchlo Global" style="height:56px;width:auto;object-fit:contain;margin:0 auto 10px;display:block">
     <h1>Malexchlo Global</h1>
     <p>Empties Management System</p>
   </div>
@@ -192,7 +193,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="accent-bar"></div>
   <div class="header">
     <div class="header-brand">
-      <div class="brand-mark">M</div>
+      <img src="https://www.malexchloglobal.com/malexchlo%20logo.png" alt="Malexchlo" style="height:32px;width:auto;object-fit:contain;filter:brightness(0) invert(1)">
       <div class="brand-name">Malexchlo <span>/ Empties</span></div>
     </div>
     <div class="header-right">
@@ -981,8 +982,12 @@ function finCalc(){
   const halfMode=$('fin_wobHalf').checked;
   const creditAmt=$('fin_useCredit').checked?(Number($('fin_creditAmt').value)||0):0;
 
-  const wobCratesSettled=halfMode?wob/2:wob;
-  const wobPayReq=wob*750;
+  // In 2:1 mode: pairs of shells = full crates, odd shell = half crate
+  // Payment is always ₦750 per shell regardless of mode
+  const wobPairs=halfMode?Math.floor(wob/2):wob;
+  const wobOdd=halfMode?(wob%2):0;
+  const wobCratesSettled=wobPairs+(wobOdd*0.5);
+  const wobPayReq=wob*750; // always ₦750 per shell
   const totalMoney=cash+xfer+creditAmt;
   const moneyForWOB=Math.min(totalMoney,wobPayReq);
   const moneyForCrates=Math.max(0,totalMoney-wobPayReq);
@@ -1007,7 +1012,11 @@ function finCalc(){
   $('fin_settled').textContent=totCrates+' crates';$('fin_rem').textContent=rem+' crates';
   $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
 
-  if(wob>0){$('fin_wobWarn').textContent=`⚠ ${wob} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPayReq)} for missing bottles (${wob} × ₦750).`;show('fin_wobWarn');}else{hide('fin_wobWarn');}
+  if(wob>0){
+    let warnMsg=`⚠ ${wob} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPayReq)} for missing bottles (${wob} × ₦750).`;
+    if(halfMode&&wob%2!==0) warnMsg+=` Note: odd shell count in 2:1 mode — ${wob-1} shells = ${Math.floor(wob/2)} crates, 1 remaining shell = 0.5 crate.`;
+    $('fin_wobWarn').textContent=warnMsg;show('fin_wobWarn');
+  }else{hide('fin_wobWarn');}
   if(wob>0&&totalMoney<wobPayReq){const s=wobPayReq-totalMoney;$('fin_wobShortfall').textContent=`⚠ Shortfall: ${fmtN(s)} still needed. Settlement cannot proceed until full WOB payment is received.`;show('fin_wobShortfall');}else{hide('fin_wobShortfall');}
 }
 
@@ -1131,9 +1140,8 @@ async function repLoad(){
   $('rep_loading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading transactions...';
   try{
     const type=$('rep_type').value;
+    const dateFrom=$('rep_from').value,dateTo=$('rep_to').value;
     let path=`/custommodules/cm_crate_movement_log?per_page=200&sort_column=cf_return_date&sort_order=D`;
-    if(from)path+=`&date_after=${from}`;
-    if(to)path+=`&date_before=${to}`;
 
     let d=null;
     try{ d=await api(INV,path,'GET'); }catch(e){}
@@ -1146,7 +1154,6 @@ async function repLoad(){
     hide('rep_loading');
     if(!d||d.code!==0){$('rep_loading').textContent='Could not load report. Check your Zoho connection and ensure the Crate Movement Log module is accessible.';show('rep_loading');btn.disabled=false;btn.textContent='Load report';return;}
 
-    const dateFrom=$('rep_from').value,dateTo=$('rep_to').value;
     let records=(d.module_records||d.records||[]);
     records=records.filter(r=>{
       const dt=r.cf_return_date||r.date||'';
