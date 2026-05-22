@@ -639,13 +639,21 @@ async function api(base,path,method,body){
   if(!S.token)throw new Error('Not authenticated');
   const sep=path.includes('?')?'&':'?';
   const targetURL=`${base}${path}${sep}organization_id=${CFG.orgId}`;
+  console.log('API call:',method||'GET',targetURL);
   const res=await fetch(PROXY,{
     method:method||'GET',
-    headers:{'Authorization':`Zoho-oauthtoken ${S.token}`,'Content-Type':'application/json','X-Target-URL':targetURL},
+    headers:{
+      'Authorization':`Zoho-oauthtoken ${S.token}`,
+      'Content-Type':'application/json',
+      'X-Target-URL':targetURL,
+      'X-Org-Id':CFG.orgId
+    },
     body:body?JSON.stringify(body):undefined
   });
-  if(!res.ok)throw new Error(`HTTP ${res.status} on ${path}`);
-  return res.json();
+  const data=await res.json();
+  console.log('API response:',res.status,'code:',data.code,'message:',data.message);
+  if(!res.ok&&res.status!==400)throw new Error(`HTTP ${res.status} on ${path}`);
+  return data;
 }
 
 async function getItemStock(itemId){
