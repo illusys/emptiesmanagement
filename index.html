@@ -159,6 +159,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .tdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .tdot.warn{background:var(--amber)}
 .empty-state{text-align:center;padding:32px 16px;color:var(--text3);font-size:13px}
+@media print{
+  .header,.accent-bar,.btn,.page-head button,.rep-tab,#rep_search,input[type=date],#rep_balBtn,#rep_blBtn,#rep_recBtn,#rep_phyBtn,#rep_printBtn{display:none!important}
+  .card{box-shadow:none;border:1px solid #ccc}
+  body{background:#fff}
+  .stat-card{border:1px solid #ccc}
+}
 @media(max-width:600px){.role-grid{grid-template-columns:1fr 1fr}.stock-grid{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}.field-row{grid-template-columns:1fr}.main{padding:16px 14px}}
 </style>
 </head>
@@ -484,64 +490,149 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div id="reportScreen" class="hidden">
       <div class="page-head">
         <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
-        <div><h2>Empties Report</h2><p>All crate movement transactions</p></div>
-        <span class="badge" style="background:#f3f0ff;color:#6d28d9;margin-left:auto">Management</span>
+        <div><h2>Empties Report</h2><p>Management overview of all empties activity</p></div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="repPrint()" id="rep_printBtn">🖨 Print / PDF</button>
+          <span class="badge" style="background:#f3f0ff;color:#6d28d9">Management</span>
+        </div>
       </div>
 
-      <!-- Summary stats -->
-      <div class="stat-row" id="rep_stats">
-        <div class="stat-card"><div class="lbl">Total Transactions</div><div class="val" id="rep_totTx">—</div></div>
-        <div class="stat-card"><div class="lbl">Crates Returned</div><div class="val" id="rep_totCratesRet" style="color:var(--green)">—</div></div>
-        <div class="stat-card"><div class="lbl">Cash Received</div><div class="val" id="rep_totCash" style="color:var(--blue)">—</div></div>
-        <div class="stat-card"><div class="lbl">Outstanding Balance</div><div class="val" id="rep_totBal" style="color:var(--orange)">—</div></div>
+      <!-- Report tabs -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto">
+        <button class="rep-tab active" onclick="repTab('balances')" id="tab_balances" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--blue);border-bottom:2px solid var(--blue);cursor:pointer;white-space:nowrap;margin-bottom:-2px">Customer Balances</button>
+        <button class="rep-tab" onclick="repTab('backload')" id="tab_backload" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">NBL Backloaded</button>
+        <button class="rep-tab" onclick="repTab('received')" id="tab_received" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Empties Received</button>
+        <button class="rep-tab" onclick="repTab('physical')" id="tab_physical" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Physical Balance</button>
       </div>
 
-      <!-- Filters -->
-      <div class="card">
-        <div class="card-body">
-          <div class="sec-label">Filter transactions</div>
-          <div class="report-filter-row">
-            <div class="field"><label>From date</label><input type="date" id="rep_from"></div>
-            <div class="field"><label>To date</label><input type="date" id="rep_to"></div>
-            <div class="field"><label>Movement type</label>
-              <select id="rep_type">
-                <option value="">All types</option>
-                <option value="Customer Return">Customer Return</option>
-                <option value="NB Return">NB Backload</option>
-              </select>
+      <!-- Summary stats row -->
+      <div class="stat-row" id="rep_stats" style="margin-bottom:16px">
+        <div class="stat-card"><div class="lbl">Customers Owing</div><div class="val" id="rep_totCust" style="color:var(--orange)">—</div></div>
+        <div class="stat-card"><div class="lbl">Total Crates Owed</div><div class="val" id="rep_totOwed" style="color:var(--orange)">—</div></div>
+        <div class="stat-card"><div class="lbl">Value Outstanding</div><div class="val" id="rep_totVal" style="color:var(--red);font-size:14px">—</div></div>
+        <div class="stat-card"><div class="lbl">Warehouse Stock</div><div class="val" id="rep_totStock" style="color:var(--blue)">—</div></div>
+      </div>
+
+      <!-- TAB: Customer Balances -->
+      <div id="repTab_balances">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label" style="display:flex;justify-content:space-between">
+              <span>All customers with outstanding crate balance</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="rep_search" placeholder="Search customer..." style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;width:180px" oninput="repFilterBalances()">
+                <button class="btn btn-blue btn-sm" onclick="repLoadBalances()" id="rep_balBtn">Load</button>
+              </div>
             </div>
-            <div style="display:flex;align-items:flex-end;padding-bottom:0">
-              <button class="btn btn-blue btn-sm" onclick="repLoad()" id="rep_loadBtn">Load report</button>
+            <div id="rep_balLoading" class="empty-state" style="padding:24px">Click <strong>Load</strong> to fetch all customer balances.</div>
+            <div id="rep_balTable" class="hidden" style="overflow-x:auto">
+              <table class="report-table" id="rep_balTableEl">
+                <thead><tr><th>#</th><th>Customer Name</th><th style="text-align:right">Crate Balance</th><th style="text-align:right">Value (₦)</th><th style="text-align:right">Last Return</th></tr></thead>
+                <tbody id="rep_balBody"></tbody>
+                <tfoot id="rep_balFoot"></tfoot>
+              </table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Report table -->
-      <div class="card">
-        <div class="card-body" style="padding:0;overflow-x:auto">
-          <div id="rep_loading" class="empty-state" style="padding:32px">Click <strong>Load report</strong> to fetch transactions.</div>
-          <table class="report-table hidden" id="rep_table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Ref</th>
-                <th>Customer / Type</th>
-                <th>Movement</th>
-                <th style="text-align:right">Bal Before</th>
-                <th style="text-align:right">Crates</th>
-                <th style="text-align:right">Settled</th>
-                <th style="text-align:right">Remaining</th>
-                <th style="text-align:right">Cash</th>
-                <th style="text-align:right">Transfer</th>
-                <th>Recorded by</th>
-              </tr>
-            </thead>
-            <tbody id="rep_tbody"></tbody>
-          </table>
-          <div id="rep_empty" class="empty-state hidden">No transactions found for the selected filters.</div>
+      <!-- TAB: NBL Backloaded -->
+      <div id="repTab_backload" class="hidden">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label" style="display:flex;justify-content:space-between">
+              <span>Empties backloaded to Nigeria Breweries</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="date" id="rep_blFrom" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <input type="date" id="rep_blTo" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <button class="btn btn-blue btn-sm" onclick="repLoadBackload()" id="rep_blBtn">Load</button>
+              </div>
+            </div>
+            <div class="stat-row" style="margin:12px 0">
+              <div class="stat-card"><div class="lbl">Empty Crates</div><div class="val" id="rep_blCR" style="color:var(--blue)">—</div></div>
+              <div class="stat-card"><div class="lbl">WOB Shells</div><div class="val" id="rep_blWOB" style="color:var(--blue)">—</div></div>
+              <div class="stat-card"><div class="lbl">Bottle Sets</div><div class="val" id="rep_blBTL" style="color:var(--blue)">—</div></div>
+              <div class="stat-card"><div class="lbl">Total Value</div><div class="val" id="rep_blVal" style="color:var(--blue);font-size:13px">—</div></div>
+            </div>
+            <div id="rep_blLoading" class="empty-state" style="padding:24px">Set date range and click <strong>Load</strong>.</div>
+            <div id="rep_blTable" class="hidden" style="overflow-x:auto">
+              <table class="report-table">
+                <thead><tr><th>Date</th><th>Waybill / Ref</th><th style="text-align:right">Empty Crates</th><th style="text-align:right">WOB Shells</th><th style="text-align:right">Bottle Sets</th><th>Recorded by</th></tr></thead>
+                <tbody id="rep_blBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- TAB: Empties Received -->
+      <div id="repTab_received" class="hidden">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label" style="display:flex;justify-content:space-between">
+              <span>Empties received from customers</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="date" id="rep_recFrom" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <input type="date" id="rep_recTo" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <button class="btn btn-blue btn-sm" onclick="repLoadReceived()" id="rep_recBtn">Load</button>
+              </div>
+            </div>
+            <div class="stat-row" style="margin:12px 0">
+              <div class="stat-card"><div class="lbl">Full Crates</div><div class="val" id="rep_recCR" style="color:var(--green)">—</div></div>
+              <div class="stat-card"><div class="lbl">WOB Shells</div><div class="val" id="rep_recWOB" style="color:var(--green)">—</div></div>
+              <div class="stat-card"><div class="lbl">Bottle Sets</div><div class="val" id="rep_recBTL" style="color:var(--green)">—</div></div>
+              <div class="stat-card"><div class="lbl">Cash Received</div><div class="val" id="rep_recCash" style="color:var(--green);font-size:13px">—</div></div>
+            </div>
+            <div id="rep_recLoading" class="empty-state" style="padding:24px">Set date range and click <strong>Load</strong>.</div>
+            <div id="rep_recTable" class="hidden" style="overflow-x:auto">
+              <table class="report-table">
+                <thead><tr><th>Date</th><th>Customer</th><th style="text-align:right">Full Crates</th><th style="text-align:right">WOB</th><th style="text-align:right">Bottles</th><th style="text-align:right">Cash</th><th style="text-align:right">Transfer</th></tr></thead>
+                <tbody id="rep_recBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Physical Balance -->
+      <div id="repTab_physical" class="hidden">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label">Current physical empties stock in warehouse</div>
+            <div class="stat-row" style="margin:12px 0">
+              <div class="stat-card"><div class="lbl">Empty Crates (EMP-CR)</div><div class="val" id="rep_phyCR" style="color:var(--blue)">—</div><div style="font-size:11px;color:var(--text3);margin-top:4px" id="rep_phyCRVal">—</div></div>
+              <div class="stat-card"><div class="lbl">WOB Shells (EMP-WOB)</div><div class="val" id="rep_phyWOB" style="color:var(--blue)">—</div><div style="font-size:11px;color:var(--text3);margin-top:4px" id="rep_phyWOBVal">—</div></div>
+              <div class="stat-card"><div class="lbl">Bottle Sets (EMP-BTL)</div><div class="val" id="rep_phyBTL" style="color:var(--blue)">—</div><div style="font-size:11px;color:var(--text3);margin-top:4px" id="rep_phyBTLVal">—</div></div>
+              <div class="stat-card"><div class="lbl">Total Warehouse Value</div><div class="val" id="rep_phyTotal" style="color:var(--blue);font-size:13px">—</div></div>
+            </div>
+            <div class="info-box" style="margin-top:8px">
+              Physical balance is the current stock on hand in the Malexchlo Global warehouse as recorded in Zoho Inventory. This updates in real time whenever crate returns, settlements, or backloads are processed.
+            </div>
+            <div style="text-align:center;margin-top:16px">
+              <button class="btn btn-blue" onclick="repLoadPhysical()" id="rep_phyBtn">Refresh stock figures</button>
+            </div>
+          </div>
+        </div>
+        <!-- Reconciliation summary -->
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label">Reconciliation summary</div>
+            <div id="rep_reconLoading" class="empty-state" style="padding:16px">Click Refresh to load.</div>
+            <div id="rep_reconTable" class="hidden">
+              <table class="report-table">
+                <tbody>
+                  <tr><td>Total crates owed by customers</td><td class="mono" style="text-align:right;color:var(--orange)" id="recon_owed">—</td></tr>
+                  <tr><td>Total crates in warehouse (EMP-CR)</td><td class="mono" style="text-align:right;color:var(--blue)" id="recon_stock">—</td></tr>
+                  <tr><td>WOB Shells (at 0.5 crate value)</td><td class="mono" style="text-align:right;color:var(--blue)" id="recon_wob">—</td></tr>
+                  <tr><td>Bottle Sets (at 0.5 crate value)</td><td class="mono" style="text-align:right;color:var(--blue)" id="recon_btl">—</td></tr>
+                  <tr style="border-top:2px solid var(--border)"><td><strong>Net position (stock − owed)</strong></td><td class="mono" style="text-align:right;font-weight:600;font-size:15px" id="recon_net">—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -829,17 +920,19 @@ async function dashLoad(){
     const d=await api(INV,'/contacts?contact_type=customer&per_page=200');
     console.log('dashLoad contacts response:',d.code,'count:',d.contacts?.length);
     if(d.code===0&&d.contacts?.length){
+      // Store full contact objects for clickable list
       const debtors=d.contacts
-        .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{name:c.contact_name,bal};})
+        .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{id:c.contact_id,name:c.contact_name,bal};})
         .filter(c=>c.bal>0)
         .sort((a,b)=>b.bal-a.bal)
         .slice(0,10);
+      window._dashDebtors=debtors; // store for click handler
       if(debtors.length){
         $('dash_debtors').innerHTML=debtors.map((c,i)=>`
-          <div class="debtor-item">
+          <div class="debtor-item" onclick="debtorClick(${i})" style="cursor:pointer" title="Click to record crate return for ${c.name}">
             <div class="debtor-rank">${i+1}</div>
             <div class="debtor-av">${init(c.name)}</div>
-            <div class="debtor-name">${c.name}</div>
+            <div class="debtor-name">${c.name}<br><small style="color:var(--text3);font-size:10px">Tap to record return →</small></div>
             <div style="text-align:right">
               <div class="debtor-bal">${fmt(c.bal)} crates</div>
               <div class="debtor-val">${fmtN(c.bal*1500)}</div>
@@ -850,6 +943,16 @@ async function dashLoad(){
       }
     }
   }catch(e){$('dash_debtors').innerHTML='<div class="empty-state">Could not load debtor list.</div>';}
+}
+
+// ── DEBTOR CLICK — jump to Crate Returns with customer pre-selected ──
+function debtorClick(idx){
+  const c=window._dashDebtors?.[idx];
+  if(!c)return;
+  showScreen('emptiesScreen');
+  // Pre-select the customer
+  erSelectCustomer(c);
+  $('er_search').value=c.name;
 }
 
 // ── CUSTOMER SEARCH ──────────────────────────────────────────────────────────
@@ -1344,11 +1447,256 @@ function blReset(){
 }
 
 // ── REPORTS ──────────────────────────────────────────────────────────────────
+// ── REPORTS ─────────────────────────────────────────────────────────────────
+let repLoading=false;
+let _allBalances=[]; // cache for filter
+
 function repSetDefaultDates(){
   const now=new Date();
   const firstDay=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
-  $('rep_from').value=firstDay;$('rep_to').value=td();
+  const today=now.toISOString().split('T')[0];
+  if($('rep_blFrom'))  {$('rep_blFrom').value=firstDay; $('rep_blTo').value=today;}
+  if($('rep_recFrom')) {$('rep_recFrom').value=firstDay; $('rep_recTo').value=today;}
 }
+
+function repTab(tab){
+  ['balances','backload','received','physical'].forEach(t=>{
+    const el=$('repTab_'+t);
+    const btn=$('tab_'+t);
+    if(el) el.classList.toggle('hidden', t!==tab);
+    if(btn){
+      btn.style.color=t===tab?'var(--blue)':'var(--text2)';
+      btn.style.borderBottom=t===tab?'2px solid var(--blue)':'2px solid transparent';
+      btn.style.fontWeight=t===tab?'600':'400';
+    }
+  });
+  // Auto-load physical when tab selected
+  if(tab==='physical') repLoadPhysical();
+}
+
+// ── TAB 1: Customer Balances ─────────────────────────────────────────────────
+async function repLoadBalances(){
+  const btn=$('rep_balBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-dark"></span>';
+  $('rep_balLoading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading customer balances...';
+  $('rep_balLoading').classList.remove('hidden');
+  hide('rep_balTable');
+  try{
+    const d=await api(INV,'/contacts?contact_type=customer&per_page=200&sort_column=contact_name&sort_order=A','GET');
+    if(d.code!==0){$('rep_balLoading').textContent='Could not load contacts.';btn.disabled=false;btn.textContent='Load';return;}
+
+    _allBalances=d.contacts.map(c=>{
+      let bal=0,lastReturn='';
+      (c.custom_fields||[]).forEach(f=>{
+        if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0;
+        if(f.api_name==='cf_last_return_date') lastReturn=f.value||'';
+      });
+      return{name:c.contact_name,bal,lastReturn};
+    }).filter(c=>c.bal>0).sort((a,b)=>b.bal-a.bal);
+
+    // Update summary stats
+    const totalOwed=_allBalances.reduce((s,c)=>s+c.bal,0);
+    $('rep_totCust').textContent=_allBalances.length;
+    $('rep_totOwed').textContent=fmt(totalOwed);
+    $('rep_totVal').textContent=fmtN(totalOwed*1500);
+
+    repRenderBalances(_allBalances);
+    hide('rep_balLoading');
+    show('rep_balTable');
+  }catch(e){$('rep_balLoading').textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='Load';
+}
+
+function repRenderBalances(data){
+  if(!data.length){$('rep_balBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">No customers with outstanding balance.</td></tr>';$('rep_balFoot').innerHTML='';return;}
+  const totalBal=data.reduce((s,c)=>s+c.bal,0);
+  $('rep_balBody').innerHTML=data.map((c,i)=>`
+    <tr>
+      <td style="color:var(--text3)">${i+1}</td>
+      <td style="font-weight:500">${c.name}</td>
+      <td class="mono" style="text-align:right;color:var(--orange);font-weight:600">${fmt(c.bal)}</td>
+      <td class="mono" style="text-align:right">${fmtN(c.bal*1500)}</td>
+      <td style="text-align:right;font-size:11px;color:var(--text3)">${c.lastReturn||'—'}</td>
+    </tr>`).join('');
+  $('rep_balFoot').innerHTML=`<tr style="border-top:2px solid var(--border)">
+    <td colspan="2" style="font-weight:600;padding-top:8px">TOTAL</td>
+    <td class="mono" style="text-align:right;font-weight:700;color:var(--orange);padding-top:8px">${fmt(totalBal)}</td>
+    <td class="mono" style="text-align:right;font-weight:700;padding-top:8px">${fmtN(totalBal*1500)}</td>
+    <td></td>
+  </tr>`;
+}
+
+function repFilterBalances(){
+  const q=($('rep_search').value||'').toLowerCase();
+  if(!q){repRenderBalances(_allBalances);return;}
+  repRenderBalances(_allBalances.filter(c=>c.name.toLowerCase().includes(q)));
+}
+
+// ── TAB 2: NBL Backloaded ────────────────────────────────────────────────────
+async function repLoadBackload(){
+  const btn=$('rep_blBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-dark"></span>';
+  $('rep_blLoading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading backload data...';
+  show('rep_blLoading'); hide('rep_blTable');
+  try{
+    const from=$('rep_blFrom').value, to=$('rep_blTo').value;
+    const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
+    if(d.code!==0){$('rep_blLoading').textContent='Could not load adjustments.';btn.disabled=false;btn.textContent='Load';return;}
+
+    let adjs=(d.inventoryadjustments||[]).filter(a=>{
+      const dt=a.date||'';
+      const reason=(a.reason||'').toUpperCase();
+      const isNBL=reason.startsWith('NBL')||reason.includes('BACKLOAD');
+      if(!isNBL)return false;
+      if(from&&dt<from)return false;
+      if(to&&dt>to)return false;
+      return true;
+    });
+
+    // Tally by item
+    let totCR=0,totWOB=0,totBTL=0;
+    adjs.forEach(a=>{
+      (a.line_items||[]).forEach(li=>{
+        const qty=Math.abs(Number(li.quantity_adjusted)||0);
+        const itemId=li.item_id||'';
+        if(itemId===CFG.items.emptyCrate) totCR+=qty;
+        else if(itemId===CFG.items.emptyWOB) totWOB+=qty;
+        else if(itemId===CFG.items.emptyBTL) totBTL+=qty;
+      });
+    });
+
+    $('rep_blCR').textContent=fmt(totCR);
+    $('rep_blWOB').textContent=fmt(totWOB);
+    $('rep_blBTL').textContent=fmt(totBTL);
+    $('rep_blVal').textContent=fmtN(totCR*1500+totWOB*750+totBTL*750);
+
+    hide('rep_blLoading');
+    $('rep_blBody').innerHTML=adjs.length?adjs.map(a=>{
+      let cr=0,wob=0,btl=0;
+      (a.line_items||[]).forEach(li=>{
+        const qty=Math.abs(Number(li.quantity_adjusted)||0);
+        if(li.item_id===CFG.items.emptyCrate)cr+=qty;
+        else if(li.item_id===CFG.items.emptyWOB)wob+=qty;
+        else if(li.item_id===CFG.items.emptyBTL)btl+=qty;
+      });
+      return`<tr>
+        <td>${a.date||'—'}</td>
+        <td style="font-size:11px;color:var(--text3)">${a.reason||'—'}</td>
+        <td class="mono" style="text-align:right">${cr||'—'}</td>
+        <td class="mono" style="text-align:right">${wob||'—'}</td>
+        <td class="mono" style="text-align:right">${btl||'—'}</td>
+        <td style="font-size:11px">${a.created_by_name||'—'}</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px">No backloads found for selected period.</td></tr>';
+    show('rep_blTable');
+  }catch(e){$('rep_blLoading').textContent='Error: '+e.message;show('rep_blLoading');}
+  btn.disabled=false;btn.textContent='Load';
+}
+
+// ── TAB 3: Empties Received ──────────────────────────────────────────────────
+async function repLoadReceived(){
+  const btn=$('rep_recBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-dark"></span>';
+  $('rep_recLoading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading received empties...';
+  show('rep_recLoading'); hide('rep_recTable');
+  try{
+    const from=$('rep_recFrom').value, to=$('rep_recTo').value;
+    const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
+    if(d.code!==0){$('rep_recLoading').textContent='Could not load data.';btn.disabled=false;btn.textContent='Load';return;}
+
+    let adjs=(d.inventoryadjustments||[]).filter(a=>{
+      const dt=a.date||'';
+      const reason=(a.reason||'').toUpperCase();
+      const isNBL=reason.startsWith('NBL')||reason.includes('BACKLOAD');
+      if(isNBL)return false; // exclude backloads
+      const hasPositive=(a.line_items||[]).some(li=>Number(li.quantity_adjusted||0)>0);
+      if(!hasPositive)return false;
+      if(from&&dt<from)return false;
+      if(to&&dt>to)return false;
+      return true;
+    });
+
+    let totCR=0,totWOB=0,totBTL=0;
+    adjs.forEach(a=>{
+      (a.line_items||[]).forEach(li=>{
+        const qty=Number(li.quantity_adjusted)||0;
+        if(qty<=0)return;
+        if(li.item_id===CFG.items.emptyCrate) totCR+=qty;
+        else if(li.item_id===CFG.items.emptyWOB) totWOB+=qty;
+        else if(li.item_id===CFG.items.emptyBTL) totBTL+=qty;
+      });
+    });
+
+    $('rep_recCR').textContent=fmt(totCR);
+    $('rep_recWOB').textContent=fmt(totWOB);
+    $('rep_recBTL').textContent=fmt(totBTL);
+    $('rep_recCash').textContent='In Books';
+
+    hide('rep_recLoading');
+    $('rep_recBody').innerHTML=adjs.length?adjs.map(a=>{
+      let cr=0,wob=0,btl=0;
+      (a.line_items||[]).forEach(li=>{
+        const qty=Number(li.quantity_adjusted)||0;
+        if(qty<=0)return;
+        if(li.item_id===CFG.items.emptyCrate)cr+=qty;
+        else if(li.item_id===CFG.items.emptyWOB)wob+=qty;
+        else if(li.item_id===CFG.items.emptyBTL)btl+=qty;
+      });
+      return`<tr>
+        <td>${a.date||'—'}</td>
+        <td style="font-size:12px">${(a.reason||'').replace(/Return |Full Crates |WOB Shells |BTL Sets /g,'').slice(0,30)||'—'}</td>
+        <td class="mono" style="text-align:right">${cr||'—'}</td>
+        <td class="mono" style="text-align:right">${wob||'—'}</td>
+        <td class="mono" style="text-align:right">${btl||'—'}</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">No empties received in selected period.</td></tr>';
+    show('rep_recTable');
+  }catch(e){$('rep_recLoading').textContent='Error: '+e.message;show('rep_recLoading');}
+  btn.disabled=false;btn.textContent='Load';
+}
+
+// ── TAB 4: Physical Balance ──────────────────────────────────────────────────
+async function repLoadPhysical(){
+  const btn=$('rep_phyBtn'); if(btn)btn.disabled=true;
+  ['rep_phyCR','rep_phyWOB','rep_phyBTL','rep_phyTotal'].forEach(id=>{$(id).innerHTML='<span class="spin spin-dark" style="width:12px;height:12px;border-width:2px"></span>';});
+  try{
+    const [crSt,wobSt,btlSt]=await Promise.all([
+      getItemStock(CFG.items.emptyCrate),
+      getItemStock(CFG.items.emptyWOB),
+      getItemStock(CFG.items.emptyBTL)
+    ]);
+    const cr=crSt||0, wob=wobSt||0, btl=btlSt||0;
+    const totalVal=cr*1500+wob*750+btl*750;
+
+    $('rep_phyCR').textContent=fmt(cr);
+    $('rep_phyWOB').textContent=fmt(wob);
+    $('rep_phyBTL').textContent=fmt(btl);
+    $('rep_phyCRVal').textContent=fmtN(cr*1500)+' value';
+    $('rep_phyWOBVal').textContent=fmtN(wob*750)+' value';
+    $('rep_phyBTLVal').textContent=fmtN(btl*750)+' value';
+    $('rep_phyTotal').textContent=fmtN(totalVal);
+    $('rep_totStock').textContent=fmt(cr);
+
+    // Reconciliation
+    const totalOwed=_allBalances.reduce((s,c)=>s+c.bal,0)||0;
+    const wobCrateEq=Math.round(wob/2);
+    const btlCrateEq=Math.round(btl/2);
+    const netPosition=cr+wobCrateEq+btlCrateEq-totalOwed;
+    $('recon_owed').textContent=fmt(totalOwed)+' crates';
+    $('recon_stock').textContent=fmt(cr)+' crates';
+    $('recon_wob').textContent=fmt(wobCrateEq)+' crate equiv ('+fmt(wob)+' shells ÷ 2)';
+    $('recon_btl').textContent=fmt(btlCrateEq)+' crate equiv ('+fmt(btl)+' sets ÷ 2)';
+    $('recon_net').textContent=fmt(netPosition)+' crates';
+    $('recon_net').style.color=netPosition>=0?'var(--green)':'var(--red)';
+    show('rep_reconTable'); hide('rep_reconLoading');
+  }catch(e){console.log('Physical load error:',e);}
+  if(btn){btn.disabled=false;btn.textContent='Refresh stock figures';}
+}
+
+// ── Print / PDF ──────────────────────────────────────────────────────────────
+function repPrint(){
+  window.print();
+}
+
 
 async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
   // Fallback report: read from inventory adjustments since custom module API is unavailable
@@ -1361,6 +1709,7 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
     if(!d||d.code!==0){
       $('rep_loading').innerHTML='Could not load report data. Please check your Zoho connection.';
       show('rep_loading');btn.disabled=false;btn.innerHTML='Load report';return;
+      repLoading=false;
     }
 
     let records=(d.inventoryadjustments||d.adjustments||[]);
@@ -1388,6 +1737,7 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
     $('rep_totBal').textContent='—';
 
     if(!records.length){show('rep_empty');btn.disabled=false;btn.innerHTML='Load report';return;}
+    repLoading=false;
 
     $('rep_tbody').innerHTML=records.map(r=>{
       const isNBL=(r.reason||'').startsWith('NBL');
@@ -1422,90 +1772,10 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
     show('rep_loading');
   }
   btn.disabled=false;btn.innerHTML='Load report';
+  repLoading=false;
+  repLoading=false;
 }
 
-async function repLoad(){
-  const btn=$('rep_loadBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
-  hide('rep_table');hide('rep_empty');
-  $('rep_loading').classList.remove('hidden');
-  $('rep_loading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading transactions...';
-  try{
-    const type=$('rep_type').value;
-    const dateFrom=$('rep_from').value,dateTo=$('rep_to').value;
-    let path=`/custommodules/cm_crate_movement_log?per_page=200&sort_column=cf_return_date&sort_order=D`;
-
-    let d=null;
-    // Try primary path with date filters
-    try{ d=await api(INV,path,'GET'); console.log('Report fetch 1:',d?.code,d?.message); }catch(e){}
-    // Try without date filters
-    if(!d||d.code!==0){
-      try{
-        const sp='/custommodules/cm_crate_movement_log?per_page=200&sort_order=D';
-        d=await api(INV,sp,'GET'); console.log('Report fetch 2:',d?.code,d?.message);
-      }catch(e){}
-    }
-    // Try /records sub-path
-    if(!d||d.code!==0){
-      try{
-        d=await api(INV,'/custommodules/cm_crate_movement_log/records?per_page=200','GET');
-        console.log('Report fetch 3:',d?.code,d?.message);
-      }catch(e){}
-    }
-    hide('rep_loading');
-    if(!d||d.code!==0){
-      // Fall back to reading from inventory adjustments
-      await repLoadFromAdjustments(dateFrom,dateTo,type,btn);
-      return;
-    }
-
-    let records=(d.module_records||d.records||[]);
-    records=records.filter(r=>{
-      const dt=r.cf_return_date||r.date||'';
-      if(dateFrom&&dt&&dt<dateFrom)return false;
-      if(dateTo&&dt&&dt>dateTo)return false;
-      return true;
-    });
-    if(type)records=records.filter(r=>(r.cf_movement_type_1||'')===type);
-
-    // Update summary stats
-    const totCratesRet=records.reduce((s,r)=>s+(Number(r.cf_crates_count)||0),0);
-    const totCash=records.reduce((s,r)=>s+(Number(r.cf_cash_paid)||0)+(Number(r.cf_transfer_paid)||0),0);
-    const custMap={};
-    records.forEach(r=>{if(r.cf_customer&&r.cf_movement_type_1==='Customer Return'){custMap[r.cf_customer]=(Number(r.cf_remaining_balance)||0);}});
-    const totOutstanding=Object.values(custMap).reduce((s,v)=>s+v,0);
-    $('rep_totTx').textContent=records.length;
-    $('rep_totCratesRet').textContent=fmt(totCratesRet);
-    $('rep_totCash').textContent=fmtN(totCash);
-    $('rep_totBal').textContent=fmt(totOutstanding)+' crates';
-
-    if(!records.length){show('rep_empty');btn.disabled=false;btn.textContent='Load report';return;}
-
-    $('rep_tbody').innerHTML=records.map(r=>{
-      const mvType=r.cf_movement_type_1||'—';
-      const tag=mvType==='Customer Return'?'<span class="tag tag-blue">Customer</span>':'<span class="tag tag-orange">NBL</span>';
-      const cash=Number(r.cf_cash_paid)||0,xfer=Number(r.cf_transfer_paid)||0;
-      const settled=Number(r.cf_crates_settled)||0;
-      return `<tr>
-        <td>${r.cf_return_date||r.date||'—'}</td>
-        <td class="mono" style="font-size:11px;color:var(--text3)">${(r.id||r.module_record_id||'').slice(-6)}</td>
-        <td>${r.cf_customer_name||r.cf_customer||'—'}</td>
-        <td>${tag}</td>
-        <td class="mono" style="text-align:right">${fmt(r.cf_balance_before||0)}</td>
-        <td class="mono" style="text-align:right">${fmt(r.cf_crates_count||0)}</td>
-        <td class="mono" style="text-align:right">${settled>0?fmt(settled):'—'}</td>
-        <td class="mono" style="text-align:right;font-weight:500;color:${Number(r.cf_remaining_balance||0)>0?'var(--orange)':'var(--green)'}">${fmt(r.cf_remaining_balance||0)}</td>
-        <td class="mono" style="text-align:right">${cash>0?fmtN(cash):'—'}</td>
-        <td class="mono" style="text-align:right">${xfer>0?fmtN(xfer):'—'}</td>
-        <td style="font-size:11px">${r.cf_recorded_by||'—'}</td>
-      </tr>`;
-    }).join('');
-    show('rep_table');
-  }catch(e){
-    $('rep_loading').textContent='Error loading report: '+e.message;
-    $('rep_loading').classList.remove('hidden');
-  }
-  btn.disabled=false;btn.textContent='Load report';
-}
 
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
