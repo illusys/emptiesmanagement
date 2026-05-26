@@ -903,6 +903,25 @@ async function getItemStock(itemId){
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
+// Fetch ALL customers with pagination (Zoho max 200/page)
+async function fetchAllCustomers(){
+  let allContacts=[];
+  let page=1;
+  while(true){
+    try{
+      const d=await api(INV,`/contacts?contact_type=customer&per_page=200&page=${page}&sort_column=contact_name&sort_order=A`,'GET');
+      if(d.code!==0||!d.contacts?.length) break;
+      allContacts=[...allContacts,...d.contacts];
+      // If less than 200 returned, we've got all of them
+      if(d.contacts.length<200) break;
+      page++;
+      // Safety cap at 10 pages (2000 customers)
+      if(page>10) break;
+    }catch(e){ break; }
+  }
+  return allContacts;
+}
+
 async function dashLoad(){
   // Load all three stock levels in parallel
   const [crSt,wobSt,btlSt]=await Promise.all([
@@ -915,13 +934,13 @@ async function dashLoad(){
   $('dash_wobStock').textContent=wobSt!==null?fmt(wobSt):'Err('+wobSt+')';
   $('dash_btlStock').textContent=btlSt!==null?fmt(btlSt):'Err('+btlSt+')';
 
-  // Load top debtors
+  // Load top debtors — paginate through ALL customers
   try{
-    const d=await api(INV,'/contacts?contact_type=customer&per_page=200');
-    console.log('dashLoad contacts response:',d.code,'count:',d.contacts?.length);
-    if(d.code===0&&d.contacts?.length){
+    const allContacts=await fetchAllCustomers();
+    console.log('dashLoad total contacts fetched:',allContacts.length);
+    if(allContacts.length){
       // Store full contact objects for clickable list
-      const debtors=d.contacts
+      const debtors=allContacts
         .map(c=>{let bal=0;(c.custom_fields||[]).forEach(f=>{if(f.api_name==='cf_crate_balance')bal=Number(f.value)||0;});return{id:c.contact_id,name:c.contact_name,bal};})
         .filter(c=>c.bal>0)
         .sort((a,b)=>b.bal-a.bal)
@@ -1481,10 +1500,11 @@ async function repLoadBalances(){
   $('rep_balLoading').classList.remove('hidden');
   hide('rep_balTable');
   try{
-    const d=await api(INV,'/contacts?contact_type=customer&per_page=200&sort_column=contact_name&sort_order=A','GET');
-    if(d.code!==0){$('rep_balLoading').textContent='Could not load contacts.';btn.disabled=false;btn.textContent='Load';return;}
+    const allContacts=await fetchAllCustomers();
+    console.log('repLoadBalances total contacts:',allContacts.length);
+    if(!allContacts.length){$('rep_balLoading').textContent='Could not load contacts.';btn.disabled=false;btn.textContent='Load';return;}
 
-    _allBalances=d.contacts.map(c=>{
+    _allBalances=allContacts.map(c=>{
       let bal=0,lastReturn='';
       (c.custom_fields||[]).forEach(f=>{
         if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0;
@@ -1493,6 +1513,7 @@ async function repLoadBalances(){
       return{name:c.contact_name,bal,lastReturn};
     }).filter(c=>c.bal>0).sort((a,b)=>b.bal-a.bal);
 
+    console.log('Customers with positive balance:',_allBalances.length);
     // Update summary stats
     const totalOwed=_allBalances.reduce((s,c)=>s+c.bal,0);
     $('rep_totCust').textContent=_allBalances.length;
