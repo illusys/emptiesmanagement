@@ -883,28 +883,52 @@ async function api(base,path,method,body){
 }
 
 async function getItemStock(itemId){
-  // Try direct item endpoint
+  // Try direct item endpoint — Zoho may return d.item or d.items[0]
   try{
     const d=await api(INV,`/items/${itemId}`,'GET');
-    console.log('getItemStock direct response for',itemId,'code:',d.code,'item:',d.item?.stock_on_hand);
-    if(d.code===0&&d.item!=null) return Number(d.item.stock_on_hand)||0;
-  }catch(e){ console.log('getItemStock direct error:',e.message); }
-  // Try items list
-  try{
-    const d2=await api(INV,'/items?per_page=200','GET');
-    console.log('getItemStock list response code:',d2.code,'items count:',d2.items?.length);
-    if(d2.code===0&&d2.items?.length){
-      const match=d2.items.find(it=>it.item_id===itemId||it.item_id===String(itemId));
-      console.log('Match for',itemId,match?.item_name,match?.stock_on_hand);
-      if(match) return Number(match.stock_on_hand)||0;
+    console.log('getItemStock raw for',itemId,'keys:',Object.keys(d));
+    if(d.code===0){
+      // Try all known response structures
+      const stock=
+        d.item?.stock_on_hand ??           // standard structure
+        d.items?.[0]?.stock_on_hand ??     // list structure
+        d.item?.actual_available_stock ??  // alternate field
+        d.stock_on_hand;                   // top-level
+      if(stock!=null){ console.log('getItemStock got:',itemId,'=',stock); return Number(stock)||0; }
+      console.log('getItemStock: code 0 but no stock field. Full response:',JSON.stringify(d).slice(0,300));
     }
-  }catch(e){ console.log('getItemStock list error:',e.message); }
+  }catch(e){ console.log('getItemStock error:',e.message); }
+
+  // Fallback: fetch from items list filtered by item_id
+  try{
+    const d2=await api(INV,`/items?item_id=${itemId}`,'GET');
+    if(d2.code===0&&d2.items?.length){
+      const stock=d2.items[0].stock_on_hand??d2.items[0].actual_available_stock;
+      console.log('getItemStock list fallback:',itemId,'=',stock);
+      return Number(stock)||0;
+    }
+    // Try without filter — get all items and find by ID
+    const d3=await api(INV,'/items?per_page=200','GET');
+    if(d3.code===0&&d3.items?.length){
+      const match=d3.items.find(it=>it.item_id===itemId);
+      if(match){ console.log('getItemStock full list match:',match.name,match.stock_on_hand); return Number(match.stock_on_hand)||0; }
+    }
+  }catch(e){ console.log('getItemStock fallback error:',e.message); }
   return null;
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
-// Fetch ALL customers with pagination (Zoho max 200/page)
-async function fetchAllCustomers(){
+// Fetch ALL customers with pagination — cached per session to avoid repeat calls
+let _contactsCache=null;
+let _contactsCacheTime=0;
+const CONTACTS_CACHE_TTL=5*60*1000; // 5 minutes
+
+async function fetchAllCustomers(forceRefresh=false){
+  const now=Date.now();
+  if(!forceRefresh&&_contactsCache&&(now-_contactsCacheTime)<CONTACTS_CACHE_TTL){
+    console.log('fetchAllCustomers: returning cached',_contactsCache.length,'contacts');
+    return _contactsCache;
+  }
   let allContacts=[];
   let page=1;
   while(true){
@@ -912,13 +936,14 @@ async function fetchAllCustomers(){
       const d=await api(INV,`/contacts?contact_type=customer&per_page=200&page=${page}&sort_column=contact_name&sort_order=A`,'GET');
       if(d.code!==0||!d.contacts?.length) break;
       allContacts=[...allContacts,...d.contacts];
-      // If less than 200 returned, we've got all of them
       if(d.contacts.length<200) break;
       page++;
-      // Safety cap at 10 pages (2000 customers)
-      if(page>10) break;
+      if(page>10) break; // Safety cap: 2000 customers max
     }catch(e){ break; }
   }
+  _contactsCache=allContacts;
+  _contactsCacheTime=Date.now();
+  console.log('fetchAllCustomers: fetched',allContacts.length,'contacts across',page,'pages');
   return allContacts;
 }
 
@@ -1801,6 +1826,7 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
   erCust=null;finCust=null;finCustCredit=0;blStockOnHand=null;
+  _contactsCache=null;_contactsCacheTime=0; // clear cache on logout
   hide('appRoot');show('authScreen');clearA('authErr');
 }
 
