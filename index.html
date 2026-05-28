@@ -882,38 +882,44 @@ async function api(base,path,method,body){
   return data;
 }
 
-async function getItemStock(itemId){
-  // Try direct item endpoint — Zoho may return d.item or d.items[0]
+// Cache all items once — avoids repeated calls and works for all user roles
+let _itemsCache=null;
+async function getAllItems(){
+  if(_itemsCache) return _itemsCache;
   try{
-    const d=await api(INV,`/items/${itemId}`,'GET');
-    console.log('getItemStock raw for',itemId,'keys:',Object.keys(d));
-    if(d.code===0){
-      // Try all known response structures
-      const stock=
-        d.item?.stock_on_hand ??           // standard structure
-        d.items?.[0]?.stock_on_hand ??     // list structure
-        d.item?.actual_available_stock ??  // alternate field
-        d.stock_on_hand;                   // top-level
-      if(stock!=null){ console.log('getItemStock got:',itemId,'=',stock); return Number(stock)||0; }
-      console.log('getItemStock: code 0 but no stock field. Full response:',JSON.stringify(d).slice(0,300));
+    // The /items list endpoint returns stock_on_hand for all user roles
+    const d=await api(INV,'/items?per_page=200','GET');
+    if(d.code===0&&d.items?.length){
+      _itemsCache=d.items;
+      console.log('getAllItems: loaded',d.items.length,'items');
+      return _itemsCache;
     }
-  }catch(e){ console.log('getItemStock error:',e.message); }
+  }catch(e){ console.log('getAllItems error:',e.message); }
+  return [];
+}
 
-  // Fallback: fetch from items list filtered by item_id
-  try{
-    const d2=await api(INV,`/items?item_id=${itemId}`,'GET');
-    if(d2.code===0&&d2.items?.length){
-      const stock=d2.items[0].stock_on_hand??d2.items[0].actual_available_stock;
-      console.log('getItemStock list fallback:',itemId,'=',stock);
+async function getItemStock(itemId){
+  // Use the items list — works for admin and non-admin roles
+  const items=await getAllItems();
+  if(items.length){
+    const match=items.find(it=>it.item_id===itemId);
+    if(match){
+      const stock=match.stock_on_hand??match.actual_available_stock??0;
+      console.log('getItemStock:',match.name,'=',stock);
       return Number(stock)||0;
     }
-    // Try without filter — get all items and find by ID
-    const d3=await api(INV,'/items?per_page=200','GET');
-    if(d3.code===0&&d3.items?.length){
-      const match=d3.items.find(it=>it.item_id===itemId);
-      if(match){ console.log('getItemStock full list match:',match.name,match.stock_on_hand); return Number(match.stock_on_hand)||0; }
+  }
+  // Last resort: direct item fetch (admin only)
+  try{
+    const d=await api(INV,`/items/${itemId}`,'GET');
+    if(d.code===0&&d.item){
+      // Search all numeric fields for stock value
+      const item=d.item;
+      const stock=item.stock_on_hand??item.actual_available_stock??item.available_stock??0;
+      console.log('getItemStock direct:',item.name,'=',stock,'fields:',Object.keys(item).filter(k=>k.includes('stock')));
+      return Number(stock)||0;
     }
-  }catch(e){ console.log('getItemStock fallback error:',e.message); }
+  }catch(e){}
   return null;
 }
 
@@ -948,7 +954,8 @@ async function fetchAllCustomers(forceRefresh=false){
 }
 
 async function dashLoad(){
-  // Load all three stock levels in parallel
+  // Pre-warm items cache then fetch stock for each item
+  await getAllItems(); // loads once, subsequent calls use cache
   const [crSt,wobSt,btlSt]=await Promise.all([
     getItemStock(CFG.items.emptyCrate),
     getItemStock(CFG.items.emptyWOB),
@@ -1826,7 +1833,7 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
   erCust=null;finCust=null;finCustCredit=0;blStockOnHand=null;
-  _contactsCache=null;_contactsCacheTime=0; // clear cache on logout
+  _contactsCache=null;_contactsCacheTime=0;_itemsCache=null; // clear cache on logout
   hide('appRoot');show('authScreen');clearA('authErr');
 }
 
