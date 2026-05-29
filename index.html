@@ -586,7 +586,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             <div id="rep_recLoading" class="empty-state" style="padding:24px">Set date range and click <strong>Load</strong>.</div>
             <div id="rep_recTable" class="hidden" style="overflow-x:auto">
               <table class="report-table">
-                <thead><tr><th>Date</th><th>Customer</th><th style="text-align:right">Full Crates</th><th style="text-align:right">WOB</th><th style="text-align:right">Bottles</th><th style="text-align:right">Cash</th><th style="text-align:right">Transfer</th></tr></thead>
+                <thead><tr><th>Date</th><th>Customer</th><th style="text-align:right">Full Crates</th><th style="text-align:right">WOB</th><th style="text-align:right">Bottles</th><th>Recorded by</th><th style="text-align:right">Transfer</th></tr></thead>
                 <tbody id="rep_recBody"></tbody>
               </table>
             </div>
@@ -1178,7 +1178,7 @@ async function erSubmit(){
   showOverlay('Recording crate return...');
   try{
     const nb=roundBal(erCust.bal-n);
-    await adjustment(CFG.items.emptyCrate,n,`Return ${td()}`);
+    await adjustment(CFG.items.emptyCrate,n,`CR:${erCust.name} ${td()}`.slice(0,50));
     await updateBal(erCust.id,nb);
     await cmlRecord({type:'Customer Return',id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
     hideOverlay();
@@ -1391,9 +1391,9 @@ async function finSubmit(){
   const btn=$('fin_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
   try{
-    if(cr)await adjustment(CFG.items.emptyCrate,cr,`Full Crates ${td()}`);
-    if(wob)await adjustment(CFG.items.emptyWOB,wob,`WOB Shells ${td()}`);
-    if(btl)await adjustment(CFG.items.emptyBTL,btl,`BTL Sets ${td()}`);
+    if(cr)await adjustment(CFG.items.emptyCrate,cr,`CR:${finCust.name} ${td()}`.slice(0,50));
+    if(wob)await adjustment(CFG.items.emptyWOB,wob,`WOB:${finCust.name} ${td()}`.slice(0,50));
+    if(btl)await adjustment(CFG.items.emptyBTL,btl,`BTL:${finCust.name} ${td()}`.slice(0,50));
     if(cash)await payment(finCust.id,cash,CFG.cashAccount,'cash',ref);
     if(xfer)await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref);
     await updateBal(finCust.id,rem);
@@ -1714,14 +1714,18 @@ async function repLoadReceived(){
       const cr=_id3===CFG.items.emptyCrate?_qty3:0;
       const wob=_id3===CFG.items.emptyWOB?_qty3:0;
       const btl=_id3===CFG.items.emptyBTL?_qty3:0;
+      // Extract customer name from reason (format: "CR:Name 2026-05-28" or "Return 2026-05-28")
+      const reasonText=a.reason||'';
+      const custMatch=reasonText.match(/^(?:CR|WOB|BTL):(.+?)\s\d{4}-\d{2}-\d{2}$/);
+      const custName=custMatch?custMatch[1]:(reasonText.startsWith('Return')?'(legacy record)':reasonText);
       return`<tr>
         <td>${a.date||'—'}</td>
-        <td style="font-size:12px">${a.name||'—'}</td>
+        <td style="font-size:12px;font-weight:500">${custName}</td>
         <td class="mono" style="text-align:right">${cr||'—'}</td>
         <td class="mono" style="text-align:right">${wob||'—'}</td>
         <td class="mono" style="text-align:right">${btl||'—'}</td>
-        <td class="mono" style="text-align:right">—</td>
-        <td class="mono" style="text-align:right">—</td>
+        <td style="font-size:11px;color:var(--text2)">${a.created_by_name||'—'}</td>
+        <td style="font-size:11px;color:var(--text2)">—</td>
       </tr>`;
     }).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:16px">No empties received in selected period.</td></tr>';
     show('rep_recTable');
