@@ -844,11 +844,21 @@ async function verifyAndBoot(){
 }
 
 function bootApp(){
-  const mins=Math.max(0,Math.round((S.expiry-Date.now())/60000));
   $('hdrAv').textContent=init(S.name);$('hdrName').textContent=S.name;
   $('roleEmail').textContent='Signed in as '+S.email;
-  $('tokenTxt').textContent=`Connected · ${mins}m`;
-  if(mins<10)$('tokenDot').classList.add('warn');
+  // Update token timer every minute
+  function updateTokenTimer(){
+    const mins=Math.max(0,Math.round((S.expiry-Date.now())/60000));
+    $('tokenTxt').textContent=`Connected · ${mins}m`;
+    if(mins<=10){$('tokenDot').classList.add('warn');}
+    if(mins<=2){
+      // Almost expired — show warning proactively
+      $('tokenTxt').textContent=`Session expiring in ${mins}m`;
+      showTokenExpiredBanner();
+    }
+    if(mins>0) setTimeout(updateTokenTimer,60000);
+  }
+  updateTokenTimer();
   $('er_date').value=td();$('fin_date').value=td();$('bl_date').value=td();
   // Auto-fill all name fields with logged-in user's name
   const displayName=S.name||S.email||'';
@@ -863,6 +873,12 @@ function bootApp(){
 // ── PROXY API ────────────────────────────────────────────────────────────────
 async function api(base,path,method,body){
   if(!S.token)throw new Error('Not authenticated');
+  // Check token expiry before making the call
+  if(S.expiry&&Date.now()>S.expiry-30000){
+    console.log('Token expired or expiring soon — triggering re-auth');
+    showTokenExpiredBanner();
+    throw new Error('Token expired');
+  }
   const sep=path.includes('?')?'&':'?';
   const targetURL=`${base}${path}${sep}organization_id=${CFG.orgId}`;
   console.log('API call:',method||'GET',targetURL);
@@ -878,8 +894,29 @@ async function api(base,path,method,body){
   });
   const data=await res.json();
   console.log('API response:',res.status,'code:',data.code,'message:',data.message);
+  // Handle 401 — token expired mid-session
+  if(res.status===401||(data.code===57&&data.message?.includes('not authorized'))){
+    console.log('401 detected — token expired, prompting re-auth');
+    // Clear bad cache entries
+    _contactsCache=null;_contactsCacheTime=0;
+    showTokenExpiredBanner();
+    throw new Error(`HTTP 401 on ${path}`);
+  }
   if(!res.ok&&res.status!==400)throw new Error(`HTTP ${res.status} on ${path}`);
   return data;
+}
+
+function showTokenExpiredBanner(){
+  // Show a non-blocking banner prompting re-login
+  let banner=$('tokenExpiredBanner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='tokenExpiredBanner';
+    banner.style.cssText='position:fixed;top:58px;left:0;right:0;background:#cb0024;color:#fff;text-align:center;padding:10px 16px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;justify-content:center;gap:12px';
+    banner.innerHTML='Your session has expired. <button onclick="sessionStorage.removeItem(\'mx\');startZohoOAuth()" style="background:#fff;color:#cb0024;border:none;padding:5px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit">Sign in again</button>';
+    document.body.appendChild(banner);
+  }
+  banner.style.display='flex';
 }
 
 // Promise lock to prevent duplicate in-flight requests
@@ -959,8 +996,11 @@ async function fetchAllCustomers(forceRefresh=false){
       if(page>10) break; // Safety cap: 2000 customers max
     }catch(e){ break; }
   }
-  _contactsCache=allContacts;
-  _contactsCacheTime=Date.now();
+  // Only cache if we actually got results — don't cache empty 401 responses
+  if(allContacts.length>0){
+    _contactsCache=allContacts;
+    _contactsCacheTime=Date.now();
+  }
   console.log('fetchAllCustomers: fetched',allContacts.length,'contacts across',page,'pages');
   return allContacts;
   })();
