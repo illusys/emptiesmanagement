@@ -1632,16 +1632,14 @@ async function repLoadBackload(){
       return true;
     });
 
-    // Tally by item
+    // Flat structure: each record has item_id + quantity_adjusted at top level
     let totCR=0,totWOB=0,totBTL=0;
     adjs.forEach(a=>{
-      (a.line_items||[]).forEach(li=>{
-        const qty=Math.abs(Number(li.quantity_adjusted)||0);
-        const itemId=li.item_id||'';
-        if(itemId===CFG.items.emptyCrate) totCR+=qty;
-        else if(itemId===CFG.items.emptyWOB) totWOB+=qty;
-        else if(itemId===CFG.items.emptyBTL) totBTL+=qty;
-      });
+      const qty=Math.abs(Number(a.quantity_adjusted)||0);
+      const itemId=a.item_id||'';
+      if(itemId===CFG.items.emptyCrate) totCR+=qty;
+      else if(itemId===CFG.items.emptyWOB) totWOB+=qty;
+      else if(itemId===CFG.items.emptyBTL) totBTL+=qty;
     });
 
     $('rep_blCR').textContent=fmt(totCR);
@@ -1651,16 +1649,14 @@ async function repLoadBackload(){
 
     hide('rep_blLoading');
     $('rep_blBody').innerHTML=adjs.length?adjs.map(a=>{
-      let cr=0,wob=0,btl=0;
-      (a.line_items||[]).forEach(li=>{
-        const qty=Math.abs(Number(li.quantity_adjusted)||0);
-        if(li.item_id===CFG.items.emptyCrate)cr+=qty;
-        else if(li.item_id===CFG.items.emptyWOB)wob+=qty;
-        else if(li.item_id===CFG.items.emptyBTL)btl+=qty;
-      });
+      const _qty1=Math.abs(Number(a.quantity_adjusted)||0);
+      const _id1=a.item_id||'';
+      const cr=_id1===CFG.items.emptyCrate?_qty1:0;
+      const wob=_id1===CFG.items.emptyWOB?_qty1:0;
+      const btl=_id1===CFG.items.emptyBTL?_qty1:0;
       return`<tr>
         <td>${a.date||'—'}</td>
-        <td style="font-size:11px;color:var(--text3)">${a.reason||'—'}</td>
+        <td style="font-size:11px;color:var(--text3)">${a.reference_number||'NBL'}</td>
         <td class="mono" style="text-align:right">${cr||'—'}</td>
         <td class="mono" style="text-align:right">${wob||'—'}</td>
         <td class="mono" style="text-align:right">${btl||'—'}</td>
@@ -1699,13 +1695,11 @@ async function repLoadReceived(){
 
     let totCR=0,totWOB=0,totBTL=0;
     adjs.forEach(a=>{
-      (a.line_items||[]).forEach(li=>{
-        // Count absolute value — Zoho may store as negative or positive depending on adjustment type
-        const qty=Math.abs(Number(li.quantity_adjusted)||0);
-        if(li.item_id===CFG.items.emptyCrate) totCR+=qty;
-        else if(li.item_id===CFG.items.emptyWOB) totWOB+=qty;
-        else if(li.item_id===CFG.items.emptyBTL) totBTL+=qty;
-      });
+      const qty=Math.abs(Number(a.quantity_adjusted)||0);
+      const rid=a.item_id||'';
+      if(rid===CFG.items.emptyCrate) totCR+=qty;
+      else if(rid===CFG.items.emptyWOB) totWOB+=qty;
+      else if(rid===CFG.items.emptyBTL) totBTL+=qty;
     });
 
     $('rep_recCR').textContent=fmt(totCR);
@@ -1715,17 +1709,14 @@ async function repLoadReceived(){
 
     hide('rep_recLoading');
     $('rep_recBody').innerHTML=adjs.length?adjs.map(a=>{
-      let cr=0,wob=0,btl=0;
-      (a.line_items||[]).forEach(li=>{
-        const qty=Number(li.quantity_adjusted)||0;
-          const absQty=Math.abs(Number(li.quantity_adjusted)||0);
-        if(li.item_id===CFG.items.emptyCrate)cr+=absQty;
-        else if(li.item_id===CFG.items.emptyWOB)wob+=absQty;
-        else if(li.item_id===CFG.items.emptyBTL)btl+=absQty;
-      });
+      const _qty3=Math.abs(Number(a.quantity_adjusted)||0);
+      const _id3=a.item_id||'';
+      const cr=_id3===CFG.items.emptyCrate?_qty3:0;
+      const wob=_id3===CFG.items.emptyWOB?_qty3:0;
+      const btl=_id3===CFG.items.emptyBTL?_qty3:0;
       return`<tr>
         <td>${a.date||'—'}</td>
-        <td style="font-size:12px">${(a.reason||'').replace(/Return |Full Crates |WOB Shells |BTL Sets /g,'').slice(0,30)||'—'}</td>
+        <td style="font-size:12px">${a.name||'—'}</td>
         <td class="mono" style="text-align:right">${cr||'—'}</td>
         <td class="mono" style="text-align:right">${wob||'—'}</td>
         <td class="mono" style="text-align:right">${btl||'—'}</td>
