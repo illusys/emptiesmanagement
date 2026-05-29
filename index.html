@@ -920,19 +920,7 @@ async function getAllItems(){
 }
 
 async function getItemStock(itemId){
-  // Fetch stock at the specific warehouse location — consistent for all users
-  try{
-    const d=await api(INV,`/items/${itemId}/locations`,'GET');
-    if(d.code===0&&d.locations?.length){
-      // Find our specific warehouse
-      const loc=d.locations.find(l=>l.location_id===CFG.warehouseLoc)||d.locations[0];
-      const stock=loc.stock_on_hand??loc.actual_available_stock??0;
-      console.log('getItemStock location:',itemId,'warehouse:',loc.location_name,'stock:',stock);
-      return Number(stock)||0;
-    }
-  }catch(e){ console.log('getItemStock location error:',e.message); }
-
-  // Fallback: use items list (returns stock for user's default warehouse)
+  // Use items list directly — /locations endpoint not supported
   const items=await getAllItems();
   if(items.length){
     const match=items.find(it=>it.item_id===itemId);
@@ -1630,7 +1618,7 @@ async function repLoadBackload(){
     const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
     if(d.code!==0){$('rep_blLoading').textContent='Could not load adjustments.';btn.disabled=false;btn.textContent='Load';return;}
 
-    const allAdjsBL=d.inventoryadjustments||[];
+    const allAdjsBL=(d.inventory_adjustments||d.inventoryadjustments)||[];
     console.log('Backload tab - total adjustments:',allAdjsBL.length);
     allAdjsBL.slice(0,2).forEach((a,i)=>console.log('BL Adj',i,'reason:',a.reason,'date:',a.date,'line_items:',JSON.stringify(a.line_items||[]).slice(0,300)));
     let adjs=allAdjsBL.filter(a=>{
@@ -1694,7 +1682,7 @@ async function repLoadReceived(){
     const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
     if(d.code!==0){$('rep_recLoading').textContent='Could not load data.';btn.disabled=false;btn.textContent='Load';return;}
 
-    const allAdjs=d.inventoryadjustments||[];
+    const allAdjs=(d.inventory_adjustments||d.inventoryadjustments)||[];
     console.log('Total adjustments:',allAdjs.length);
     // Log first 3 adjustments fully to see structure
     allAdjs.slice(0,3).forEach((a,i)=>console.log('Adj',i,JSON.stringify(a).slice(0,600)));
@@ -1808,7 +1796,7 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
       repLoading=false;
     }
 
-    let records=(d.inventoryadjustments||d.adjustments||[]);
+    let records=((d.inventory_adjustments||d.inventoryadjustments)||d.adjustments||[]);
 
     // Apply date filters
     records=records.filter(r=>{
