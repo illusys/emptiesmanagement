@@ -1106,8 +1106,12 @@ function finSearch(){doSearch('fin',true,'finSelectCustomer');}
 // ── EMPTIES RETURNS ──────────────────────────────────────────────────────────
 function erSelectCustomer(c){
   erCust=c;hide('er_results');
-  $('er_av').textContent=init(c.name);$('er_name').textContent=c.name;$('er_bal').textContent=fmt(c.bal);
-  $('er_bb').textContent=fmt(c.bal);$('er_ba').textContent=fmt(c.bal);$('er_ba').style.color='var(--orange)';
+  $('er_av').textContent=init(c.name);$('er_name').textContent=c.name;
+  const balLabel=c.bal<0?fmt(c.bal)+' (credit)':fmt(c.bal);
+  $('er_bal').textContent=balLabel;
+  $('er_bb').textContent=fmt(c.bal);
+  $('er_ba').textContent=fmt(c.bal);
+  $('er_ba').style.color=c.bal<0?'var(--teal)':c.bal===0?'var(--green)':'var(--orange)';
   $('er_count').value=0;$('er_cd').textContent='0';
   show('er_custBlock');show('er_form');
 }
@@ -1117,12 +1121,12 @@ function erCalc(){
   const n=Number($('er_count').value)||0;
   const ba=roundBal(erCust.bal-n);
   $('er_cd').textContent=fmt(n);
-  $('er_ba').textContent=fmt(Math.max(0,ba))+' crates';
-  $('er_ba').style.color=ba<=0?'var(--green)':'var(--orange)';
-  // Warn if over-returning
-  if(n>erCust.bal){
-    clearA('er_err');
-    alert_('er_err',`⚠ ${fmt(n)} exceeds customer balance of ${fmt(erCust.bal)} crates.`,'error');
+  // Show actual new balance (can go negative — means Malexchlo owes them crates)
+  $('er_ba').textContent=fmt(ba)+' crates';
+  $('er_ba').style.color=ba<0?'var(--teal)':ba===0?'var(--green)':'var(--orange)';
+  // Show info if this will create a credit balance
+  if(n>erCust.bal&&erCust.bal>=0){
+    $('er_err').textContent=`ℹ This return will create a credit balance of ${fmt(Math.abs(ba))} crates — Malexchlo will owe the customer crates.`;$('er_err').className='alert alert-info';
     show('er_err');
   } else { hide('er_err'); }
 }
@@ -1174,9 +1178,12 @@ async function erSubmit(){
   if(!erCust){alert_('er_err','Please select a customer first.','error');show('er_err');return;}
   const n=Number($('er_count').value)||0;
   if(n<=0){alert_('er_err','Please enter the number of full crates returned.','error');show('er_err');return;}
-  if(n>erCust.bal){
-    alert_('er_err',`Cannot return ${fmt(n)} crates — customer only owes ${fmt(erCust.bal)} crates. Please check the count.`,'error');
-    show('er_err');return;
+  // Allow return even if it creates a credit balance (negative = Malexchlo owes customer)
+  // Just confirm if this would create a credit
+  if(n>erCust.bal&&erCust.bal>=0){
+    // Show a warning but don't block — empties manager decides
+    // Transaction will proceed and balance may go negative
+    console.log('Note: return creates credit balance for',erCust.name);
   }
   clearA('er_err');clearA('er_ok');
   const btn=$('er_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Saving...';
@@ -1187,7 +1194,8 @@ async function erSubmit(){
     await updateBal(erCust.id,nb);
     await cmlRecord({type:'Customer Return',id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
     hideOverlay();
-    alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. New balance: ${fmt(nb)} crates.`,'success');
+    const balMsg=nb<0?`New balance: ${fmt(Math.abs(nb))} crates credit (Malexchlo owes customer).`:`New balance: ${fmt(nb)} crates.`;
+    alert_('er_ok',`✓ ${fmt(n)} crates recorded for ${erCust.name}. ${balMsg}`,'success');
     show('er_ok');
     erCust.bal=nb;$('er_bal').textContent=fmt(nb);$('er_bb').textContent=fmt(nb);$('er_ba').textContent=fmt(nb);$('er_ba').style.color=nb<=0?'var(--green)':'var(--orange)';
     $('er_count').value=0;$('er_cd').textContent='0';$('er_notes').value='';
@@ -1628,7 +1636,8 @@ async function repLoadBackload(){
     let adjs=allAdjsBL.filter(a=>{
       const dt=a.date||'';
       const reason=(a.reason||'').toUpperCase();
-      const isNBL=reason.startsWith('NBL')||reason.includes('BACKLOAD');
+      // Reason is exactly "NBL" per inventory adjustment PDFs
+      const isNBL=reason==='NBL'||reason.startsWith('NBL')||reason.includes('BACKLOAD');
       if(!isNBL)return false;
       if(from&&dt<from)return false;
       if(to&&dt>to)return false;
@@ -1693,7 +1702,7 @@ async function repLoadReceived(){
     let adjs=allAdjs.filter(a=>{
       const dt=a.date||'';
       const reason=(a.reason||'').toUpperCase();
-      const isNBL=reason.startsWith('NBL')||reason.includes('BACKLOAD');
+      const isNBL=reason==='NBL'||reason.startsWith('NBL')||reason.includes('BACKLOAD');
       if(isNBL)return false; // exclude backloads
       if(from&&dt<from)return false;
       if(to&&dt>to)return false;
