@@ -882,44 +882,66 @@ async function api(base,path,method,body){
   return data;
 }
 
+// Promise lock to prevent duplicate in-flight requests
+let _fetchContactsPromise=null;
+let _fetchItemsPromise=null;
+
 // Cache all items once — avoids repeated calls and works for all user roles
 let _itemsCache=null;
 async function getAllItems(){
   if(_itemsCache) return _itemsCache;
+  if(_fetchItemsPromise) return _fetchItemsPromise; // return existing in-flight request
+  _fetchItemsPromise=(async()=>{
   try{
     // The /items list endpoint returns stock_on_hand for all user roles
-    const d=await api(INV,'/items?per_page=200','GET');
+    // Always fetch stock from the specific Malexchlo warehouse
+    const d=await api(INV,`/items?per_page=200`,'GET'); // Zoho returns stock per default user location; we filter by item_id after
     if(d.code===0&&d.items?.length){
       _itemsCache=d.items;
-      console.log('getAllItems: loaded',d.items.length,'items');
+      console.log('getAllItems: loaded',d.items.length,'items, warehouse:',CFG.warehouseLoc);
+      // Log stock fields for debugging
+      const empCrate=d.items.find(it=>it.item_id===CFG.items.emptyCrate);
+      console.log('Empty Crates item fields:',empCrate?JSON.stringify(Object.fromEntries(Object.entries(empCrate).filter(([k])=>k.includes('stock')||k.includes('quantity')))).slice(0,300):'not found');
+      return _itemsCache;
+    }
+    // Fallback: try without warehouse filter
+    const d2=await api(INV,'/items?per_page=200','GET');
+    if(d2.code===0&&d2.items?.length){
+      _itemsCache=d2.items;
+      console.log('getAllItems fallback (no warehouse filter): loaded',d2.items.length,'items');
       return _itemsCache;
     }
   }catch(e){ console.log('getAllItems error:',e.message); }
   return [];
+  })();
+  const result=await _fetchItemsPromise;
+  _fetchItemsPromise=null;
+  return result||[];
 }
 
 async function getItemStock(itemId){
-  // Use the items list — works for admin and non-admin roles
+  // Fetch stock at the specific warehouse location — consistent for all users
+  try{
+    const d=await api(INV,`/items/${itemId}/locations`,'GET');
+    if(d.code===0&&d.locations?.length){
+      // Find our specific warehouse
+      const loc=d.locations.find(l=>l.location_id===CFG.warehouseLoc)||d.locations[0];
+      const stock=loc.stock_on_hand??loc.actual_available_stock??0;
+      console.log('getItemStock location:',itemId,'warehouse:',loc.location_name,'stock:',stock);
+      return Number(stock)||0;
+    }
+  }catch(e){ console.log('getItemStock location error:',e.message); }
+
+  // Fallback: use items list (returns stock for user's default warehouse)
   const items=await getAllItems();
   if(items.length){
     const match=items.find(it=>it.item_id===itemId);
     if(match){
-      const stock=match.stock_on_hand??match.actual_available_stock??0;
-      console.log('getItemStock:',match.name,'=',stock);
+      const stock=match.stock_on_hand??match.actual_available_stock??match.available_for_sale??0;
+      console.log('getItemStock list fallback:',match.name,'=',stock);
       return Number(stock)||0;
     }
   }
-  // Last resort: direct item fetch (admin only)
-  try{
-    const d=await api(INV,`/items/${itemId}`,'GET');
-    if(d.code===0&&d.item){
-      // Search all numeric fields for stock value
-      const item=d.item;
-      const stock=item.stock_on_hand??item.actual_available_stock??item.available_stock??0;
-      console.log('getItemStock direct:',item.name,'=',stock,'fields:',Object.keys(item).filter(k=>k.includes('stock')));
-      return Number(stock)||0;
-    }
-  }catch(e){}
   return null;
 }
 
@@ -935,6 +957,8 @@ async function fetchAllCustomers(forceRefresh=false){
     console.log('fetchAllCustomers: returning cached',_contactsCache.length,'contacts');
     return _contactsCache;
   }
+  if(!forceRefresh&&_fetchContactsPromise) return _fetchContactsPromise; // prevent duplicate fetches
+  _fetchContactsPromise=(async()=>{
   let allContacts=[];
   let page=1;
   while(true){
@@ -951,6 +975,10 @@ async function fetchAllCustomers(forceRefresh=false){
   _contactsCacheTime=Date.now();
   console.log('fetchAllCustomers: fetched',allContacts.length,'contacts across',page,'pages');
   return allContacts;
+  })();
+  const result=await _fetchContactsPromise;
+  _fetchContactsPromise=null;
+  return result||[];
 }
 
 async function dashLoad(){
@@ -1594,7 +1622,10 @@ async function repLoadBackload(){
     const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
     if(d.code!==0){$('rep_blLoading').textContent='Could not load adjustments.';btn.disabled=false;btn.textContent='Load';return;}
 
-    let adjs=(d.inventoryadjustments||[]).filter(a=>{
+    const allAdjsBL=d.inventoryadjustments||[];
+    console.log('Backload tab - total adjustments:',allAdjsBL.length);
+    allAdjsBL.slice(0,2).forEach((a,i)=>console.log('BL Adj',i,'reason:',a.reason,'date:',a.date,'line_items:',JSON.stringify(a.line_items||[]).slice(0,300)));
+    let adjs=allAdjsBL.filter(a=>{
       const dt=a.date||'';
       const reason=(a.reason||'').toUpperCase();
       const isNBL=reason.startsWith('NBL')||reason.includes('BACKLOAD');
@@ -1654,13 +1685,16 @@ async function repLoadReceived(){
     const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
     if(d.code!==0){$('rep_recLoading').textContent='Could not load data.';btn.disabled=false;btn.textContent='Load';return;}
 
-    let adjs=(d.inventoryadjustments||[]).filter(a=>{
+    const allAdjs=d.inventoryadjustments||[];
+    console.log('Total adjustments:',allAdjs.length);
+    // Log first 3 adjustments fully to see structure
+    allAdjs.slice(0,3).forEach((a,i)=>console.log('Adj',i,JSON.stringify(a).slice(0,600)));
+
+    let adjs=allAdjs.filter(a=>{
       const dt=a.date||'';
       const reason=(a.reason||'').toUpperCase();
       const isNBL=reason.startsWith('NBL')||reason.includes('BACKLOAD');
       if(isNBL)return false; // exclude backloads
-      const hasPositive=(a.line_items||[]).some(li=>Number(li.quantity_adjusted||0)>0);
-      if(!hasPositive)return false;
       if(from&&dt<from)return false;
       if(to&&dt>to)return false;
       return true;
@@ -1669,8 +1703,8 @@ async function repLoadReceived(){
     let totCR=0,totWOB=0,totBTL=0;
     adjs.forEach(a=>{
       (a.line_items||[]).forEach(li=>{
-        const qty=Number(li.quantity_adjusted)||0;
-        if(qty<=0)return;
+        // Count absolute value — Zoho may store as negative or positive depending on adjustment type
+        const qty=Math.abs(Number(li.quantity_adjusted)||0);
         if(li.item_id===CFG.items.emptyCrate) totCR+=qty;
         else if(li.item_id===CFG.items.emptyWOB) totWOB+=qty;
         else if(li.item_id===CFG.items.emptyBTL) totBTL+=qty;
@@ -1687,10 +1721,10 @@ async function repLoadReceived(){
       let cr=0,wob=0,btl=0;
       (a.line_items||[]).forEach(li=>{
         const qty=Number(li.quantity_adjusted)||0;
-        if(qty<=0)return;
-        if(li.item_id===CFG.items.emptyCrate)cr+=qty;
-        else if(li.item_id===CFG.items.emptyWOB)wob+=qty;
-        else if(li.item_id===CFG.items.emptyBTL)btl+=qty;
+          const absQty=Math.abs(Number(li.quantity_adjusted)||0);
+        if(li.item_id===CFG.items.emptyCrate)cr+=absQty;
+        else if(li.item_id===CFG.items.emptyWOB)wob+=absQty;
+        else if(li.item_id===CFG.items.emptyBTL)btl+=absQty;
       });
       return`<tr>
         <td>${a.date||'—'}</td>
