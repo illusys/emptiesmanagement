@@ -503,6 +503,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <button class="rep-tab" onclick="repTab('backload')" id="tab_backload" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">NBL Backloaded</button>
         <button class="rep-tab" onclick="repTab('received')" id="tab_received" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Empties Received</button>
         <button class="rep-tab" onclick="repTab('physical')" id="tab_physical" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Physical Balance</button>
+        <button class="rep-tab" onclick="repTab('custhistory')" id="tab_custhistory" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Customer History</button>
       </div>
 
       <!-- Summary stats row -->
@@ -628,6 +629,73 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
                   <tr style="border-top:2px solid var(--border)"><td><strong>Net position (stock − owed)</strong></td><td class="mono" style="text-align:right;font-weight:600;font-size:15px" id="recon_net">—</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+      <!-- TAB: Customer History -->
+      <div id="repTab_custhistory" class="hidden">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">
+              <span>Customer empties collection history</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+              <div class="field" style="flex:1;min-width:200px;margin:0">
+                <input type="text" id="ch_search" placeholder="Type customer name to search..." oninput="chLiveSearch(this.value)" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif">
+              </div>
+              <button class="btn btn-blue btn-sm" onclick="chSearch()">Search</button>
+            </div>
+            <div id="ch_searchResults" class="hidden">
+              <div class="search-results" id="ch_resultsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected customer history -->
+        <div id="ch_custCard" class="hidden">
+          <div class="card">
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+                <div class="cust-av" id="ch_av" style="width:44px;height:44px;font-size:15px">--</div>
+                <div>
+                  <div style="font-size:16px;font-weight:600" id="ch_custName">--</div>
+                  <div style="font-size:12px;color:var(--text2);margin-top:2px">Current balance: <strong style="color:var(--orange)" id="ch_custBal">--</strong> crates</div>
+                </div>
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="chClear()">Change customer</button>
+              </div>
+
+              <!-- Customer summary stats -->
+              <div class="stat-row" style="margin-bottom:16px">
+                <div class="stat-card"><div class="lbl">Total Returned</div><div class="val" id="ch_totReturned" style="color:var(--green)">—</div></div>
+                <div class="stat-card"><div class="lbl">Transactions</div><div class="val" id="ch_totTx">—</div></div>
+                <div class="stat-card"><div class="lbl">First Return</div><div class="val" id="ch_firstDate" style="font-size:13px;color:var(--text2)">—</div></div>
+                <div class="stat-card"><div class="lbl">Last Return</div><div class="val" id="ch_lastDate" style="font-size:13px;color:var(--text2)">—</div></div>
+              </div>
+
+              <div class="sec-label">Transaction history</div>
+              <div id="ch_histLoading" class="empty-state" style="padding:16px">Loading transaction history...</div>
+              <div id="ch_histTable" class="hidden" style="overflow-x:auto">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th style="text-align:right">Full Crates</th>
+                      <th style="text-align:right">WOB</th>
+                      <th style="text-align:right">Bottles</th>
+                      <th style="text-align:right">Bal Before</th>
+                      <th style="text-align:right">Bal After</th>
+                      <th>Recorded by</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ch_histBody"></tbody>
+                </table>
+              </div>
+              <div id="ch_histEmpty" class="empty-state hidden">No transaction history found for this customer.</div>
             </div>
           </div>
         </div>
@@ -1159,11 +1227,14 @@ function erCalc(){
   } else { hide('er_err'); }
 }
 
-async function updateBal(id,newBal){
-  return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[{api_name:'cf_crate_balance',value:roundBal(newBal)},{api_name:'cf_last_return_date',value:td()}]});
+async function updateBal(id,newBal,date){
+  return api(INV,`/contacts/${id}`,'PUT',{custom_fields:[{api_name:'cf_crate_balance',value:roundBal(newBal)},{api_name:'cf_last_return_date',value:date||td()}]});
 }
-async function adjustment(itemId,qty,reason){
-  return api(INV,'/inventoryadjustments','POST',{date:td(),reason:reason.slice(0,50),adjustment_type:'quantity',adjustment_account_id:CFG.adjAccount,line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]});
+async function adjustment(itemId,qty,reason,date){
+  const adjDate=date||td();
+  // Embed date in reason so report can display it correctly
+  const reasonWithDate=reason.replace(/\d{4}-\d{2}-\d{2}$/,adjDate).slice(0,50);
+  return api(INV,'/inventoryadjustments','POST',{date:adjDate,reason:reasonWithDate,adjustment_type:'quantity',adjustment_account_id:CFG.adjAccount,line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]});
 }
 async function payment(custId,amount,accId,mode,ref){
   return api(BOOKS,'/customerpayments','POST',{customer_id:custId,date:td(),amount,payment_mode:mode,account_id:accId,reference_number:ref.slice(0,50)});
@@ -1218,8 +1289,9 @@ async function erSubmit(){
   showOverlay('Recording crate return...');
   try{
     const nb=roundBal(erCust.bal-n);
-    await adjustment(CFG.items.emptyCrate,n,`CR:${erCust.name} ${td()}`.slice(0,50));
-    await updateBal(erCust.id,nb);
+    const erDate=$('er_date').value||td();
+    await adjustment(CFG.items.emptyCrate,n,`CR:${erCust.name} ${erDate}`.slice(0,50),erDate);
+    await updateBal(erCust.id,nb,erDate);
     await cmlRecord({type:'Customer Return',id:erCust.id,date:$('er_date').value,count:n,bb:erCust.bal,rem:nb,notes:$('er_notes').value,by:S.name});
     hideOverlay();
     const balMsg=nb<0?`New balance: ${fmt(Math.abs(nb))} crates credit (Malexchlo owes customer).`:`New balance: ${fmt(nb)} crates.`;
@@ -1431,12 +1503,13 @@ async function finSubmit(){
   const btn=$('fin_saveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Processing...';
   showOverlay('Processing settlement...');
   try{
-    if(cr)await adjustment(CFG.items.emptyCrate,cr,`CR:${finCust.name} ${td()}`.slice(0,50));
-    if(wob)await adjustment(CFG.items.emptyWOB,wob,`WOB:${finCust.name} ${td()}`.slice(0,50));
-    if(btl)await adjustment(CFG.items.emptyBTL,btl,`BTL:${finCust.name} ${td()}`.slice(0,50));
+    const finDate=$('fin_date').value||td();
+    if(cr)await adjustment(CFG.items.emptyCrate,cr,`CR:${finCust.name} ${finDate}`.slice(0,50),finDate);
+    if(wob)await adjustment(CFG.items.emptyWOB,wob,`WOB:${finCust.name} ${finDate}`.slice(0,50),finDate);
+    if(btl)await adjustment(CFG.items.emptyBTL,btl,`BTL:${finCust.name} ${finDate}`.slice(0,50),finDate);
     if(cash)await payment(finCust.id,cash,CFG.cashAccount,'cash',ref);
     if(xfer)await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref);
-    await updateBal(finCust.id,rem);
+    await updateBal(finCust.id,rem,finDate);
     await cmlRecord({type:'Customer Return',id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
     hideOverlay();
     alert_('fin_ok',`✓ Settlement done for ${finCust.name}. ${roundBal(totExact)} crates settled. Received: ${fmtN(totalMoney)}. Remaining: ${rem} crates.`,'success');
@@ -1515,9 +1588,10 @@ async function blSubmit(){
     const ref=`NBL${waybill?' '+waybill:''}`.slice(0,50);
 
     // Create separate stock adjustments for each item type
-    if(cr>0)  await adjustment(CFG.items.emptyCrate,-cr,ref);
-    if(wob>0) await adjustment(CFG.items.emptyWOB,  -wob,ref);
-    if(btl>0) await adjustment(CFG.items.emptyBTL,  -btl,ref);
+    const blDate=$('bl_date').value||td();
+    if(cr>0)  await adjustment(CFG.items.emptyCrate,-cr,ref,blDate);
+    if(wob>0) await adjustment(CFG.items.emptyWOB,-wob,ref,blDate);
+    if(btl>0) await adjustment(CFG.items.emptyBTL,-btl,ref,blDate);
 
     hideOverlay();
 
@@ -1575,7 +1649,7 @@ function repSetDefaultDates(){
 }
 
 function repTab(tab){
-  ['balances','backload','received','physical'].forEach(t=>{
+  ['balances','backload','received','physical','custhistory'].forEach(t=>{
     const el=$('repTab_'+t);
     const btn=$('tab_'+t);
     if(el) el.classList.toggle('hidden', t!==tab);
@@ -1895,6 +1969,138 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
   repLoading=false;
 }
 
+
+// ── CUSTOMER HISTORY TAB ─────────────────────────────────────────────────────
+let _chDebounce=null;
+let _chSelectedCustomer=null;
+let _allAdjustments=null; // cache adjustments for customer history lookups
+
+function chLiveSearch(v){
+  clearTimeout(_chDebounce);
+  if(v.length>=3){ _chDebounce=setTimeout(()=>chSearch(),400); }
+  else { hide('ch_searchResults'); }
+}
+
+async function chSearch(){
+  const nm=$('ch_search').value.trim();
+  if(nm.length<3) return;
+  const nl=nm.toLowerCase();
+  // Search from cached contacts
+  const allContacts=await fetchAllCustomers();
+  const matches=allContacts
+    .filter(c=>c.contact_name.toLowerCase().startsWith(nl))
+    .slice(0,10)
+    .map(c=>{
+      let bal=0,lastReturn='';
+      (c.custom_fields||[]).forEach(f=>{
+        if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0;
+        if(f.api_name==='cf_last_return_date') lastReturn=f.value||'';
+      });
+      return{id:c.contact_id,name:c.contact_name,bal,lastReturn};
+    });
+  if(!matches.length){
+    $('ch_resultsList').innerHTML='<div class="empty-state" style="padding:12px">No customers found starting with "'+nm+'"</div>';
+    show('ch_searchResults');return;
+  }
+  $('ch_resultsList').innerHTML=matches.map((c,i)=>`
+    <div class="search-result-item" onclick="chSelectCustomer(window._chResults[${i}])">
+      <div class="sri-av">${init(c.name)}</div>
+      <div>
+        <div class="sri-name">${c.name}</div>
+        <div class="sri-bal">Balance: ${fmt(c.bal)} crates${c.lastReturn?' · Last return: '+c.lastReturn:''}</div>
+      </div>
+    </div>`).join('');
+  window._chResults=matches;
+  show('ch_searchResults');
+}
+
+async function chSelectCustomer(c){
+  _chSelectedCustomer=c;
+  hide('ch_searchResults');
+  $('ch_av').textContent=init(c.name);
+  $('ch_custName').textContent=c.name;
+  $('ch_custBal').textContent=fmt(c.bal);
+  show('ch_custCard');
+  hide('ch_histTable');hide('ch_histEmpty');
+  $('ch_histLoading').classList.remove('hidden');
+  $('ch_histLoading').textContent='Loading transaction history for '+c.name+'...';
+
+  // Fetch adjustments and filter by customer name in reason
+  try{
+    // Load all adjustments if not cached
+    if(!_allAdjustments){
+      const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
+      _allAdjustments=(d.inventory_adjustments||d.inventoryadjustments||[]);
+    }
+
+    // Match adjustments for this customer
+    // Reason format: "CR:CUSTOMER NAME YYYY-MM-DD" or "WOB:CUSTOMER NAME YYYY-MM-DD"
+    const custNameUpper=c.name.toUpperCase();
+    const custRecords=_allAdjustments.filter(a=>{
+      const reason=(a.reason||'').toUpperCase();
+      return reason.startsWith('CR:'+custNameUpper)||
+             reason.startsWith('WOB:'+custNameUpper)||
+             reason.startsWith('BTL:'+custNameUpper);
+    });
+
+    hide('ch_histLoading');
+
+    if(!custRecords.length){
+      // No records found with new format — check for legacy format or show empty
+      $('ch_histEmpty').textContent='No transaction history found for '+c.name+'. Transactions recorded before the customer name was embedded in the reason will not appear here.';
+      show('ch_histEmpty');
+      $('ch_totReturned').textContent='—';
+      $('ch_totTx').textContent='0';
+      $('ch_firstDate').textContent='—';
+      $('ch_lastDate').textContent='—';
+      return;
+    }
+
+    // Calculate summary
+    const totCR=custRecords.filter(a=>a.item_id===CFG.items.emptyCrate).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
+    const totWOB=custRecords.filter(a=>a.item_id===CFG.items.emptyWOB).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
+    const totBTL=custRecords.filter(a=>a.item_id===CFG.items.emptyBTL).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
+    const dates=custRecords.map(a=>a.date).filter(Boolean).sort();
+    const txCount=new Set(custRecords.map(a=>a.date+'_'+a.reason)).size;
+
+    $('ch_totReturned').textContent=fmt(totCR)+' CR'+(totWOB?' + '+fmt(totWOB)+' WOB':'')+(totBTL?' + '+fmt(totBTL)+' BTL':'');
+    $('ch_totTx').textContent=custRecords.length;
+    $('ch_firstDate').textContent=dates[0]||'—';
+    $('ch_lastDate').textContent=dates[dates.length-1]||'—';
+
+    // Group records by date+reason to show as transactions
+    // Build rows - one per adjustment record
+    $('ch_histBody').innerHTML=custRecords.map(a=>{
+      const iid=a.item_id||'';
+      const qty=Math.abs(Number(a.quantity_adjusted)||0);
+      const cr=iid===CFG.items.emptyCrate?qty:0;
+      const wob=iid===CFG.items.emptyWOB?qty:0;
+      const btl=iid===CFG.items.emptyBTL?qty:0;
+      const reason=a.reason||'';
+      const type=reason.startsWith('CR:')?'Full Crates':reason.startsWith('WOB:')?'WOB Shells':reason.startsWith('BTL:')?'Bottle Sets':'Return';
+      return`<tr>
+        <td style="font-weight:500">${a.date||'—'}</td>
+        <td><span class="tag tag-blue">${type}</span></td>
+        <td class="mono" style="text-align:right">${cr||'—'}</td>
+        <td class="mono" style="text-align:right">${wob||'—'}</td>
+        <td class="mono" style="text-align:right">${btl||'—'}</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td style="font-size:11px">${a.created_by_name||'—'}</td>
+      </tr>`;
+    }).join('');
+    show('ch_histTable');
+  }catch(e){
+    $('ch_histLoading').textContent='Error loading history: '+e.message;
+    $('ch_histLoading').classList.remove('hidden');
+  }
+}
+
+function chClear(){
+  _chSelectedCustomer=null;
+  $('ch_search').value='';
+  hide('ch_custCard');hide('ch_searchResults');
+}
 
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
