@@ -939,12 +939,13 @@ function bootApp(){
 }
 
 // ── PROXY API ────────────────────────────────────────────────────────────────
-async function api(base,path,method,body){
+async function api(base,path,method,body,opts){
+  opts=opts||{};
   if(!S.token)throw new Error('Not authenticated');
-  // Check token expiry before making the call
+  // Check token expiry before making the call (real session expiry, not a permissions issue)
   if(S.expiry&&Date.now()>S.expiry-30000){
     console.log('Token expired or expiring soon — triggering re-auth');
-    showTokenExpiredBanner();
+    if(!opts.silent401) showTokenExpiredBanner();
     throw new Error('Token expired');
   }
   const sep=path.includes('?')?'&':'?';
@@ -962,12 +963,23 @@ async function api(base,path,method,body){
   });
   const data=await res.json();
   console.log('API response:',res.status,'code:',data.code,'message:',data.message);
-  // Handle 401 — token expired mid-session
-  if(res.status===401||(data.code===57&&data.message?.includes('not authorized'))){
-    console.log('401 detected — token expired, prompting re-auth');
-    // Clear bad cache entries
-    _contactsCache=null;_contactsCacheTime=0;
-    showTokenExpiredBanner();
+
+  if(res.status===401){
+    // A 401 can mean two very different things:
+    // 1. The OAuth token itself has truly expired (real session expiry) — affects ALL endpoints
+    // 2. The token is valid but lacks the SCOPE for this specific endpoint (e.g. Books contacts
+    //    when only ZohoBooks.customerpayments.CREATE was granted) — only affects that one call
+    // We only force a global re-login if the token has actually passed its expiry time.
+    // Scope-related 401s on non-critical lookups (like Books credit check) should fail silently
+    // so the caller's try/catch can handle it without logging the whole app out.
+    const tokenActuallyExpired=S.expiry&&Date.now()>S.expiry-5000;
+    if(tokenActuallyExpired){
+      console.log('401 + token past expiry — real session expiry, prompting re-auth');
+      _contactsCache=null;_contactsCacheTime=0;
+      if(!opts.silent401) showTokenExpiredBanner();
+    } else {
+      console.log('401 but token still valid by time — likely a scope/permission issue on this endpoint only. Not logging out.');
+    }
     throw new Error(`HTTP 401 on ${path}`);
   }
   if(!res.ok&&res.status!==400)throw new Error(`HTTP ${res.status} on ${path}`);
@@ -1312,7 +1324,7 @@ async function finSelectCustomer(c){
   $('fin_bb2').textContent=fmt(c.bal)+' crates';
   show('fin_custBlock');show('fin_form');finCalc();
   finCustCredit=0;
-  try{const d=await api(BOOKS,`/contacts/${c.id}`,'GET');if(d.code===0){finCustCredit=Number(d.contact?.unused_credits_receivable_amount)||0;if(finCustCredit>0){$('fin_creditInfo').textContent=`This customer has an unused credit of ${fmtNExact(finCustCredit)} in Zoho Books. You can apply it here.`;show('fin_creditRow');}else{hide('fin_creditRow');}}}catch(e){hide('fin_creditRow');}
+  try{const d=await api(BOOKS,`/contacts/${c.id}`,'GET',null,{silent401:true});if(d.code===0){finCustCredit=Number(d.contact?.unused_credits_receivable_amount)||0;if(finCustCredit>0){$('fin_creditInfo').textContent=`This customer has an unused credit of ${fmtNExact(finCustCredit)} in Zoho Books. You can apply it here.`;show('fin_creditRow');}else{hide('fin_creditRow');}}}catch(e){console.log('Credit check unavailable (non-critical):',e.message);hide('fin_creditRow');}
 }
 function finClearCustomer(){finCust=null;finCustCredit=0;hide('fin_custBlock');hide('fin_form');hide('fin_results');$('fin_search').value='';clearA('fin_err');clearA('fin_ok');}
 
