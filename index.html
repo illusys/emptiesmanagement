@@ -2074,9 +2074,9 @@ async function chSelectCustomer(c){
     }
 
     // Calculate summary
-    const totCR=custRecords.filter(a=>a.item_id===CFG.items.emptyCrate).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
-    const totWOB=custRecords.filter(a=>a.item_id===CFG.items.emptyWOB).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
-    const totBTL=custRecords.filter(a=>a.item_id===CFG.items.emptyBTL).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
+    const totCR=custRecords.filter(a=>isEmptyCrate(a.item_id)).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
+    const totWOB=custRecords.filter(a=>isEmptyWOB(a.item_id)).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
+    const totBTL=custRecords.filter(a=>isEmptyBTL(a.item_id)).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
     const dates=custRecords.map(a=>a.date).filter(Boolean).sort();
     const txCount=new Set(custRecords.map(a=>a.date+'_'+a.reason)).size;
 
@@ -2090,9 +2090,9 @@ async function chSelectCustomer(c){
     $('ch_histBody').innerHTML=custRecords.map(a=>{
       const iid=a.item_id||'';
       const qty=Math.abs(Number(a.quantity_adjusted)||0);
-      const cr=iid===CFG.items.emptyCrate?qty:0;
-      const wob=iid===CFG.items.emptyWOB?qty:0;
-      const btl=iid===CFG.items.emptyBTL?qty:0;
+      const cr=isEmptyCrate(iid)?qty:0;
+      const wob=isEmptyWOB(iid)?qty:0;
+      const btl=isEmptyBTL(iid)?qty:0;
       const reason=a.reason||'';
       const type=reason.startsWith('CR:')?'Full Crates':reason.startsWith('WOB:')?'WOB Shells':reason.startsWith('BTL:')?'Bottle Sets':'Return';
       return`<tr>
