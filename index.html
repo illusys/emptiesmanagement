@@ -715,6 +715,7 @@ const CFG={
   orgId:'921111003',
   scopes:'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.inventoryadjustments.READ,ZohoInventory.items.READ,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,AaaServer.profile.READ',
   items:{emptyCrate:'8805348000001626044',emptyWOB:'8805348000001626058',emptyBTL:'8805348000000531198'},
+  legacyItems:{emptyCrate:'8805348000000531212',emptyWOB:'8805348000000531226',emptyBTL:'8805348000000531198'},
   warehouseLoc:'8805348000000093115',
   adjAccount:'8805348000001395002',
   cashAccount:'8805348000000449956'
@@ -1648,7 +1649,11 @@ function blReset(){
 }
 
 // ── REPORTS ──────────────────────────────────────────────────────────────────
-// ── REPORTS ─────────────────────────────────────────────────────────────────
+// Match item IDs including legacy IDs so historical records remain visible
+const isEmptyCrate=id=>id===CFG.items.emptyCrate||id===CFG.legacyItems.emptyCrate;
+const isEmptyWOB  =id=>id===CFG.items.emptyWOB  ||id===CFG.legacyItems.emptyWOB;
+const isEmptyBTL  =id=>id===CFG.items.emptyBTL  ||id===CFG.legacyItems.emptyBTL;
+
 let repLoading=false;
 let _allBalances=[]; // cache for filter
 
@@ -1763,9 +1768,9 @@ async function repLoadBackload(){
     adjs.forEach(a=>{
       const qty=Math.abs(Number(a.quantity_adjusted)||0);
       const itemId=a.item_id||'';
-      if(itemId===CFG.items.emptyCrate) totCR+=qty;
-      else if(itemId===CFG.items.emptyWOB) totWOB+=qty;
-      else if(itemId===CFG.items.emptyBTL) totBTL+=qty;
+      if(isEmptyCrate(itemId)) totCR+=qty;
+      else if(isEmptyWOB(itemId)) totWOB+=qty;
+      else if(isEmptyBTL(itemId)) totBTL+=qty;
     });
 
     $('rep_blCR').textContent=fmt(totCR);
@@ -1777,9 +1782,9 @@ async function repLoadBackload(){
     $('rep_blBody').innerHTML=adjs.length?adjs.map(a=>{
       const _qty1=Math.abs(Number(a.quantity_adjusted)||0);
       const _id1=a.item_id||'';
-      const cr=_id1===CFG.items.emptyCrate?_qty1:0;
-      const wob=_id1===CFG.items.emptyWOB?_qty1:0;
-      const btl=_id1===CFG.items.emptyBTL?_qty1:0;
+      const cr=isEmptyCrate(_id1)?_qty1:0;
+      const wob=isEmptyWOB(_id1)?_qty1:0;
+      const btl=isEmptyBTL(_id1)?_qty1:0;
       return`<tr>
         <td>${a.date||'—'}</td>
         <td style="font-size:11px;color:var(--text3)">${a.reference_number||'NBL'}</td>
@@ -1823,9 +1828,9 @@ async function repLoadReceived(){
     adjs.forEach(a=>{
       const qty=Math.abs(Number(a.quantity_adjusted)||0);
       const rid=a.item_id||'';
-      if(rid===CFG.items.emptyCrate) totCR+=qty;
-      else if(rid===CFG.items.emptyWOB) totWOB+=qty;
-      else if(rid===CFG.items.emptyBTL) totBTL+=qty;
+      if(isEmptyCrate(rid)) totCR+=qty;
+      else if(isEmptyWOB(rid)) totWOB+=qty;
+      else if(isEmptyBTL(rid)) totBTL+=qty;
     });
 
     $('rep_recCR').textContent=fmt(totCR);
@@ -1837,9 +1842,9 @@ async function repLoadReceived(){
     $('rep_recBody').innerHTML=adjs.length?adjs.map(a=>{
       const _qty3=Math.abs(Number(a.quantity_adjusted)||0);
       const _id3=a.item_id||'';
-      const cr=_id3===CFG.items.emptyCrate?_qty3:0;
-      const wob=_id3===CFG.items.emptyWOB?_qty3:0;
-      const btl=_id3===CFG.items.emptyBTL?_qty3:0;
+      const cr=isEmptyCrate(_id3)?_qty3:0;
+      const wob=isEmptyWOB(_id3)?_qty3:0;
+      const btl=isEmptyBTL(_id3)?_qty3:0;
       // Extract customer name from reason (format: "CR:Name 2026-05-28" or "Return 2026-05-28")
       const reasonText=a.reason||'';
       const custMatch=reasonText.match(/^(?:CR|WOB|BTL):(.+?)\s\d{4}-\d{2}-\d{2}$/);
