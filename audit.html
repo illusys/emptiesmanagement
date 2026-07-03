@@ -332,9 +332,14 @@ function bootApp() {
   $('headerRight').style.display = 'flex';
   hide('authScreen');
   show('appScreen');
-  // Show last cached run summary if available
   const cached = getCache();
-  if (cached) showLastRunBar(cached);
+  if (cached) {
+    showLastRunBar(cached);
+    renderResults(cached);
+  } else {
+    // No prior results — run automatically on first login
+    runAudit();
+  }
 }
 
 // ── Cache helpers ─────────────────────────────────────────────────────────────
