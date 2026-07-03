@@ -363,7 +363,16 @@ async function callAuditApi() {
   const res = await fetch(AUDIT_API, {
     headers: { Authorization: `Zoho-oauthtoken ${S.token}` }
   });
-  const data = await res.json();
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); }
+  catch(e) {
+    // Non-JSON body = server error page (e.g. Vercel timeout). Surface plainly.
+    if (res.status === 504 || /timed out/i.test(text)) {
+      throw new Error('The audit took too long and timed out. Try again — it now processes in batches and returns partial results if needed.');
+    }
+    throw new Error(`Unexpected server response (HTTP ${res.status}).`);
+  }
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
 }
@@ -416,10 +425,19 @@ function renderResults(data) {
   $('sumSOsTotal').textContent = sosTotal;
   show('summaryRow');
 
-  if (itemFlagged.length === 0 && soLines.length === 0) {
+  // Partial-run notice (SO scan hit the time budget)
+  if (data.open_sales_orders?.partial) {
+    const totalOpen = data.open_sales_orders.total_open_sos ?? sosTotal;
+    $('errorBox').className = 'info-box';
+    $('errorBox').innerHTML = `<strong>Partial results:</strong> scanned ${sosTotal} of ${totalOpen} open Sales Orders before the time limit. Run again to continue — item results below are complete.`;
+    show('errorBox');
+  }
+
+  if (itemFlagged.length === 0 && soLines.length === 0 && !data.open_sales_orders?.partial) {
     show('allClearCard');
     return;
   }
+  if (itemFlagged.length === 0 && soLines.length === 0) return;
 
   // Table A
   if (itemFlagged.length > 0) {
