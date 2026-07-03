@@ -20,7 +20,11 @@ const INV_BASE = 'https://www.zohoapis.com/inventory/v1';
 const GENERIC_SALES_ID = '8805348000000000388';
 const GENERIC_COGS_ID  = '8805348000000034003';
 
-const DELAY_MS = 250; // 4 req/s — stay well inside Zoho's 100 req/min limit
+const DELAY_MS = 200;      // pacing between list pages
+const BATCH_SIZE = 8;      // concurrent SO detail fetches per batch
+const BATCH_PAUSE_MS = 150;// pause between detail batches
+const TIME_BUDGET_MS = 230000; // stop fetching SO detail after ~230s so the
+                               // function returns before Vercel's 300s cap
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -103,20 +107,9 @@ async function checkSalesOrders(token) {
 
   const flaggedLines = [];
   let totalSosScanned = 0;
+  const deadline = Date.now() + TIME_BUDGET_MS;
 
-  // For each open SO, fetch full detail to get line item account snapshots
-  for (const so of allSOs) {
-    totalSosScanned++;
-    let detail;
-    try {
-      const d = await zohoGet(token, `/salesorders/${so.salesorder_id}`);
-      detail = d.salesorder || so;
-    } catch (e) {
-      // Skip individual SO fetch errors rather than aborting the whole audit
-      continue;
-    }
-    await sleep(DELAY_MS);
-
+  const scanDetail = (detail, soId) => {
     for (const line of detail.line_items || []) {
       const capturedAccount = line.account_id || '';
       const currentItem = itemMap[line.item_id];
@@ -130,7 +123,7 @@ async function checkSalesOrders(token) {
       if (capturedIsGeneric || driftDetected) {
         flaggedLines.push({
           so_number: detail.salesorder_number,
-          so_id: so.salesorder_id,
+          so_id: soId,
           customer_name: detail.customer_name,
           so_date: detail.date,
           item_id: line.item_id,
@@ -144,16 +137,41 @@ async function checkSalesOrders(token) {
         });
       }
     }
+  };
+
+  // Fetch SO detail in parallel batches (line-item account snapshots aren't in
+  // the list response, so each open SO needs its own GET).
+  let truncated = false;
+  for (let i = 0; i < allSOs.length; i += BATCH_SIZE) {
+    if (Date.now() > deadline) { truncated = true; break; }
+    const batch = allSOs.slice(i, i + BATCH_SIZE);
+    const details = await Promise.all(batch.map(async so => {
+      try {
+        const d = await zohoGet(token, `/salesorders/${so.salesorder_id}`);
+        return { detail: d.salesorder || so, soId: so.salesorder_id };
+      } catch (e) {
+        return null; // skip individual failures rather than aborting the audit
+      }
+    }));
+    for (const r of details) {
+      totalSosScanned++;
+      if (r) scanDetail(r.detail, r.soId);
+    }
+    await sleep(BATCH_PAUSE_MS);
   }
 
   return {
+    total_open_sos: allSOs.length,
     total_sos_scanned: totalSosScanned,
     flagged_line_count: flaggedLines.length,
     flagged_lines: flaggedLines,
+    partial: truncated,
   };
 }
 
 // ── handler ───────────────────────────────────────────────────────────────────
+
+export const config = { maxDuration: 300 };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://empties.malexchloglobal.com');
@@ -182,6 +200,7 @@ export default async function handler(req, res) {
     result.summary = {
       items_flagged: result.item_master?.flagged_count ?? 0,
       so_lines_at_risk: result.open_sales_orders?.flagged_line_count ?? 0,
+      partial: result.open_sales_orders?.partial ?? false,
     };
 
     return res.status(200).json(result);
