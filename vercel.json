@@ -1,0 +1,12 @@
+{
+  "routes": [
+    { "src": "/audit", "dest": "/audit.html" },
+    { "src": "/api/cogs-audit", "dest": "/api/cogs-audit.js" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cogs-audit",
+      "schedule": "0 7 * * 1"
+    }
+  ]
+}

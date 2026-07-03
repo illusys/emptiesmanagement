@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malexchlo — COGS/Sales Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#254b9e;--blue-dark:#1a3878;--blue-light:#eaeefc;
+  --orange:#cb0024;--orange-dark:#a3001d;--orange-light:#fdeaee;
+  --teal:#2fb0d0;--teal-dark:#1f8fa8;--teal-light:#e8f8fb;
+  --bg:#f4f6f9;--surface:#fff;--surface2:#f8f9fb;
+  --border:#e2e6ec;--border2:#c8d0db;
+  --text:#1a2332;--text2:#5a6a7e;--text3:#9aa4b0;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;
+  --amber:#d97706;--amber-bg:#fffbeb;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.hidden{display:none!important}
+.accent-bar{height:3px;background:linear-gradient(90deg,var(--blue) 0%,var(--teal) 60%,var(--orange) 100%)}
+.header{background:var(--blue);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between}
+.header-brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:30px;height:30px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;font-family:'DM Mono',monospace}
+.brand-name{color:#fff;font-size:14px;font-weight:500}
+.brand-name span{opacity:.55;font-weight:300}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:100px;padding:4px 12px 4px 6px}
+.user-av{width:24px;height:24px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
+.user-nm{color:rgba(255,255,255,.9);font-size:12px}
+.btn-signout{background:rgba(255,255,255,.15);border:none;color:rgba(255,255,255,.85);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-signout:hover{background:rgba(255,255,255,.25)}
+.main{flex:1;padding:24px 20px;max-width:960px;margin:0 auto;width:100%}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo h1{font-size:20px;font-weight:600;color:var(--text)}
+.auth-logo p{font-size:13px;color:var(--text2);margin-top:3px}
+.auth-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:420px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;border:none;outline:none}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover:not(:disabled){background:var(--blue-dark)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover:not(:disabled){background:var(--surface2)}
+.btn-zoho{background:#fff;color:var(--text);border:1.5px solid var(--border2);gap:10px;padding:13px 20px;font-size:14px;border-radius:var(--radius-sm);width:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+.btn-zoho:hover{background:var(--surface2);border-color:var(--teal)}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-title{font-size:14px;font-weight:600}
+.card-body{padding:20px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid #fde68a}
+.badge-blue{background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe}
+.summary-row{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.stat-tile{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:16px 20px;flex:1;min-width:160px}
+.stat-num{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.stat-num.red{color:var(--red)}
+.stat-num.green{color:var(--green)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:5px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--surface2);padding:8px 12px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:9px 12px;vertical-align:middle}
+.mono{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)}
+.tag{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.tag-amber{background:var(--amber-bg);color:var(--amber)}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.empty-state{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.info-box{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--blue);line-height:1.6}
+.error-box{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--red);line-height:1.6}
+.run-meta{font-size:11px;color:var(--text3);margin-top:4px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000}
+.overlay-box{background:#fff;border-radius:var(--radius);padding:28px 32px;text-align:center;font-size:14px;color:var(--text2);max-width:320px}
+.overlay-box p{margin-top:10px;font-size:12px}
+.last-run-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.last-run-box .lbl{font-size:11px;color:var(--text3)}
+.last-run-box .val{font-size:13px;font-weight:500}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="accent-bar"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="brand-mark">MG</div>
+      <div class="brand-name">Malexchlo <span>/ COGS Audit</span></div>
+    </div>
+    <div class="header-right" id="headerRight" style="display:none">
+      <div class="user-pill">
+        <div class="user-av" id="userAv">?</div>
+        <span class="user-nm" id="userName">—</span>
+      </div>
+      <button class="btn-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <!-- LOADING OVERLAY -->
+  <div class="overlay hidden" id="loadingOverlay">
+    <div class="overlay-box">
+      <div style="font-weight:600;font-size:15px">Running audit…</div>
+      <p id="overlayMsg">Fetching items from Zoho Inventory</p>
+    </div>
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div class="auth-wrap" id="authScreen">
+    <div class="auth-logo">
+      <h1>COGS / Sales Audit</h1>
+      <p>Malexchlo Global Limited · Zoho Books + Inventory</p>
+    </div>
+    <div class="auth-card">
+      <div class="info-box" style="margin-bottom:20px">
+        This tool is <strong>read-only</strong>. It scans your item master and open Sales Orders for GL account misclassifications — no data is changed.
+      </div>
+      <button class="btn-zoho" onclick="startAuth()">
+        <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="6" fill="#E42527"/><text x="50%" y="58%" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="18" font-family="Arial" font-weight="bold">Z</text></svg>
+        Sign in with Zoho
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div class="main hidden" id="appScreen">
+
+    <!-- Last-run summary bar -->
+    <div class="last-run-box hidden" id="lastRunBar">
+      <div>
+        <div class="lbl">Last audit run</div>
+        <div class="val" id="lastRunTime">—</div>
+      </div>
+      <div>
+        <div class="lbl">Items flagged</div>
+        <div class="val" id="lastRunItems">—</div>
+      </div>
+      <div>
+        <div class="lbl">Open SO lines at risk</div>
+        <div class="val" id="lastRunSOs">—</div>
+      </div>
+      <button class="btn btn-ghost" style="font-size:12px" onclick="loadCachedResults()">View last results</button>
+    </div>
+
+    <!-- Run button row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h2 style="font-size:17px;font-weight:700">COGS / Sales Account Audit</h2>
+        <p style="font-size:12px;color:var(--text2);margin-top:3px">Checks item master and open Sales Orders for misclassified GL accounts</p>
+      </div>
+      <button class="btn btn-blue" id="runBtn" onclick="runAudit()">Run Audit Now</button>
+    </div>
+
+    <!-- Summary tiles -->
+    <div class="summary-row hidden" id="summaryRow">
+      <div class="stat-tile">
+        <div class="stat-num" id="sumItems">—</div>
+        <div class="stat-label">Items with wrong GL account</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-num" id="sumSOs">—</div>
+        <div class="stat-label">Open SO lines at risk of misposting</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-num" id="sumItemsTotal" style="color:var(--text2)">—</div>
+        <div class="stat-label">Total active items scanned</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-num" id="sumSOsTotal" style="color:var(--text2)">—</div>
+        <div class="stat-label">Open Sales Orders scanned</div>
+      </div>
+    </div>
+
+    <!-- Error box -->
+    <div class="error-box hidden" id="errorBox"></div>
+
+    <!-- Table A: Item master -->
+    <div class="card hidden" id="cardItems">
+      <div class="card-header">
+        <div class="card-title">Item Master Issues</div>
+        <span class="badge badge-red" id="badgeItems">0 flagged</span>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Item ID</th>
+                <th>SKU</th>
+                <th>Issue(s)</th>
+                <th style="text-align:right">Stock on Hand</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyItems"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table B: Open SO drift -->
+    <div class="card hidden" id="cardSOs">
+      <div class="card-header">
+        <div class="card-title">Open Sales Orders at Risk</div>
+        <span class="badge badge-amber" id="badgeSOs">0 flagged</span>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>SO Number</th>
+                <th>Customer</th>
+                <th>Item</th>
+                <th>Captured Account ID</th>
+                <th>Item's Current Account ID</th>
+                <th>Match?</th>
+                <th>Flag</th>
+              </tr>
+            </thead>
+            <tbody id="tbodySOs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- All-clear state -->
+    <div class="card hidden" id="allClearCard">
+      <div class="card-body">
+        <div class="empty-state" style="color:var(--green)">
+          <div style="font-size:32px;margin-bottom:8px">✓</div>
+          <strong>No misclassifications found.</strong>
+          <p style="margin-top:6px;color:var(--text3)">All active items and open Sales Orders are using the correct LOB-specific accounts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" id="scopeNote" style="display:none">
+      <strong>Required Zoho scopes for this audit:</strong><br>
+      <code>ZohoInventory.items.READ</code>, <code>ZohoInventory.salesorders.READ</code><br>
+      If you see scope errors above, the connected Zoho user (zinventoryconnection2) needs to re-authorise with these scopes enabled.
+    </div>
+
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── Config (mirrors main app CFG) ─────────────────────────────────────────────
+const CFG = {
+  clientId: '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
+  redirectUri: 'https://empties.malexchloglobal.com/audit.html',
+  allowedDomain: 'malexchloglobal.com',
+  orgId: '921111003',
+  scopes: 'ZohoInventory.items.READ,ZohoInventory.salesorders.READ,AaaServer.profile.READ',
+};
+const AUDIT_API = '/api/cogs-audit';
+const PROFILE_URL = 'https://accounts.zoho.com/oauth/v2/userinfo';
+const PROXY = '/api/zoho';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let S = { token: null, expiry: null, email: null, name: null };
+const CACHE_KEY = 'malexchlo_audit_last';
+
+const $ = id => document.getElementById(id);
+const show = id => $(id).classList.remove('hidden');
+const hide = id => $(id).classList.add('hidden');
+
+// ── Auth (same implicit-grant flow as main app) ───────────────────────────────
+function startAuth() {
+  const params = new URLSearchParams({
+    response_type: 'token',
+    client_id: CFG.clientId,
+    scope: CFG.scopes,
+    redirect_uri: CFG.redirectUri,
+    access_type: 'online',
+  });
+  location.href = `https://accounts.zoho.com/oauth/v2/auth?${params}`;
+}
+
+function parseHash() {
+  const hash = location.hash.slice(1);
+  if (!hash) return false;
+  const p = Object.fromEntries(new URLSearchParams(hash));
+  if (!p.access_token) return false;
+  S.token = p.access_token;
+  S.expiry = Date.now() + (parseInt(p.expires_in || '3600') - 60) * 1000;
+  history.replaceState(null, '', location.pathname);
+  saveS();
+  return true;
+}
+
+function saveS() { try { sessionStorage.setItem('malexchlo_audit_s', JSON.stringify(S)); } catch(e){} }
+function loadS() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem('malexchlo_audit_s') || 'null');
+    if (d?.token && d.expiry > Date.now()) { S = d; return true; }
+  } catch(e){}
+  return false;
+}
+function signOut() { sessionStorage.removeItem('malexchlo_audit_s'); location.reload(); }
+
+async function verifyAndBoot() {
+  try {
+    const res = await fetch(PROXY, {
+      method: 'GET',
+      headers: { Authorization: `Zoho-oauthtoken ${S.token}`, 'X-Target-URL': PROFILE_URL }
+    });
+    const d = await res.json();
+    S.email = d.Email || d.email || '';
+    S.name = d.First_Name ? `${d.First_Name} ${d.Last_Name || ''}`.trim() : S.email;
+    const domain = S.email.split('@')[1];
+    if (domain !== CFG.allowedDomain) { signOut(); return; }
+    saveS();
+    bootApp();
+  } catch(e) { show('authScreen'); }
+}
+
+function bootApp() {
+  const initials = (S.name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  $('userAv').textContent = initials;
+  $('userName').textContent = S.name || S.email;
+  $('headerRight').style.display = 'flex';
+  hide('authScreen');
+  show('appScreen');
+  // Show last cached run summary if available
+  const cached = getCache();
+  if (cached) showLastRunBar(cached);
+}
+
+// ── Cache helpers ─────────────────────────────────────────────────────────────
+function setCache(data) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch(e){} }
+function getCache() { try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch(e){ return null; } }
+
+function showLastRunBar(data) {
+  $('lastRunTime').textContent = data.timestamp ? new Date(data.timestamp).toLocaleString('en-NG') : '—';
+  $('lastRunItems').textContent = data.summary?.items_flagged ?? '—';
+  $('lastRunSOs').textContent = data.summary?.so_lines_at_risk ?? '—';
+  show('lastRunBar');
+}
+
+function loadCachedResults() {
+  const data = getCache();
+  if (data) renderResults(data);
+}
+
+// ── API call ──────────────────────────────────────────────────────────────────
+async function callAuditApi() {
+  const res = await fetch(AUDIT_API, {
+    headers: { Authorization: `Zoho-oauthtoken ${S.token}` }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// ── Run audit ─────────────────────────────────────────────────────────────────
+async function runAudit() {
+  const btn = $('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Running…';
+  hide('errorBox');
+  hide('cardItems');
+  hide('cardSOs');
+  hide('allClearCard');
+  hide('summaryRow');
+  show('loadingOverlay');
+  $('overlayMsg').textContent = 'Fetching items and open Sales Orders from Zoho Inventory…';
+
+  try {
+    const data = await callAuditApi();
+    setCache(data);
+    showLastRunBar(data);
+    renderResults(data);
+  } catch(e) {
+    $('errorBox').innerHTML = `<strong>Audit failed:</strong> ${e.message}<br>
+      <span style="margin-top:6px;display:block">If this is a scope error, see the note below about required Zoho scopes.</span>`;
+    show('errorBox');
+    $('scopeNote').style.display = 'block';
+  } finally {
+    hide('loadingOverlay');
+    btn.disabled = false;
+    btn.textContent = 'Run Audit Now';
+  }
+}
+
+// ── Render results ────────────────────────────────────────────────────────────
+function renderResults(data) {
+  const itemFlagged = data.item_master?.flagged ?? [];
+  const soLines = data.open_sales_orders?.flagged_lines ?? [];
+  const itemsTotal = data.item_master?.total_scanned ?? 0;
+  const sosTotal = data.open_sales_orders?.total_sos_scanned ?? 0;
+
+  // Summary tiles
+  const ic = $('sumItems');
+  ic.textContent = itemFlagged.length;
+  ic.className = 'stat-num ' + (itemFlagged.length > 0 ? 'red' : 'green');
+  const sc = $('sumSOs');
+  sc.textContent = soLines.length;
+  sc.className = 'stat-num ' + (soLines.length > 0 ? 'red' : 'green');
+  $('sumItemsTotal').textContent = itemsTotal;
+  $('sumSOsTotal').textContent = sosTotal;
+  show('summaryRow');
+
+  if (itemFlagged.length === 0 && soLines.length === 0) {
+    show('allClearCard');
+    return;
+  }
+
+  // Table A
+  if (itemFlagged.length > 0) {
+    $('badgeItems').textContent = `${itemFlagged.length} flagged`;
+    $('tbodyItems').innerHTML = itemFlagged.map(item => `
+      <tr>
+        <td style="font-weight:500">${esc(item.item_name)}</td>
+        <td class="mono">${esc(item.item_id)}</td>
+        <td class="mono">${esc(item.sku || '—')}</td>
+        <td>${item.issues.map(i => `<span class="tag tag-red">${esc(i)}</span>`).join(' ')}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace">${Number(item.stock_on_hand).toLocaleString('en-NG')}</td>
+      </tr>`).join('');
+    show('cardItems');
+  }
+
+  // Table B
+  if (soLines.length > 0) {
+    $('badgeSOs').textContent = `${soLines.length} lines at risk`;
+    $('tbodySOs').innerHTML = soLines.map(line => {
+      const matchTag = line.accounts_match
+        ? '<span class="tag tag-green">Match</span>'
+        : '<span class="tag tag-red">Drift</span>';
+      const genericTag = line.captured_is_generic
+        ? '<span class="tag tag-amber">Generic account</span>'
+        : '';
+      return `<tr>
+        <td style="font-weight:500"><a href="https://inventory.zoho.com/app#/salesorders/${esc(line.so_id)}" target="_blank" style="color:var(--blue);text-decoration:none">${esc(line.so_number)}</a></td>
+        <td>${esc(line.customer_name)}</td>
+        <td>${esc(line.item_name)}</td>
+        <td class="mono">${esc(line.captured_account_id || '—')}</td>
+        <td class="mono">${esc(line.current_account_id || '—')}</td>
+        <td>${matchTag}</td>
+        <td>${genericTag}</td>
+      </tr>`;
+    }).join('');
+    show('cardSOs');
+  }
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+(async () => {
+  const isCallback = parseHash();
+  if (isCallback && S.token) { await verifyAndBoot(); return; }
+  if (!isCallback && loadS()) { bootApp(); return; }
+  show('authScreen');
+})();
+</script>
+</body>
+</html>
