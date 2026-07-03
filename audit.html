@@ -262,7 +262,6 @@ tbody td{padding:9px 12px;vertical-align:middle}
 const CFG = {
   clientId: '1000.NM7EKMM8DKAAC7CE0AZ20KQ0ZOCRKI',
   redirectUri: 'https://empties.malexchloglobal.com/audit.html',
-  allowedDomain: 'malexchloglobal.com',
   orgId: '921111003',
   scopes: 'ZohoInventory.items.READ,ZohoInventory.salesorders.READ,AaaServer.profile.READ',
 };
@@ -321,8 +320,6 @@ async function verifyAndBoot() {
     const d = await res.json();
     S.email = d.Email || d.email || '';
     S.name = d.First_Name ? `${d.First_Name} ${d.Last_Name || ''}`.trim() : S.email;
-    const domain = S.email.split('@')[1];
-    if (domain !== CFG.allowedDomain) { signOut(); return; }
     saveS();
     bootApp();
   } catch(e) { show('authScreen'); }
@@ -335,9 +332,14 @@ function bootApp() {
   $('headerRight').style.display = 'flex';
   hide('authScreen');
   show('appScreen');
-  // Show last cached run summary if available
   const cached = getCache();
-  if (cached) showLastRunBar(cached);
+  if (cached) {
+    showLastRunBar(cached);
+    renderResults(cached);
+  } else {
+    // No prior results — run automatically on first login
+    runAudit();
+  }
 }
 
 // ── Cache helpers ─────────────────────────────────────────────────────────────
