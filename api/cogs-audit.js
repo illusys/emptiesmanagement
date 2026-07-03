@@ -88,14 +88,11 @@ async function checkItems(token) {
 // ── Check B: open SO snapshot drift ──────────────────────────────────────────
 
 async function checkSalesOrders(token) {
-  // Fetch all open SOs (statuses that haven't been fully invoiced/closed)
-  const openStatuses = ['draft', 'open', 'partially_invoiced'];
-  let allSOs = [];
-  for (const status of openStatuses) {
-    const batch = await paginate(token, `/salesorders?status=${status}`, 'salesorders');
-    allSOs.push(...batch);
-    await sleep(DELAY_MS);
-  }
+  // Fetch ALL sales orders (Zoho's status filter enum is fragile across
+  // org configs), then keep only those not fully invoiced/closed/void.
+  const CLOSED_STATUSES = new Set(['invoiced', 'closed', 'void', 'rejected']);
+  const everySO = await paginate(token, '/salesorders', 'salesorders');
+  const allSOs = everySO.filter(so => !CLOSED_STATUSES.has((so.status || '').toLowerCase()));
 
   // Build item master lookup (account_id per item_id)
   const allItems = await paginate(token, '/items?status=active', 'items');
