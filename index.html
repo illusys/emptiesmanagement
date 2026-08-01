@@ -502,6 +502,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <button class="rep-tab active" onclick="repTab('balances')" id="tab_balances" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--blue);border-bottom:2px solid var(--blue);cursor:pointer;white-space:nowrap;margin-bottom:-2px">Customer Balances</button>
         <button class="rep-tab" onclick="repTab('backload')" id="tab_backload" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">NBL Backloaded</button>
         <button class="rep-tab" onclick="repTab('received')" id="tab_received" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Empties Received</button>
+        <button class="rep-tab" onclick="repTab('payments')" id="tab_payments" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Payments</button>
         <button class="rep-tab" onclick="repTab('physical')" id="tab_physical" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Physical Balance</button>
         <button class="rep-tab" onclick="repTab('custhistory')" id="tab_custhistory" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Customer History</button>
       </div>
@@ -589,6 +590,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
               <table class="report-table">
                 <thead><tr><th>Date</th><th>Customer</th><th style="text-align:right">Full Crates</th><th style="text-align:right">WOB</th><th style="text-align:right">Bottles</th><th>Recorded by</th><th style="text-align:right">Transfer</th></tr></thead>
                 <tbody id="rep_recBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Payments -->
+      <div id="repTab_payments" class="hidden">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label" style="display:flex;justify-content:space-between">
+              <span>Payments received during settlement conversion</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="date" id="rep_payFrom" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <input type="date" id="rep_payTo" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <button class="btn btn-blue btn-sm" onclick="repLoadPayments()" id="rep_payBtn">Load</button>
+              </div>
+            </div>
+            <div class="stat-row" style="margin:12px 0">
+              <div class="stat-card"><div class="lbl">Total Received</div><div class="val" id="rep_payTotal" style="color:var(--green);font-size:15px">—</div></div>
+              <div class="stat-card"><div class="lbl">Cash</div><div class="val" id="rep_payCash" style="color:var(--green);font-size:13px">—</div></div>
+              <div class="stat-card"><div class="lbl">Bank Transfer</div><div class="val" id="rep_payXfer" style="color:var(--green);font-size:13px">—</div></div>
+              <div class="stat-card"><div class="lbl">Payments</div><div class="val" id="rep_payCount">—</div></div>
+            </div>
+            <div style="margin-bottom:10px">
+              <input type="text" id="rep_paySearch" placeholder="Filter by customer name..." oninput="repFilterPayments()" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif">
+            </div>
+            <div id="rep_payLoading" class="empty-state" style="padding:24px">Set date range and click <strong>Load</strong>.</div>
+            <div id="rep_payTable" class="hidden" style="overflow-x:auto">
+              <table class="report-table">
+                <thead><tr><th>Date</th><th>Customer</th><th style="text-align:right">Amount Paid</th><th>Mode</th><th>Account</th></tr></thead>
+                <tbody id="rep_payBody"></tbody>
+                <tfoot id="rep_payFoot"></tfoot>
               </table>
             </div>
           </div>
@@ -687,6 +721,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
                       <th style="text-align:right">Full Crates</th>
                       <th style="text-align:right">WOB</th>
                       <th style="text-align:right">Bottles</th>
+                      <th style="text-align:right">Amount Paid</th>
                       <th style="text-align:right">Bal Before</th>
                       <th style="text-align:right">Bal After</th>
                       <th>Recorded by</th>
@@ -713,7 +748,7 @@ const CFG={
   redirectUri:'https://empties.malexchloglobal.com',
   allowedDomain:'malexchloglobal.com',
   orgId:'921111003',
-  scopes:'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.inventoryadjustments.READ,ZohoInventory.items.READ,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,AaaServer.profile.READ',
+  scopes:'ZohoInventory.contacts.READ,ZohoInventory.contacts.UPDATE,ZohoInventory.inventoryadjustments.CREATE,ZohoInventory.inventoryadjustments.READ,ZohoInventory.items.READ,ZohoInventory.custommodules.ALL,ZohoBooks.customerpayments.CREATE,ZohoBooks.customerpayments.READ,AaaServer.profile.READ',
   items:{emptyCrate:'8805348000001626044',emptyWOB:'8805348000001626058',emptyBTL:'8805348000000531198'},
   legacyItems:{emptyCrate:'8805348000000531212',emptyWOB:'8805348000000531226',emptyBTL:'8805348000000531198'},
   warehouseLoc:'8805348000000093115',
@@ -1663,10 +1698,11 @@ function repSetDefaultDates(){
   const today=now.toISOString().split('T')[0];
   if($('rep_blFrom'))  {$('rep_blFrom').value=firstDay; $('rep_blTo').value=today;}
   if($('rep_recFrom')) {$('rep_recFrom').value=firstDay; $('rep_recTo').value=today;}
+  if($('rep_payFrom')) {$('rep_payFrom').value=firstDay; $('rep_payTo').value=today;}
 }
 
 function repTab(tab){
-  ['balances','backload','received','physical','custhistory'].forEach(t=>{
+  ['balances','backload','received','payments','physical','custhistory'].forEach(t=>{
     const el=$('repTab_'+t);
     const btn=$('tab_'+t);
     if(el) el.classList.toggle('hidden', t!==tab);
@@ -1987,6 +2023,97 @@ async function repLoadFromAdjustments(dateFrom,dateTo,type,btn){
 }
 
 
+// ── PAYMENTS (settlement conversion) ─────────────────────────────────────────
+let _allPayments=null;   // cache of settlement customer payments
+let _payRows=[];         // currently-loaded rows for filtering
+
+// Human labels for Zoho payment_mode codes
+function payModeLabel(m){
+  const key=(m||'').toLowerCase().replace(/\s/g,'_');
+  const map={cash:'Cash',bank_transfer:'Bank Transfer',banktransfer:'Bank Transfer',check:'Cheque',cheque:'Cheque',creditcard:'Credit Card',credit_card:'Credit Card',bankremittance:'Bank Remittance',autotransaction:'Auto Transaction'};
+  if(map[key]) return map[key];
+  return m ? m.replace(/_/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase()) : '—';
+}
+
+// Fetch all customer payments (paginated) — settlement payments carry an STL- reference
+async function fetchAllPayments(force){
+  if(_allPayments&&!force) return _allPayments;
+  const all=[];
+  for(let page=1;page<=20;page++){
+    const d=await api(BOOKS,`/customerpayments?per_page=200&page=${page}&sort_column=date&sort_order=D`,'GET');
+    const batch=d.customerpayments||[];
+    all.push(...batch);
+    if(batch.length<200) break;
+  }
+  _allPayments=all;
+  return all;
+}
+
+async function repLoadPayments(){
+  const btn=$('rep_payBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-dark"></span>';
+  $('rep_payLoading').innerHTML='<span class="spin spin-dark"></span><br><br>Loading payments...';
+  show('rep_payLoading'); hide('rep_payTable');
+  try{
+    const from=$('rep_payFrom').value, to=$('rep_payTo').value;
+    const all=await fetchAllPayments(true);
+    // Settlement payments only (created by this app with an STL- reference)
+    _payRows=all.filter(p=>{
+      const dt=p.date||'';
+      const ref=(p.reference_number||'');
+      if(!ref.startsWith('STL-')) return false;
+      if(from&&dt<from) return false;
+      if(to&&dt>to) return false;
+      return true;
+    }).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+    // Summary
+    const total=_payRows.reduce((s,p)=>s+(Number(p.amount)||0),0);
+    const cash=_payRows.filter(p=>(p.payment_mode||'').toLowerCase()==='cash').reduce((s,p)=>s+(Number(p.amount)||0),0);
+    const xfer=total-cash;
+    $('rep_payTotal').textContent=fmtN(total);
+    $('rep_payCash').textContent=fmtN(cash);
+    $('rep_payXfer').textContent=fmtN(xfer);
+    $('rep_payCount').textContent=_payRows.length;
+
+    repRenderPayments(_payRows);
+    hide('rep_payLoading'); show('rep_payTable');
+  }catch(e){
+    const msg=/401/.test(e.message)
+      ? 'Could not load payments — the app needs the "Read Customer Payments" permission. Please sign out and sign in again to grant it.'
+      : 'Error: '+e.message;
+    $('rep_payLoading').textContent=msg;
+  }
+  btn.disabled=false;btn.textContent='Load';
+}
+
+function repRenderPayments(rows){
+  if(!rows.length){
+    $('rep_payBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">No settlement payments found in this date range.</td></tr>';
+    $('rep_payFoot').innerHTML='';
+    return;
+  }
+  $('rep_payBody').innerHTML=rows.map(p=>`
+    <tr>
+      <td style="font-weight:500">${p.date||'—'}</td>
+      <td>${p.customer_name||'—'}</td>
+      <td class="mono" style="text-align:right;color:var(--green);font-weight:600">${fmtN(Number(p.amount)||0)}</td>
+      <td>${payModeLabel(p.payment_mode)}</td>
+      <td style="font-size:12px">${p.account_name||'—'}</td>
+    </tr>`).join('');
+  const total=rows.reduce((s,p)=>s+(Number(p.amount)||0),0);
+  $('rep_payFoot').innerHTML=`<tr style="border-top:2px solid var(--border)">
+    <td colspan="2" style="font-weight:600;padding-top:8px">TOTAL</td>
+    <td class="mono" style="text-align:right;font-weight:700;color:var(--green);padding-top:8px">${fmtN(total)}</td>
+    <td colspan="2"></td>
+  </tr>`;
+}
+
+function repFilterPayments(){
+  const q=($('rep_paySearch').value||'').toLowerCase();
+  if(!q){repRenderPayments(_payRows);return;}
+  repRenderPayments(_payRows.filter(p=>(p.customer_name||'').toLowerCase().includes(q)));
+}
+
 // ── CUSTOMER HISTORY TAB ─────────────────────────────────────────────────────
 let _chDebounce=null;
 let _chSelectedCustomer=null;
@@ -2060,9 +2187,19 @@ async function chSelectCustomer(c){
              reason.startsWith('BTL:'+custNameUpper);
     });
 
+    // Fetch this customer's settlement payments (non-fatal if scope missing)
+    let custPayments=[];
+    try{
+      const allPay=await fetchAllPayments();
+      custPayments=allPay.filter(p=>
+        (p.customer_id&&p.customer_id===c.id)&&
+        (p.reference_number||'').startsWith('STL-')
+      );
+    }catch(e){ console.log('Customer payments lookup skipped:',e.message); }
+
     hide('ch_histLoading');
 
-    if(!custRecords.length){
+    if(!custRecords.length&&!custPayments.length){
       // No records found with new format — check for legacy format or show empty
       $('ch_histEmpty').textContent='No transaction history found for '+c.name+'. Transactions recorded before the customer name was embedded in the reason will not appear here.';
       show('ch_histEmpty');
@@ -2077,17 +2214,18 @@ async function chSelectCustomer(c){
     const totCR=custRecords.filter(a=>isEmptyCrate(a.item_id)).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
     const totWOB=custRecords.filter(a=>isEmptyWOB(a.item_id)).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
     const totBTL=custRecords.filter(a=>isEmptyBTL(a.item_id)).reduce((s,a)=>s+Math.abs(Number(a.quantity_adjusted)||0),0);
-    const dates=custRecords.map(a=>a.date).filter(Boolean).sort();
-    const txCount=new Set(custRecords.map(a=>a.date+'_'+a.reason)).size;
+    const totPaid=custPayments.reduce((s,p)=>s+(Number(p.amount)||0),0);
+    const allDates=custRecords.map(a=>a.date).concat(custPayments.map(p=>p.date)).filter(Boolean).sort();
 
-    $('ch_totReturned').textContent=fmt(totCR)+' CR'+(totWOB?' + '+fmt(totWOB)+' WOB':'')+(totBTL?' + '+fmt(totBTL)+' BTL':'');
-    $('ch_totTx').textContent=custRecords.length;
-    $('ch_firstDate').textContent=dates[0]||'—';
-    $('ch_lastDate').textContent=dates[dates.length-1]||'—';
+    $('ch_totReturned').innerHTML=fmt(totCR)+' CR'+(totWOB?' + '+fmt(totWOB)+' WOB':'')+(totBTL?' + '+fmt(totBTL)+' BTL':'')+
+      (totPaid?`<div style="font-size:12px;color:var(--text2);margin-top:2px">${fmtN(totPaid)} paid</div>`:'');
+    $('ch_totTx').textContent=custRecords.length+custPayments.length;
+    $('ch_firstDate').textContent=allDates[0]||'—';
+    $('ch_lastDate').textContent=allDates[allDates.length-1]||'—';
 
-    // Group records by date+reason to show as transactions
-    // Build rows - one per adjustment record
-    $('ch_histBody').innerHTML=custRecords.map(a=>{
+    // Build combined, date-sorted rows: crate/WOB/bottle returns + settlement payments
+    const rows=[];
+    custRecords.forEach(a=>{
       const iid=a.item_id||'';
       const qty=Math.abs(Number(a.quantity_adjusted)||0);
       const cr=isEmptyCrate(iid)?qty:0;
@@ -2095,7 +2233,7 @@ async function chSelectCustomer(c){
       const btl=isEmptyBTL(iid)?qty:0;
       const reason=a.reason||'';
       const type=reason.startsWith('CR:')?'Full Crates':reason.startsWith('WOB:')?'WOB Shells':reason.startsWith('BTL:')?'Bottle Sets':'Return';
-      return`<tr>
+      rows.push({date:a.date||'',html:`<tr>
         <td style="font-weight:500">${a.date||'—'}</td>
         <td><span class="tag tag-blue">${type}</span></td>
         <td class="mono" style="text-align:right">${cr||'—'}</td>
@@ -2103,9 +2241,26 @@ async function chSelectCustomer(c){
         <td class="mono" style="text-align:right">${btl||'—'}</td>
         <td class="mono" style="text-align:right">—</td>
         <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
         <td style="font-size:11px">${a.created_by_name||'—'}</td>
-      </tr>`;
-    }).join('');
+      </tr>`});
+    });
+    custPayments.forEach(p=>{
+      const amt=Number(p.amount)||0;
+      rows.push({date:p.date||'',html:`<tr>
+        <td style="font-weight:500">${p.date||'—'}</td>
+        <td><span class="tag tag-green">Payment · ${payModeLabel(p.payment_mode)}</span></td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right;color:var(--green);font-weight:600">${fmtN(amt)}</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td class="mono" style="text-align:right">—</td>
+        <td style="font-size:11px">${p.account_name||'—'}</td>
+      </tr>`});
+    });
+    rows.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    $('ch_histBody').innerHTML=rows.map(r=>r.html).join('');
     show('ch_histTable');
   }catch(e){
     $('ch_histLoading').textContent='Error loading history: '+e.message;
@@ -2122,7 +2277,7 @@ function chClear(){
 function signOut(){
   sessionStorage.removeItem('mx');S={token:null,expiry:null,email:null,name:null};
   erCust=null;finCust=null;finCustCredit=0;blStockOnHand=null;
-  _contactsCache=null;_contactsCacheTime=0;_itemsCache=null; // clear cache on logout
+  _contactsCache=null;_contactsCacheTime=0;_itemsCache=null;_allPayments=null;_allAdjustments=null; // clear cache on logout
   hide('appRoot');show('authScreen');clearA('authErr');
 }
 
