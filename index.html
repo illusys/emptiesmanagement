@@ -119,6 +119,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .report-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
 .report-table tr:hover td{background:var(--surface2)}
 .report-table .mono{font-family:'DM Mono',monospace}
+/* Report screen breaks out wider than the 760px app column so all tabs fit on one line */
+#reportScreen{width:min(1120px,calc(100vw - 32px));margin-left:50%;transform:translateX(-50%)}
+.rep-tabbar{display:flex;flex-wrap:nowrap;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px}
+.rep-tab{flex:1 1 0;min-width:0;padding:10px 6px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;text-align:center;border-bottom:2px solid transparent;margin-bottom:-2px}
+.rep-tab:hover{color:var(--text)}
+.rep-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+@media (max-width:640px){.rep-tab{font-size:11px;padding:9px 4px}}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600}
 .tag-blue{background:var(--blue-light);color:var(--blue)}
 .tag-orange{background:var(--orange-light);color:var(--orange)}
@@ -361,7 +368,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="card-body">
           <div class="sec-label">Physical items returned</div>
           <div class="field"><label>Empty Crates (full) <span class="hint">= 1 crate each, no payment needed</span></label><input type="number" id="fin_cr" min="0" placeholder="0" oninput="finCalc()"></div>
-          <div class="field"><label>Empty Crates Without Bottles (WOB shells) <span class="hint">= 1 crate each + ₦750/shell payment</span></label><input type="number" id="fin_wob" min="0" placeholder="0" oninput="wobValidate()"></div>
+          <div class="field"><label>Empty Crates Without Bottles (WOB shells) <span class="hint" id="lbl_wobHint">= 1 crate each + ₦1,000/shell payment</span></label><input type="number" id="fin_wob" min="0" placeholder="0" oninput="wobValidate()"></div>
           <div class="toggle-row">
             <input type="checkbox" id="fin_wobHalf" onchange="wobModeChange()">
             <label for="fin_wobHalf">Count 2 WOB shells as 1 crate (half-crate mode — use when shells are damaged or partial)</label>
@@ -370,7 +377,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <div class="field"><label>Set of Empty Bottles <span class="hint">= 0.5 crate per set, no payment needed</span></label><input type="number" id="fin_btl" min="0" placeholder="0" oninput="finCalc()"></div>
           <div class="divider"></div>
           <div class="sec-label">Payments received</div>
-          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">For WOB shells, ₦750/shell required. Any excess reduces balance at ₦1,500/crate.</p>
+          <p id="lbl_wobRule" style="font-size:12px;color:var(--text2);margin-bottom:12px">For WOB shells, ₦1,000/shell required. Any excess reduces balance at ₦2,000/crate.</p>
           <div class="field-row">
             <div class="field"><label>Cash paid (₦)</label><input type="number" id="fin_cash" min="0" placeholder="0" oninput="finCalc()"></div>
             <div class="field"><label>Bank transfer (₦)</label><input type="number" id="fin_xfer" min="0" placeholder="0" oninput="finXferInput()"></div>
@@ -498,13 +505,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
 
       <!-- Report tabs -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto">
-        <button class="rep-tab active" onclick="repTab('balances')" id="tab_balances" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--blue);border-bottom:2px solid var(--blue);cursor:pointer;white-space:nowrap;margin-bottom:-2px">Customer Balances</button>
-        <button class="rep-tab" onclick="repTab('backload')" id="tab_backload" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">NBL Backloaded</button>
-        <button class="rep-tab" onclick="repTab('received')" id="tab_received" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Empties Received</button>
-        <button class="rep-tab" onclick="repTab('payments')" id="tab_payments" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Payments</button>
-        <button class="rep-tab" onclick="repTab('physical')" id="tab_physical" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Physical Balance</button>
-        <button class="rep-tab" onclick="repTab('custhistory')" id="tab_custhistory" style="padding:10px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap">Customer History</button>
+      <div class="rep-tabbar">
+        <button class="rep-tab active" onclick="repTab('balances')" id="tab_balances">Customer Balances</button>
+        <button class="rep-tab" onclick="repTab('backload')" id="tab_backload">NBL Backloaded</button>
+        <button class="rep-tab" onclick="repTab('received')" id="tab_received">Empties Received</button>
+        <button class="rep-tab" onclick="repTab('payments')" id="tab_payments">Payments</button>
+        <button class="rep-tab" onclick="repTab('settlements')" id="tab_settlements">Settlements</button>
+        <button class="rep-tab" onclick="repTab('physical')" id="tab_physical">Physical Balance</button>
+        <button class="rep-tab" onclick="repTab('custhistory')" id="tab_custhistory">Customer History</button>
       </div>
 
       <!-- Summary stats row -->
@@ -623,6 +631,50 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
                 <thead><tr><th>Date</th><th>Customer</th><th style="text-align:right">Amount Paid</th><th>Mode</th><th>Account</th></tr></thead>
                 <tbody id="rep_payBody"></tbody>
                 <tfoot id="rep_payFoot"></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Settlements -->
+      <div id="repTab_settlements" class="hidden">
+        <div class="card">
+          <div class="card-body">
+            <div class="sec-label" style="display:flex;justify-content:space-between">
+              <span>How each customer settled their empties</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="date" id="rep_setFrom" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <input type="date" id="rep_setTo" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+                <button class="btn btn-blue btn-sm" onclick="repLoadSettlements()" id="rep_setBtn">Load</button>
+              </div>
+            </div>
+            <div class="stat-row" style="margin:12px 0">
+              <div class="stat-card"><div class="lbl">Settlements</div><div class="val" id="rep_setCount">—</div></div>
+              <div class="stat-card"><div class="lbl">Crates Settled</div><div class="val" id="rep_setCrates" style="color:var(--green)">—</div></div>
+              <div class="stat-card"><div class="lbl">Cash Collected</div><div class="val" id="rep_setPaid" style="color:var(--green);font-size:13px">—</div></div>
+              <div class="stat-card"><div class="lbl">Customers</div><div class="val" id="rep_setCust">—</div></div>
+            </div>
+            <div style="margin-bottom:10px">
+              <input type="text" id="rep_setSearch" placeholder="Filter by customer name..." oninput="repFilterSettlements()" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif">
+            </div>
+            <div class="info-box" style="margin-bottom:10px">
+              Each row is one settlement instance — what the customer brought (crates, WOB shells, bottles), what they paid, how many crates that settled, and the balance before and after. Balances are reconstructed from the customer's current balance and their return history.
+            </div>
+            <div id="rep_setLoading" class="empty-state" style="padding:24px">Set date range and click <strong>Load</strong>.</div>
+            <div id="rep_setTable" class="hidden" style="overflow-x:auto">
+              <table class="report-table">
+                <thead><tr>
+                  <th>Date</th><th>Customer</th>
+                  <th style="text-align:right">Owed Before</th>
+                  <th style="text-align:right">Full Crates</th>
+                  <th style="text-align:right">WOB</th>
+                  <th style="text-align:right">Bottles</th>
+                  <th style="text-align:right">Amount Paid</th>
+                  <th style="text-align:right">Crates Settled</th>
+                  <th style="text-align:right">Left After</th>
+                </tr></thead>
+                <tbody id="rep_setBody"></tbody>
               </table>
             </div>
           </div>
@@ -762,6 +814,38 @@ const BOOKS='https://www.zohoapis.com/books/v3';
 let S={token:null,expiry:null,email:null,name:null};
 let erCust=null,finCust=null,finCustCredit=0,blStockOnHand=null;
 let searchTimer=null;
+
+// Item prices — loaded dynamically from the Zoho Inventory item rates.
+// Fallbacks are the current deposit prices in case the fetch fails.
+// crate = full empty crate, wob = empty crate without bottles (shell), btl = set of empty bottles.
+let PRICE={crate:2000,wob:1000,btl:1000};
+let _pricesLoaded=false;
+async function loadPrices(){
+  try{
+    const items=await getAllItems();
+    const rateOf=(id,fb)=>{
+      const it=items.find(x=>x.item_id===id);
+      const r=it?Number(it.rate??it.purchase_rate??0):0;
+      return r>0?r:fb;
+    };
+    PRICE.crate=rateOf(CFG.items.emptyCrate,PRICE.crate);
+    PRICE.wob  =rateOf(CFG.items.emptyWOB,  PRICE.wob);
+    // A set of empty bottles is valued the same as a WOB shell (historically both
+    // ₦750, giving bottles a half-crate equivalence). Keep it tied to the WOB price.
+    PRICE.btl  =PRICE.wob;
+    _pricesLoaded=true;
+    console.log('Loaded item prices:',PRICE);
+  }catch(e){ console.log('loadPrices error:',e.message); }
+  applyPriceLabels();
+}
+// Ensure prices are loaded before a price-sensitive flow runs
+async function ensurePrices(){ if(!_pricesLoaded) await loadPrices(); }
+// Fill in the static hint labels that reference item prices
+function applyPriceLabels(){
+  const set=(id,txt)=>{ const el=$(id); if(el) el.textContent=txt; };
+  set('lbl_wobHint',`= 1 crate each + ${fmtN(PRICE.wob)}/shell payment`);
+  set('lbl_wobRule',`For WOB shells, ${fmtN(PRICE.wob)}/shell required. Any excess reduces balance at ${fmtN(PRICE.crate)}/crate.`);
+}
 
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.round(Number(n)).toLocaleString('en-NG');
@@ -970,7 +1054,8 @@ function bootApp(){
   $('bl_recordedBy').value=displayName;
   $('er_recordedBy').value=displayName;
   hideOverlay();show('appRoot');hide('authScreen');hide('overlay');
-  // Load dashboard data
+  // Load item prices (crate / WOB / bottle rates) then dashboard data
+  loadPrices();
   dashLoad();
 }
 
@@ -1158,7 +1243,7 @@ async function dashLoad(){
             <div class="debtor-name">${c.name}<br><small style="color:var(--text3);font-size:10px">Tap to record return →</small></div>
             <div style="text-align:right">
               <div class="debtor-bal">${fmt(c.bal)} crates</div>
-              <div class="debtor-val">${fmtN(c.bal*1500)}</div>
+              <div class="debtor-val">${fmtN(c.bal*PRICE.crate)}</div>
             </div>
           </div>`).join('');
       }else{
@@ -1222,7 +1307,7 @@ function renderResults(listId,results,isOrange,selectFn){
   $(listId).innerHTML=results.map((c,i)=>
     `<div class="search-result-item" onclick="${selectFn}(window._res_${listId}[${i}])">
       <div class="${avCls}">${init(c.name)}</div>
-      <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates${isOrange?' | '+fmtN(c.bal*1500):''}</div></div>
+      <div><div class="sri-name">${c.name}</div><div class="sri-bal">Balance: ${fmt(c.bal)} crates${isOrange?' | '+fmtN(c.bal*PRICE.crate):''}</div></div>
     </div>`).join('');
   window[`_res_${listId}`]=results;
 }
@@ -1356,7 +1441,7 @@ function erReset(){erCust=null;$('er_search').value='';hide('er_custBlock');hide
 async function finSelectCustomer(c){
   finCust=c;hide('fin_results');
   $('fin_av').textContent=init(c.name);$('fin_name').textContent=c.name;
-  $('fin_bal').textContent=fmt(c.bal);$('fin_balVal').textContent=fmtN(c.bal*1500);
+  $('fin_bal').textContent=fmt(c.bal);$('fin_balVal').textContent=fmtN(c.bal*PRICE.crate);
   $('fin_bb2').textContent=fmt(c.bal)+' crates';
   show('fin_custBlock');show('fin_form');finCalc();
   finCustCredit=0;
@@ -1388,7 +1473,7 @@ function enforceMaxSettlement(){
   const btl=Number($('fin_btl').value)||0;
   const halfMode=$('fin_wobHalf').checked;
   const wobCrates=halfMode?wob/2:wob;
-  const btlCrates=(btl*750)/1500;
+  const btlCrates=(btl*PRICE.btl)/PRICE.crate;
   // Check just the physical returns (before counting cash/transfer extra crates)
   const physicalCrates=cr+wobCrates+btlCrates;
   if(physicalCrates>finCust.bal){
@@ -1407,39 +1492,39 @@ function finCalc(){
   const creditAmt=$('fin_useCredit').checked?(Number($('fin_creditAmt').value)||0):0;
   const bal=finCust?finCust.bal:0;
 
-  // WOB crate logic:
-  // NORMAL MODE (1:1): 1 shell + ₦750 cash payment = 1 crate settled
+  // WOB crate logic (prices are dynamic — PRICE.wob per shell, PRICE.crate per crate):
+  // NORMAL MODE (1:1): 1 shell + PRICE.wob cash payment = 1 crate settled
   // 2:1 MODE: 2 shells (no payment needed) = 1 crate settled (physical conversion)
-  //           1 odd shell + ₦750 = 1 crate settled
+  //           1 odd shell + PRICE.wob = 1 crate settled
   const wobPairs=halfMode?Math.floor(wob/2):0;  // pairs: no payment needed
-  const wobOdd=halfMode?(wob%2):0;              // odd shell: needs ₦750
-  const wobNormal=halfMode?0:wob;               // normal mode: all need ₦750 each
+  const wobOdd=halfMode?(wob%2):0;              // odd shell: needs PRICE.wob
+  const wobNormal=halfMode?0:wob;               // normal mode: all need PRICE.wob each
   // Payment required:
-  // Normal mode: ALL shells need ₦750 each
-  // 2:1 mode: ONLY the odd shell needs ₦750; pairs convert freely
-  const wobPayReq=halfMode?(wobOdd*750):(wobNormal*750);
+  // Normal mode: ALL shells need PRICE.wob each
+  // 2:1 mode: ONLY the odd shell needs PRICE.wob; pairs convert freely
+  const wobPayReq=halfMode?(wobOdd*PRICE.wob):(wobNormal*PRICE.wob);
   const totalMoney=cash+xfer+creditAmt;
   // Payment covers WOB first (only odd shell in 2:1 mode, all shells in normal mode)
   const moneyForWOB=Math.min(totalMoney,wobPayReq);
   const moneyForCrates=Math.max(0,totalMoney-wobPayReq); // excess → more crates via cash
 
   // Crates settled from WOB:
-  // Normal mode: 1 shell settled per ₦750 paid
-  // 2:1 mode: pairs settle freely (no payment), odd shell settles when ₦750 paid
+  // Normal mode: 1 shell settled per PRICE.wob paid
+  // 2:1 mode: pairs settle freely (no payment), odd shell settles when PRICE.wob paid
   let wobCratesActual=0;
   if(wob>0){
     if(!halfMode){
-      // Normal: each ₦750 paid = 1 crate
-      wobCratesActual=Math.floor(moneyForWOB/750);
+      // Normal: each PRICE.wob paid = 1 crate
+      wobCratesActual=Math.floor(moneyForWOB/PRICE.wob);
     } else {
       // 2:1 mode: pairs always settle (no payment needed)
-      // odd shell settles only when ₦750 received
-      const oddSettled=wobOdd>0&&moneyForWOB>=750?1:0;
+      // odd shell settles only when PRICE.wob received
+      const oddSettled=wobOdd>0&&moneyForWOB>=PRICE.wob?1:0;
       wobCratesActual=wobPairs+oddSettled;
     }
   }
 
-  const crCrates=cr,btlCrates=(btl*750)/1500,cashCrates=moneyForCrates/1500;
+  const crCrates=cr,btlCrates=(btl*PRICE.btl)/PRICE.crate,cashCrates=moneyForCrates/PRICE.crate;
   const totExact=crCrates+wobCratesActual+btlCrates+cashCrates;
   const totCrates=roundBal(totExact);
   // Cap remaining balance at 0 — cannot go negative (cannot return more than owed)
@@ -1450,18 +1535,18 @@ function finCalc(){
   if(cr)rows.push(`<tr><td>Empty Crates (full)</td><td>${cr}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${cr}</td></tr>`);
   if(wob){
     if(!halfMode){
-      // Normal mode: each shell needs ₦750 — settled as payment comes in
-      const shellsSettled=Math.min(wob,Math.floor(moneyForWOB/750));
+      // Normal mode: each shell needs PRICE.wob — settled as payment comes in
+      const shellsSettled=Math.min(wob,Math.floor(moneyForWOB/PRICE.wob));
       const shellsPending=wob-shellsSettled;
-      rows.push(`<tr class="wob-row"><td>WOB Shells${shellsPending>0?` <small style="color:var(--red)">(${shellsPending} awaiting ₦${(shellsPending*750).toLocaleString('en-NG')} payment)</small>`:' ✓'}</td><td>${wob}</td><td class="mono" style="text-align:right">${fmtN(wobPayReq)} <small>(req.)</small></td><td class="mono" style="text-align:right">${shellsSettled}</td></tr>`);
+      rows.push(`<tr class="wob-row"><td>WOB Shells${shellsPending>0?` <small style="color:var(--red)">(${shellsPending} awaiting ${fmtN(shellsPending*PRICE.wob)} payment)</small>`:' ✓'}</td><td>${wob}</td><td class="mono" style="text-align:right">${fmtN(wobPayReq)} <small>(req.)</small></td><td class="mono" style="text-align:right">${shellsSettled}</td></tr>`);
     } else {
-      // 2:1 mode: pairs settle freely, odd shell needs ₦750
+      // 2:1 mode: pairs settle freely, odd shell needs PRICE.wob
       if(wobPairs>0){
         rows.push(`<tr class="wob-row"><td>WOB Shells — pairs (2:1) ✓ <small style="color:var(--green)">(no payment needed)</small></td><td>${wobPairs*2}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${wobPairs}</td></tr>`);
       }
       if(wobOdd>0){
-        const oddSettled=moneyForWOB>=750;
-        rows.push(`<tr class="wob-row"><td>WOB Shell — odd (1:1)${!oddSettled?' <small style="color:var(--red)">(₦750 payment needed)</small>':' ✓'}</td><td>1</td><td class="mono" style="text-align:right">₦750 <small>(req.)</small></td><td class="mono" style="text-align:right">${oddSettled?1:0}</td></tr>`);
+        const oddSettled=moneyForWOB>=PRICE.wob;
+        rows.push(`<tr class="wob-row"><td>WOB Shell — odd (1:1)${!oddSettled?` <small style="color:var(--red)">(${fmtN(PRICE.wob)} payment needed)</small>`:' ✓'}</td><td>1</td><td class="mono" style="text-align:right">${fmtN(PRICE.wob)} <small>(req.)</small></td><td class="mono" style="text-align:right">${oddSettled?1:0}</td></tr>`);
       }
     }
   }
@@ -1488,12 +1573,12 @@ function finCalc(){
   if(wob>0){
     let warnMsg;
     if(!halfMode){
-      warnMsg=`⚠ ${wob} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPayReq)} (${wob} × ₦750) to fill with bottles. Each shell settles 1 crate when its ₦750 is received.`;
+      warnMsg=`⚠ ${wob} WOB shell${wob>1?'s':''} returned. Customer must pay ${fmtN(wobPayReq)} (${wob} × ${fmtN(PRICE.wob)}) to fill with bottles. Each shell settles 1 crate when its ${fmtN(PRICE.wob)} is received.`;
     } else {
       const parts=[];
       if(wobPairs>0) parts.push(`${wobPairs*2} shells → ${wobPairs} crate${wobPairs>1?'s':''} settled immediately (no payment — physical conversion)`);
-      if(wobOdd>0)   parts.push(`1 odd shell → 1 crate settled once ₦750 received`);
-      const totalReq=wobOdd*750;
+      if(wobOdd>0)   parts.push(`1 odd shell → 1 crate settled once ${fmtN(PRICE.wob)} received`);
+      const totalReq=wobOdd*PRICE.wob;
       warnMsg=`⚠ ${wob} WOB shells in 2:1 mode: ${parts.join('; ')}.${totalReq>0?' Payment required: '+fmtN(totalReq)+'.':' No payment needed for pairs.'}`;
     }
     $('fin_wobWarn').textContent=warnMsg;
@@ -1505,8 +1590,8 @@ function finCalc(){
     // Only show shortfall when there's an actual payment requirement (odd shell in 2:1, or normal mode)
     const s=wobPayReq-moneyForWOB;
     const msg=halfMode
-      ? `⚠ Shortfall: ${fmtN(s)} still needed for the odd WOB shell (₦750 required to fill with bottles). Pairs are already settled — just the 1 remaining shell awaits payment.`
-      : `⚠ Shortfall: ${fmtN(s)} still needed. Each WOB shell requires ₦750 payment to settle 1 crate.`;
+      ? `⚠ Shortfall: ${fmtN(s)} still needed for the odd WOB shell (${fmtN(PRICE.wob)} required to fill with bottles). Pairs are already settled — just the 1 remaining shell awaits payment.`
+      : `⚠ Shortfall: ${fmtN(s)} still needed. Each WOB shell requires ${fmtN(PRICE.wob)} payment to settle 1 crate.`;
     $('fin_wobShortfall').textContent=msg;
     show('fin_wobShortfall');
   } else {
@@ -1527,13 +1612,13 @@ async function finSubmit(){
 
   if(cr+wob+btl+cash+xfer+creditAmt===0){alert_('fin_err','Please enter at least one item or payment.','error');show('fin_err');return;}
 
-  const wobPayReq=wob*750,totalMoney=cash+xfer+creditAmt;
+  const wobPayReq=wob*PRICE.wob,totalMoney=cash+xfer+creditAmt;
 
   // Block over-settlement — cannot settle more than customer owes
   const wobCratesCheck=halfMode?(Math.floor(wob/2)+(wob%2)):wob;
-  const btlCratesCheck=(btl*750)/1500;
+  const btlCratesCheck=(btl*PRICE.btl)/PRICE.crate;
   const moneyForCratesCheck=Math.max(0,totalMoney-wobPayReq);
-  const totExactCheck=cr+wobCratesCheck+btlCratesCheck+(moneyForCratesCheck/1500);
+  const totExactCheck=cr+wobCratesCheck+btlCratesCheck+(moneyForCratesCheck/PRICE.crate);
   if(totExactCheck>finCust.bal+0.001){
     alert_('fin_err',`Cannot process: settlement of ${roundBal(totExactCheck)} crates exceeds customer's balance of ${fmt(finCust.bal)} crates. Please reduce the quantities entered.`,'error');
     show('fin_err');return;
@@ -1544,7 +1629,7 @@ async function finSubmit(){
   clearA('fin_err');clearA('fin_ok');
   const wobCratesActualSubmit=halfMode?(Math.floor(wob/2)+(wob%2)):wob;
   const moneyForCrates=Math.max(0,totalMoney-wobPayReq);
-  const totExact=cr+wobCratesActualSubmit+(btl*750/1500)+(moneyForCrates/1500);
+  const totExact=cr+wobCratesActualSubmit+(btl*PRICE.btl/PRICE.crate)+(moneyForCrates/PRICE.crate);
   const rem=roundBal(finCust.bal-totExact);
   const ref='STL-'+Date.now();
 
@@ -1562,7 +1647,7 @@ async function finSubmit(){
     hideOverlay();
     alert_('fin_ok',`✓ Settlement done for ${finCust.name}. ${roundBal(totExact)} crates settled. Received: ${fmtN(totalMoney)}. Remaining: ${rem} crates.`,'success');
     show('fin_ok');
-    finCust.bal=rem;$('fin_bal').textContent=fmt(rem);$('fin_balVal').textContent=fmtN(rem*1500);$('fin_bb2').textContent=fmt(rem)+' crates';
+    finCust.bal=rem;$('fin_bal').textContent=fmt(rem);$('fin_balVal').textContent=fmtN(rem*PRICE.crate);$('fin_bb2').textContent=fmt(rem)+' crates';
     ['fin_cr','fin_wob','fin_btl','fin_cash','fin_xfer'].forEach(i=>$(i).value='');
     $('fin_wobHalf').checked=false;$('fin_useCredit').checked=false;hide('fin_creditAmtRow');hide('fin_bankRow');finCalc();
   }catch(e){hideOverlay();alert_('fin_err','Error: '+e.message,'error');show('fin_err');}
@@ -1699,18 +1784,15 @@ function repSetDefaultDates(){
   if($('rep_blFrom'))  {$('rep_blFrom').value=firstDay; $('rep_blTo').value=today;}
   if($('rep_recFrom')) {$('rep_recFrom').value=firstDay; $('rep_recTo').value=today;}
   if($('rep_payFrom')) {$('rep_payFrom').value=firstDay; $('rep_payTo').value=today;}
+  if($('rep_setFrom')) {$('rep_setFrom').value=firstDay; $('rep_setTo').value=today;}
 }
 
 function repTab(tab){
-  ['balances','backload','received','payments','physical','custhistory'].forEach(t=>{
+  ['balances','backload','received','payments','settlements','physical','custhistory'].forEach(t=>{
     const el=$('repTab_'+t);
     const btn=$('tab_'+t);
     if(el) el.classList.toggle('hidden', t!==tab);
-    if(btn){
-      btn.style.color=t===tab?'var(--blue)':'var(--text2)';
-      btn.style.borderBottom=t===tab?'2px solid var(--blue)':'2px solid transparent';
-      btn.style.fontWeight=t===tab?'600':'400';
-    }
+    if(btn) btn.classList.toggle('active', t===tab);
   });
   // Auto-load physical when tab selected
   if(tab==='physical') repLoadPhysical();
@@ -1741,7 +1823,7 @@ async function repLoadBalances(){
     const totalOwed=_allBalances.reduce((s,c)=>s+c.bal,0);
     $('rep_totCust').textContent=_allBalances.length;
     $('rep_totOwed').textContent=fmt(totalOwed);
-    $('rep_totVal').textContent=fmtN(totalOwed*1500);
+    $('rep_totVal').textContent=fmtN(totalOwed*PRICE.crate);
 
     repRenderBalances(_allBalances);
     hide('rep_balLoading');
@@ -1758,13 +1840,13 @@ function repRenderBalances(data){
       <td style="color:var(--text3)">${i+1}</td>
       <td style="font-weight:500">${c.name}</td>
       <td class="mono" style="text-align:right;color:var(--orange);font-weight:600">${fmt(c.bal)}</td>
-      <td class="mono" style="text-align:right">${fmtN(c.bal*1500)}</td>
+      <td class="mono" style="text-align:right">${fmtN(c.bal*PRICE.crate)}</td>
       <td style="text-align:right;font-size:11px;color:var(--text3)">${c.lastReturn||'—'}</td>
     </tr>`).join('');
   $('rep_balFoot').innerHTML=`<tr style="border-top:2px solid var(--border)">
     <td colspan="2" style="font-weight:600;padding-top:8px">TOTAL</td>
     <td class="mono" style="text-align:right;font-weight:700;color:var(--orange);padding-top:8px">${fmt(totalBal)}</td>
-    <td class="mono" style="text-align:right;font-weight:700;padding-top:8px">${fmtN(totalBal*1500)}</td>
+    <td class="mono" style="text-align:right;font-weight:700;padding-top:8px">${fmtN(totalBal*PRICE.crate)}</td>
     <td></td>
   </tr>`;
 }
@@ -1812,7 +1894,7 @@ async function repLoadBackload(){
     $('rep_blCR').textContent=fmt(totCR);
     $('rep_blWOB').textContent=fmt(totWOB);
     $('rep_blBTL').textContent=fmt(totBTL);
-    $('rep_blVal').textContent=fmtN(totCR*1500+totWOB*750+totBTL*750);
+    $('rep_blVal').textContent=fmtN(totCR*PRICE.crate+totWOB*PRICE.wob+totBTL*PRICE.btl);
 
     hide('rep_blLoading');
     $('rep_blBody').innerHTML=adjs.length?adjs.map(a=>{
@@ -1911,14 +1993,14 @@ async function repLoadPhysical(){
       getItemStock(CFG.items.emptyBTL)
     ]);
     const cr=crSt||0, wob=wobSt||0, btl=btlSt||0;
-    const totalVal=cr*1500+wob*750+btl*750;
+    const totalVal=cr*PRICE.crate+wob*PRICE.wob+btl*PRICE.btl;
 
     $('rep_phyCR').textContent=fmt(cr);
     $('rep_phyWOB').textContent=fmt(wob);
     $('rep_phyBTL').textContent=fmt(btl);
-    $('rep_phyCRVal').textContent=fmtN(cr*1500)+' value';
-    $('rep_phyWOBVal').textContent=fmtN(wob*750)+' value';
-    $('rep_phyBTLVal').textContent=fmtN(btl*750)+' value';
+    $('rep_phyCRVal').textContent=fmtN(cr*PRICE.crate)+' value';
+    $('rep_phyWOBVal').textContent=fmtN(wob*PRICE.wob)+' value';
+    $('rep_phyBTLVal').textContent=fmtN(btl*PRICE.btl)+' value';
     $('rep_phyTotal').textContent=fmtN(totalVal);
     $('rep_totStock').textContent=fmt(cr);
 
@@ -2112,6 +2194,148 @@ function repFilterPayments(){
   const q=($('rep_paySearch').value||'').toLowerCase();
   if(!q){repRenderPayments(_payRows);return;}
   repRenderPayments(_payRows.filter(p=>(p.customer_name||'').toLowerCase().includes(q)));
+}
+
+// ── SETTLEMENTS REPORT ───────────────────────────────────────────────────────
+let _setRows=[];
+
+// Pull customer name out of an adjustment reason like "CR:CUSTOMER NAME 2026-06-29"
+function settlementCustName(reason){
+  const r=(reason||'');
+  const m=r.match(/^(?:CR|WOB|BTL):(.*?)\s*\d{4}-\d{2}-\d{2}\s*$/i);
+  if(m) return m[1].trim();
+  return r.replace(/^(?:CR|WOB|BTL):/i,'').trim();
+}
+
+async function repLoadSettlements(){
+  const btn=$('rep_setBtn'); btn.disabled=true; btn.innerHTML='<span class="spin spin-dark"></span>';
+  $('rep_setLoading').innerHTML='<span class="spin spin-dark"></span><br><br>Reconstructing settlement history...';
+  show('rep_setLoading'); hide('rep_setTable');
+  try{
+    await ensurePrices();
+    const from=$('rep_setFrom').value, to=$('rep_setTo').value;
+
+    // Data sources
+    if(!_allAdjustments){
+      const d=await api(INV,'/inventoryadjustments?per_page=200&sort_column=date&sort_order=D','GET');
+      _allAdjustments=(d.inventory_adjustments||d.inventoryadjustments||[]);
+    }
+    const contacts=await fetchAllCustomers();
+    let payments=[];
+    try{ payments=await fetchAllPayments(); }catch(e){ console.log('Settlements: payments unavailable',e.message); }
+
+    // Current balance per customer (upper-cased name → balance)
+    const balByName={};
+    contacts.forEach(c=>{
+      let bal=0;
+      (c.custom_fields||[]).forEach(f=>{ if(f.api_name==='cf_crate_balance') bal=Number(f.value)||0; });
+      balByName[(c.contact_name||'').toUpperCase()]=bal;
+    });
+
+    // Paid per customer+date (settlement payments only)
+    const paidByKey={};
+    payments.forEach(p=>{
+      if(!(p.reference_number||'').startsWith('STL-')) return;
+      const key=(p.customer_name||'').toUpperCase()+'|'+(p.date||'');
+      paidByKey[key]=(paidByKey[key]||0)+(Number(p.amount)||0);
+    });
+
+    // Group adjustments into per-customer, per-date instances
+    const byCust={}; // nameUpper → { date → {cr,wob,btl} }
+    _allAdjustments.forEach(a=>{
+      const reason=(a.reason||'');
+      if(!/^(?:CR|WOB|BTL):/i.test(reason)) return;
+      const nameU=settlementCustName(reason).toUpperCase();
+      if(!nameU) return;
+      const date=a.date||'';
+      const qty=Math.abs(Number(a.quantity_adjusted)||0);
+      byCust[nameU]=byCust[nameU]||{};
+      byCust[nameU][date]=byCust[nameU][date]||{cr:0,wob:0,btl:0};
+      const iid=a.item_id||'';
+      if(isEmptyCrate(iid)) byCust[nameU][date].cr+=qty;
+      else if(isEmptyWOB(iid)) byCust[nameU][date].wob+=qty;
+      else if(isEmptyBTL(iid)) byCust[nameU][date].btl+=qty;
+    });
+
+    // Per customer: reconstruct balances from current balance backward
+    const allRows=[];
+    Object.keys(byCust).forEach(nameU=>{
+      const dates=Object.keys(byCust[nameU]).sort(); // ascending
+      const insts=dates.map(date=>{
+        const g=byCust[nameU][date];
+        const paid=paidByKey[nameU+'|'+date]||0;
+        // Crates settled this instance (normal mode: 1 crate per shell, bottles at half,
+        // cash beyond the WOB payment converts to crates at the crate price)
+        const settledExact=g.cr+g.wob+(g.btl*PRICE.btl/PRICE.crate)+Math.max(0,paid-g.wob*PRICE.wob)/PRICE.crate;
+        return {date,cr:g.cr,wob:g.wob,btl:g.btl,paid,settled:Math.round(settledExact)};
+      });
+      // Walk backward: balance after last instance = current balance
+      let after=balByName[nameU]??0;
+      for(let i=insts.length-1;i>=0;i--){
+        insts[i].leftAfter=after;
+        insts[i].owedBefore=after+insts[i].settled;
+        after=insts[i].owedBefore;
+      }
+      // Keep only settlement conversions (WOB / bottles / cash involved)
+      insts.forEach(it=>{
+        if(it.wob>0||it.btl>0||it.paid>0){
+          allRows.push({name:nameU, ...it});
+        }
+      });
+    });
+
+    // Restore display-cased customer name from contacts
+    const caseByUpper={};
+    contacts.forEach(c=>{ caseByUpper[(c.contact_name||'').toUpperCase()]=c.contact_name; });
+    allRows.forEach(r=>{ r.displayName=caseByUpper[r.name]||r.name; });
+
+    // Date-range filter for display
+    _setRows=allRows.filter(r=>{
+      if(from&&r.date<from) return false;
+      if(to&&r.date>to) return false;
+      return true;
+    }).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+    // Summary
+    const totCrates=_setRows.reduce((s,r)=>s+r.settled,0);
+    const totPaid=_setRows.reduce((s,r)=>s+r.paid,0);
+    const custSet=new Set(_setRows.map(r=>r.name));
+    $('rep_setCount').textContent=_setRows.length;
+    $('rep_setCrates').textContent=fmt(totCrates);
+    $('rep_setPaid').textContent=fmtN(totPaid);
+    $('rep_setCust').textContent=custSet.size;
+
+    repRenderSettlements(_setRows);
+    hide('rep_setLoading'); show('rep_setTable');
+  }catch(e){
+    $('rep_setLoading').textContent='Error: '+e.message;
+  }
+  btn.disabled=false;btn.textContent='Load';
+}
+
+function repRenderSettlements(rows){
+  if(!rows.length){
+    $('rep_setBody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:16px">No settlements found in this date range.</td></tr>';
+    return;
+  }
+  $('rep_setBody').innerHTML=rows.map(r=>`
+    <tr>
+      <td style="font-weight:500">${r.date||'—'}</td>
+      <td>${r.displayName||r.name}</td>
+      <td class="mono" style="text-align:right;color:var(--orange)">${fmt(r.owedBefore)}</td>
+      <td class="mono" style="text-align:right">${r.cr||'—'}</td>
+      <td class="mono" style="text-align:right">${r.wob||'—'}</td>
+      <td class="mono" style="text-align:right">${r.btl||'—'}</td>
+      <td class="mono" style="text-align:right;color:var(--green)">${r.paid?fmtN(r.paid):'—'}</td>
+      <td class="mono" style="text-align:right;font-weight:600;color:var(--blue)">${fmt(r.settled)}</td>
+      <td class="mono" style="text-align:right;color:${r.leftAfter<=0?'var(--green)':'var(--orange)'}">${fmt(r.leftAfter)}</td>
+    </tr>`).join('');
+}
+
+function repFilterSettlements(){
+  const q=($('rep_setSearch').value||'').toLowerCase();
+  if(!q){repRenderSettlements(_setRows);return;}
+  repRenderSettlements(_setRows.filter(r=>(r.displayName||r.name).toLowerCase().includes(q)));
 }
 
 // ── CUSTOMER HISTORY TAB ─────────────────────────────────────────────────────
