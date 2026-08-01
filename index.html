@@ -413,6 +413,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             <div class="bal-row"><span class="bal-label">Balance before settlement</span><span class="bal-val" style="color:var(--orange)" id="fin_bb2">--</span></div>
             <div class="bal-row"><span class="bal-label">Crates being settled</span><span class="bal-val" style="color:var(--blue)" id="fin_settled">--</span></div>
             <div class="bal-row"><span class="bal-label" style="font-weight:500">Remaining balance</span><span class="bal-val" id="fin_rem" style="font-size:15px">--</span></div>
+            <div class="bal-row hidden" id="fin_creditRow"><span class="bal-val" id="fin_credit" style="color:var(--teal);font-size:13px;font-weight:600"></span></div>
           </div>
           <div id="fin_wobShortfall" class="warn-box hidden"></div>
           <div class="divider"></div>
@@ -1369,8 +1370,8 @@ async function adjustment(itemId,qty,reason,date){
   const reasonWithDate=reason.replace(/\d{4}-\d{2}-\d{2}$/,adjDate).slice(0,50);
   return api(INV,'/inventoryadjustments','POST',{date:adjDate,reason:reasonWithDate,adjustment_type:'quantity',adjustment_account_id:CFG.adjAccount,line_items:[{item_id:itemId,location_id:CFG.warehouseLoc,quantity_adjusted:qty}]});
 }
-async function payment(custId,amount,accId,mode,ref){
-  return api(BOOKS,'/customerpayments','POST',{customer_id:custId,date:td(),amount,payment_mode:mode,account_id:accId,reference_number:ref.slice(0,50)});
+async function payment(custId,amount,accId,mode,ref,date){
+  return api(BOOKS,'/customerpayments','POST',{customer_id:custId,date:date||td(),amount,payment_mode:mode,account_id:accId,reference_number:ref.slice(0,50)});
 }
 async function cmlRecord(data){
   const b={
@@ -1466,22 +1467,8 @@ function wobModeChange(){
 }
 
 function enforceMaxSettlement(){
-  // Prevent total crates settled from exceeding customer's current balance
-  if(!finCust||finCust.bal<=0) return;
-  const cr=Number($('fin_cr').value)||0;
-  const wob=Number($('fin_wob').value)||0;
-  const btl=Number($('fin_btl').value)||0;
-  const halfMode=$('fin_wobHalf').checked;
-  const wobCrates=halfMode?wob/2:wob;
-  const btlCrates=(btl*PRICE.btl)/PRICE.crate;
-  // Check just the physical returns (before counting cash/transfer extra crates)
-  const physicalCrates=cr+wobCrates+btlCrates;
-  if(physicalCrates>finCust.bal){
-    // Cap the WOB at whatever keeps total at or below balance
-    const maxWobCrates=Math.max(0,finCust.bal-cr-btlCrates);
-    const maxWobShells=halfMode?Math.floor(maxWobCrates)*2:Math.floor(maxWobCrates);
-    $('fin_wob').value=maxWobShells;
-  }
+  // Over-settlement is allowed: a customer may return more crates than they owe,
+  // which creates a credit (Malexchlo owes the customer). No capping here.
 }
 
 function finCalc(){
@@ -1527,9 +1514,11 @@ function finCalc(){
   const crCrates=cr,btlCrates=(btl*PRICE.btl)/PRICE.crate,cashCrates=moneyForCrates/PRICE.crate;
   const totExact=crCrates+wobCratesActual+btlCrates+cashCrates;
   const totCrates=roundBal(totExact);
-  // Cap remaining balance at 0 — cannot go negative (cannot return more than owed)
-  const rem=Math.max(0,roundBal(bal-totExact));
-  const overSettlement=totExact>bal;
+  // Remaining balance may go negative — over-settlement creates a credit
+  // (Malexchlo owes the customer). remRaw keeps the sign; rem is the displayed owed amount.
+  const remRaw=roundBal(bal-totExact);
+  const rem=Math.max(0,remRaw);
+  const creditCrates=remRaw<0?-remRaw:0;
 
   const rows=[];
   if(cr)rows.push(`<tr><td>Empty Crates (full)</td><td>${cr}</td><td class="mono" style="text-align:right">—</td><td class="mono" style="text-align:right">${cr}</td></tr>`);
@@ -1560,15 +1549,12 @@ function finCalc(){
   $('fin_totPay').textContent=fmtN(totalMoney);$('fin_totCrates').textContent=totCrates;
   $('fin_settled').textContent=totCrates+' crates';
   $('fin_rem').textContent=rem+' crates';
-  $('fin_rem').style.color=rem<=0?'var(--green)':'var(--orange)';
-
-  // Over-settlement warning — show if crates settled exceeds balance
-  if(overSettlement&&wob===0&&cr===0&&btl===0){
-    // only cash/transfer excess — fine, skip
-  } else if(overSettlement){
-    $('fin_wobShortfall').textContent=`⚠ Over-settlement: ${totCrates} crates settled but customer only owes ${fmt(bal)}. Please reduce the quantities entered.`;
-    show('fin_wobShortfall');
-  }
+  $('fin_rem').style.color=remRaw<=0?'var(--green)':'var(--orange)';
+  // Over-settlement is allowed: show a descriptive credit row instead of blocking
+  if(creditCrates>0){
+    $('fin_credit').innerHTML=`Malexchlo owes the customer <strong>${fmt(creditCrates)}</strong> crate${creditCrates>1?'s':''}`;
+    show('fin_creditRow');
+  } else { hide('fin_creditRow'); }
 
   if(wob>0){
     let warnMsg;
@@ -1584,9 +1570,7 @@ function finCalc(){
     $('fin_wobWarn').textContent=warnMsg;
     show('fin_wobWarn');
   }else{hide('fin_wobWarn');}
-  if(overSettlement&&!(wob===0&&cr===0&&btl===0)){
-    hide('fin_wobShortfall');
-  } else if(wob>0&&wobPayReq>0&&totalMoney<wobPayReq){
+  if(wob>0&&wobPayReq>0&&totalMoney<wobPayReq){
     // Only show shortfall when there's an actual payment requirement (odd shell in 2:1, or normal mode)
     const s=wobPayReq-moneyForWOB;
     const msg=halfMode
@@ -1614,15 +1598,8 @@ async function finSubmit(){
 
   const wobPayReq=wob*PRICE.wob,totalMoney=cash+xfer+creditAmt;
 
-  // Block over-settlement — cannot settle more than customer owes
-  const wobCratesCheck=halfMode?(Math.floor(wob/2)+(wob%2)):wob;
-  const btlCratesCheck=(btl*PRICE.btl)/PRICE.crate;
-  const moneyForCratesCheck=Math.max(0,totalMoney-wobPayReq);
-  const totExactCheck=cr+wobCratesCheck+btlCratesCheck+(moneyForCratesCheck/PRICE.crate);
-  if(totExactCheck>finCust.bal+0.001){
-    alert_('fin_err',`Cannot process: settlement of ${roundBal(totExactCheck)} crates exceeds customer's balance of ${fmt(finCust.bal)} crates. Please reduce the quantities entered.`,'error');
-    show('fin_err');return;
-  }
+  // Over-settlement is allowed — a customer may return more than they owe,
+  // which leaves a credit (Malexchlo owes the customer). No block here.
 
   if(wob>0&&totalMoney<wobPayReq){alert_('fin_err',`Cannot process: ${fmtN(wobPayReq-totalMoney)} WOB bottle payment still outstanding. Collect full amount first.`,'error');show('fin_err');return;}
 
@@ -1640,8 +1617,8 @@ async function finSubmit(){
     if(cr)await adjustment(CFG.items.emptyCrate,cr,`CR:${finCust.name} ${finDate}`.slice(0,50),finDate);
     if(wob)await adjustment(CFG.items.emptyWOB,wob,`WOB:${finCust.name} ${finDate}`.slice(0,50),finDate);
     if(btl)await adjustment(CFG.items.emptyBTL,btl,`BTL:${finCust.name} ${finDate}`.slice(0,50),finDate);
-    if(cash)await payment(finCust.id,cash,CFG.cashAccount,'cash',ref);
-    if(xfer)await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref);
+    if(cash)await payment(finCust.id,cash,CFG.cashAccount,'cash',ref,finDate);
+    if(xfer)await payment(finCust.id,xfer,bankAcctId,'bank_transfer',ref,finDate);
     await updateBal(finCust.id,rem,finDate);
     await cmlRecord({type:'Customer Return',id:finCust.id,date:$('fin_date').value,count:cr,bb:finCust.bal,rem,notes:$('fin_notes').value,by:staff,wob,btl,cash,xfer});
     hideOverlay();
@@ -2232,13 +2209,20 @@ async function repLoadSettlements(){
       balByName[(c.contact_name||'').toUpperCase()]=bal;
     });
 
-    // Paid per customer+date (settlement payments only)
-    const paidByKey={};
+    // Settlement payments grouped per customer. The payment's booked date can
+    // differ from the adjustment/settlement date, so we don't key on date here —
+    // each payment is assigned to its nearest settlement instance below.
+    const payByCust={};
     payments.forEach(p=>{
       if(!(p.reference_number||'').startsWith('STL-')) return;
-      const key=(p.customer_name||'').toUpperCase()+'|'+(p.date||'');
-      paidByKey[key]=(paidByKey[key]||0)+(Number(p.amount)||0);
+      const nameU=(p.customer_name||'').toUpperCase();
+      (payByCust[nameU]=payByCust[nameU]||[]).push({date:p.date||'',amount:Number(p.amount)||0});
     });
+    const dayDiff=(a,b)=>{
+      const ta=Date.parse(a),tb=Date.parse(b);
+      if(isNaN(ta)||isNaN(tb)) return Infinity;
+      return Math.abs(ta-tb)/86400000;
+    };
 
     // Group adjustments into per-customer, per-date instances
     const byCust={}; // nameUpper → { date → {cr,wob,btl} }
@@ -2263,11 +2247,22 @@ async function repLoadSettlements(){
       const dates=Object.keys(byCust[nameU]).sort(); // ascending
       const insts=dates.map(date=>{
         const g=byCust[nameU][date];
-        const paid=paidByKey[nameU+'|'+date]||0;
-        // Crates settled this instance (normal mode: 1 crate per shell, bottles at half,
-        // cash beyond the WOB payment converts to crates at the crate price)
-        const settledExact=g.cr+g.wob+(g.btl*PRICE.btl/PRICE.crate)+Math.max(0,paid-g.wob*PRICE.wob)/PRICE.crate;
-        return {date,cr:g.cr,wob:g.wob,btl:g.btl,paid,settled:Math.round(settledExact)};
+        return {date,cr:g.cr,wob:g.wob,btl:g.btl,paid:0};
+      });
+      // Assign each of this customer's payments to the nearest settlement instance
+      // (prefer instances that involve WOB shells, since payments settle shells)
+      (payByCust[nameU]||[]).forEach(pay=>{
+        if(!insts.length) return;
+        const pool=insts.some(it=>it.wob>0)?insts.filter(it=>it.wob>0):insts;
+        let best=pool[0],bestDiff=Infinity;
+        pool.forEach(it=>{ const d=dayDiff(pay.date,it.date); if(d<bestDiff){bestDiff=d;best=it;} });
+        best.paid+=pay.amount;
+      });
+      // Crates settled per instance (normal mode: 1 crate per shell, bottles at half,
+      // cash beyond the WOB payment converts to crates at the crate price)
+      insts.forEach(it=>{
+        const settledExact=it.cr+it.wob+(it.btl*PRICE.btl/PRICE.crate)+Math.max(0,it.paid-it.wob*PRICE.wob)/PRICE.crate;
+        it.settled=Math.round(settledExact);
       });
       // Walk backward: balance after last instance = current balance
       let after=balByName[nameU]??0;
@@ -2318,17 +2313,21 @@ function repRenderSettlements(rows){
     $('rep_setBody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:16px">No settlements found in this date range.</td></tr>';
     return;
   }
+  // Show a negative balance as a credit (Malexchlo owes the customer)
+  const balCell=v=>v<0
+    ? `<span style="color:var(--teal)">${fmt(-v)} credit</span>`
+    : `<span style="color:${v===0?'var(--green)':'var(--orange)'}">${fmt(v)}</span>`;
   $('rep_setBody').innerHTML=rows.map(r=>`
     <tr>
       <td style="font-weight:500">${r.date||'—'}</td>
       <td>${r.displayName||r.name}</td>
-      <td class="mono" style="text-align:right;color:var(--orange)">${fmt(r.owedBefore)}</td>
+      <td class="mono" style="text-align:right">${balCell(r.owedBefore)}</td>
       <td class="mono" style="text-align:right">${r.cr||'—'}</td>
       <td class="mono" style="text-align:right">${r.wob||'—'}</td>
       <td class="mono" style="text-align:right">${r.btl||'—'}</td>
       <td class="mono" style="text-align:right;color:var(--green)">${r.paid?fmtN(r.paid):'—'}</td>
       <td class="mono" style="text-align:right;font-weight:600;color:var(--blue)">${fmt(r.settled)}</td>
-      <td class="mono" style="text-align:right;color:${r.leftAfter<=0?'var(--green)':'var(--orange)'}">${fmt(r.leftAfter)}</td>
+      <td class="mono" style="text-align:right">${balCell(r.leftAfter)}</td>
     </tr>`).join('');
 }
 
